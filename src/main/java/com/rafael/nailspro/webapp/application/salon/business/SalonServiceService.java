@@ -48,7 +48,7 @@ public class SalonServiceService {
 
         Set<Professional> professionalsThatOfferSuchService = getProfessionals(salonServiceDTO);
 
-        SalonService builtService = salonServiceMapper.buildSalonService(salonServiceDTO, professionalsThatOfferSuchService);
+        SalonService builtService = SalonService.create(salonServiceDTO, professionalsThatOfferSuchService);
         salonServiceRepository.save(builtService);
     }
 

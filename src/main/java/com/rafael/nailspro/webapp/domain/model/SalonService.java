@@ -1,5 +1,6 @@
 package com.rafael.nailspro.webapp.domain.model;
 
+import com.rafael.nailspro.webapp.infrastructure.dto.salon.service.SalonServiceDTO;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -56,13 +57,14 @@ public class SalonService extends BaseEntity {
     @Column(name = "is_deleted", nullable = false)
     private Boolean isDeleted = false;
 
-    // todo: include these 3 new attributes in the creation of a service
-
     @Column(name = "maintenance_interval_days")
     private Integer maintenanceIntervalDays;
 
     @Column(name = "requires_loyalty")
-    private Boolean requiresLoyalty = false;
+    private boolean  requiresLoyalty = false;
+
+    @Column(name = "is_add_on")
+    private boolean isAddOn;
 
     @ManyToMany
     @JoinTable(name = "service_professionals",
@@ -70,12 +72,25 @@ public class SalonService extends BaseEntity {
             inverseJoinColumns = @JoinColumn(name = "professionals_id"))
     private Set<Professional> professionals = new LinkedHashSet<>();
 
-    @Column(name = "is_add_on")
-    private boolean isAddOn;
-
     @Override
     public void prePersist() {
         this.active = true;
         this.isDeleted = false;
+    }
+
+    public static SalonService create(SalonServiceDTO dto,
+                                      Set<Professional> professionals) {
+
+        return SalonService.builder()
+                .name(dto.name())
+                .description(dto.description())
+                .value(dto.value())
+                .durationInSeconds(dto.durationInSeconds())
+                .maintenanceIntervalDays(dto.maintenanceIntervalDays())
+                .requiresLoyalty(dto.requiresLoyalty() != null ? dto.requiresLoyalty() : false)
+                .isAddOn(dto.isAddOn() != null ? dto.isAddOn() : false)
+                .professionals(professionals)
+                .nailCount(0)
+                .build();
     }
 }
