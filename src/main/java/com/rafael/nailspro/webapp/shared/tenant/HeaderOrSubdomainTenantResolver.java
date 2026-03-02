@@ -13,8 +13,6 @@ public class HeaderOrSubdomainTenantResolver implements TenantResolver {
 
     private final TokenService tokenService;
 
-    //todo: consider making the subdomain == tenantId (onboarding API)
-
     @Override
     public String resolve(HttpServletRequest request) {
         DecodedJWT token = tokenService.recoverAndValidate(request);

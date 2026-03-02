@@ -70,7 +70,6 @@ public class SalonProfile extends BaseEntity {
     @JoinColumn(name = "owner_id", nullable = false)
     private Professional owner;
 
-    //todo: add
     @Column(name = "salon_zone_id", nullable = false)
     private ZoneId zoneId;
 
@@ -142,6 +141,10 @@ public class SalonProfile extends BaseEntity {
 
         if (this.tenantStatus == null) {
             this.tenantStatus = TenantStatus.ACTIVE;
+        }
+
+        if (this.zoneId == null) {
+            this.zoneId = ZoneId.of("America/Sao_Paulo");
         }
     }
 }
