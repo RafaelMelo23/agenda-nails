@@ -25,7 +25,6 @@ public class AppointmentConfirmationMessageScheduler {
     private final AppointmentNotificationRepository notificationRepository;
     private final EntityManager entityManager;
 
-    //todo: review the confirmation process, and remove possible manual feat of confirmation
     @Scheduled(cron = "0 */5 * * * *")
     public void retryFailedConfirmationMessages() {
         final int MAX_RETRIES = 3;
