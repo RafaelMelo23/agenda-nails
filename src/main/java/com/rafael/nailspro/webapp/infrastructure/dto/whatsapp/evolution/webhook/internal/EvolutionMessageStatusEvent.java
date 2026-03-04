@@ -2,7 +2,7 @@ package com.rafael.nailspro.webapp.infrastructure.dto.whatsapp.evolution.webhook
 
 import com.rafael.nailspro.webapp.domain.enums.evolution.EvolutionWebhookEvent;
 
-public record EvolutionMessageStatus(
+public record EvolutionMessageStatusEvent(
         EvolutionWebhookEvent event,
         String instance,
         String messageId,

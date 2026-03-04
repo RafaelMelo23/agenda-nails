@@ -44,25 +44,22 @@ public class EvolutionWhatsappService implements WhatsappProvider {
     private String webhookUrl;
 
     @Override
-    public String createInstance(String tenantId) {
+    public void createInstance(String tenantId) {
         String url = buildInstanceUrl("/create");
-
         log.info("Evolution API - CREATE instance request. tenantId={}", tenantId);
 
         HttpEntity<CreateInstanceRequestDTO> request =
                 new HttpEntity<>(buildCreateInstancePayload(tenantId), getHeaders());
-
         try {
-            ResponseEntity<String> response =
-                    restTemplate.postForEntity(url, request, String.class);
+            ResponseEntity<Void> response =
+                    restTemplate.exchange(url, HttpMethod.POST, request, Void.class);
 
+            if (!response.getStatusCode().is2xxSuccessful()) {
+                throw new IllegalStateException("Unexpected response status: " + response.getStatusCode());
+            }
             log.debug("Evolution API - CREATE success. tenantId={}", tenantId);
-            return response.getBody();
-
         } catch (HttpClientErrorException.Conflict e) {
             log.warn("Evolution API - Instance already exists. tenantId={}", tenantId);
-            return null;
-
         } catch (Exception ex) {
             log.error("Evolution API - CREATE failed. tenantId={}", tenantId, ex);
             throw ex;
@@ -70,20 +67,19 @@ public class EvolutionWhatsappService implements WhatsappProvider {
     }
 
     @Override
-    public String instanceConnect(String instanceName, Optional<String> phoneNumber) {
+    public void instanceConnect(String instanceName, Optional<String> phoneNumber) {
         String url = buildConnectUrl(instanceName, phoneNumber);
-
         log.info("Evolution API - CONNECT request. instanceName={}", instanceName);
 
         HttpEntity<Void> request = new HttpEntity<>(getHeaders());
-
         try {
-            ResponseEntity<String> response =
-                    restTemplate.exchange(url, HttpMethod.GET, request, String.class);
+            ResponseEntity<Void> response =
+                    restTemplate.exchange(url, HttpMethod.GET, request, Void.class);
 
+            if (!response.getStatusCode().is2xxSuccessful()) {
+                throw new IllegalStateException("Unexpected response status: " + response.getStatusCode());
+            }
             log.debug("Evolution API - CONNECT success. instanceName={}", instanceName);
-            return response.getBody();
-
         } catch (Exception ex) {
             log.error("Evolution API - CONNECT failed. instanceName={}", instanceName, ex);
             throw ex;
@@ -93,17 +89,15 @@ public class EvolutionWhatsappService implements WhatsappProvider {
     @Override
     public void deleteInstance(String instanceName) {
         String url = buildInstanceUrl("/delete/" + instanceName);
-
         log.info("Evolution API - DELETE request. instanceName={}", instanceName);
 
         HttpEntity<Void> request = new HttpEntity<>(getHeaders());
 
         try {
-            restTemplate.exchange(url, HttpMethod.DELETE, request, String.class);
+            restTemplate.exchange(url, HttpMethod.DELETE, request, Void.class);
             log.debug("Evolution API - DELETE success. instanceName={}", instanceName);
 
             Thread.sleep(1000);
-
         } catch (InterruptedException ex) {
             Thread.currentThread().interrupt();
             log.error("Evolution API - DELETE interrupted. instanceName={}", instanceName, ex);
@@ -118,13 +112,11 @@ public class EvolutionWhatsappService implements WhatsappProvider {
     @Override
     public void logout(String instanceName) {
         String url = buildInstanceUrl("/logout/" + instanceName);
-
         log.info("Evolution API - LOGOUT request. instanceName={}", instanceName);
 
         HttpEntity<Void> request = new HttpEntity<>(getHeaders());
-
         try {
-            restTemplate.exchange(url, HttpMethod.DELETE, request, String.class);
+            restTemplate.exchange(url, HttpMethod.DELETE, request, Void.class);
             log.debug("Evolution API - LOGOUT success. instanceName={}", instanceName);
 
         } catch (Exception ex) {
@@ -138,21 +130,14 @@ public class EvolutionWhatsappService implements WhatsappProvider {
         String url = buildMessageUrl("/sendText/" + instanceName);
 
         String formattedNumber = PhoneNumberHelper.formatPhoneNumber(targetNumber);
-
         log.info(
-                "Evolution API - SEND TEXT request. instanceName={} targetEnding={}",
-                instanceName,
-                maskNumber(formattedNumber)
-        );
+                "Evolution API - SEND TEXT request. instanceName={} targetEnding={}", instanceName, maskNumber(formattedNumber));
 
         SendTextRequestDTO bodyDTO = SendTextRequestDTO.of(formattedNumber, message);
-        HttpEntity<SendTextRequestDTO> request =
-                new HttpEntity<>(bodyDTO, getHeaders());
-
+        HttpEntity<SendTextRequestDTO> request = new HttpEntity<>(bodyDTO, getHeaders());
         try {
             restTemplate.postForObject(url, request, Void.class);
             log.debug("Evolution API - SEND TEXT success. instanceName={}", instanceName);
-
         } catch (Exception ex) {
             log.error("Evolution API - SEND TEXT failed. instanceName={}", instanceName, ex);
             throw ex;
