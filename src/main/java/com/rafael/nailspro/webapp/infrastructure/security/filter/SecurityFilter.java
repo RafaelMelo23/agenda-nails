@@ -9,6 +9,7 @@ import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -20,6 +21,7 @@ import java.io.IOException;
 
 import static com.rafael.nailspro.webapp.domain.enums.security.TokenPurpose.AUTHENTICATION;
 
+@Slf4j
 @RequiredArgsConstructor
 public class SecurityFilter extends OncePerRequestFilter {
 
@@ -54,6 +56,8 @@ public class SecurityFilter extends OncePerRequestFilter {
                         .userRole(userRole)
                         .tenantId(tenantId)
                         .build();
+
+                log.info("Authorities: {}", userPrincipal.getAuthorities());
 
                 var authentication = new UsernamePasswordAuthenticationToken(
                         userPrincipal,

@@ -34,7 +34,7 @@ public class RefreshToken extends BaseEntity {
     @Column(nullable = false)
     private String token;
 
-    @OneToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id", referencedColumnName = "id")
     private User user;
 

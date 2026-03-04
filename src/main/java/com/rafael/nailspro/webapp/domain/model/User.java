@@ -55,6 +55,11 @@ public abstract class User extends BaseEntity implements UserDetails {
         authorities.add(new SimpleGrantedAuthority("ROLE_USER"));
         authorities.add(new SimpleGrantedAuthority("ROLE_" + this.userRole.name()));
 
+        if (this.userRole == UserRole.SUPER_ADMIN) {
+            authorities.add(new SimpleGrantedAuthority("ROLE_ADMIN"));
+            authorities.add(new SimpleGrantedAuthority("ROLE_PROFESSIONAL"));
+        }
+
         if (this.userRole == UserRole.ADMIN) {
             authorities.add(new SimpleGrantedAuthority("ROLE_PROFESSIONAL"));
         }

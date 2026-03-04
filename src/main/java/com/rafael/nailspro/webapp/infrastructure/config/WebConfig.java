@@ -12,8 +12,9 @@ public class WebConfig implements WebMvcConfigurer {
 
     private final SalonMaintenanceInterceptor salonMaintenanceInterceptor;
 
-    @Override
-    public void addInterceptors(InterceptorRegistry registry) {
-        registry.addInterceptor(salonMaintenanceInterceptor);
-    }
+    //todo: currently disabled for dev
+//    @Override
+//    public void addInterceptors(InterceptorRegistry registry) {
+//        registry.addInterceptor(salonMaintenanceInterceptor);
+//    }
 }
