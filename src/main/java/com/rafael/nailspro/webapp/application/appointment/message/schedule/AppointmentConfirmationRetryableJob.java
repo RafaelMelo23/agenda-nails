@@ -10,21 +10,19 @@ import org.hibernate.Session;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 
-import java.time.Instant;
-import java.time.temporal.ChronoUnit;
 import java.util.List;
 
 import static com.rafael.nailspro.webapp.domain.enums.appointment.AppointmentNotificationStatus.FAILED;
-import static com.rafael.nailspro.webapp.domain.enums.appointment.AppointmentNotificationStatus.SENT;
 import static com.rafael.nailspro.webapp.domain.enums.appointment.AppointmentNotificationType.CONFIRMATION;
 
 @Service
 @RequiredArgsConstructor
-public class AppointmentConfirmationMessageScheduler {
+public class AppointmentConfirmationRetryableJob {
 
     private final AppointmentMessagingUseCase messagingUseCase;
     private final AppointmentNotificationRepository notificationRepository;
     private final EntityManagerFactory entityManagerFactory;
+    // todo: consider changing to a circuit-breaker like approach for all scheduled sending message classes
 
     @Scheduled(cron = "0 */5 * * * *")
     public void retryFailedConfirmationMessages() {
@@ -40,11 +38,5 @@ public class AppointmentConfirmationMessageScheduler {
             notifications.forEach(no ->
                     messagingUseCase.processNotification(no.getAppointment().getId(), CONFIRMATION));
         }
-    }
-
-    @Scheduled(cron = "0 0 0 * * *")
-    public void deleteSentNotifications() {
-        Instant twentyForHoursAgo = Instant.now().minus(24, ChronoUnit.HOURS);
-        notificationRepository.deleteByStatusAndSentAtSmallerThanInBatch(SENT, twentyForHoursAgo);
     }
 }

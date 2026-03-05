@@ -13,11 +13,11 @@ public class AppointmentEventListener {
 
     private final AppointmentMessagingUseCase messagingUseCase;
 
-    @Async
+    @Async("messagingExecutor")
     @TransactionalEventListener(phase = TransactionPhase.AFTER_COMMIT)
     public void handleConfirmedAppointment(AppointmentConfirmedEvent appointmentConfirmedEvent) {
 
-        messagingUseCase.sendAppointmentConfirmationMessageAsync(
+        messagingUseCase.sendAppointmentConfirmationMessage(
                 appointmentConfirmedEvent.appointmentId()
         );
     }

@@ -42,10 +42,10 @@ public class ManageWhatsappConnectionUseCase {
         switch (connectionMethod) {
             case PAIRING_CODE -> {
                 log.info("Connecting WhatsApp instance using PAIRING_CODE for tenantId={}", tenantId);
-                whatsappProvider.instanceConnect(tenantId, Optional.of(phoneNumber));
+                whatsappProvider.instanceConnect(tenantId, phoneNumber);
             } case QR_CODE -> {
                 log.info("Connecting WhatsApp instance using QR_CODE for tenantId={}", tenantId);
-                whatsappProvider.instanceConnect(tenantId, Optional.empty());
+                whatsappProvider.instanceConnect(tenantId, null);
             }
         }
     }

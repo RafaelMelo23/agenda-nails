@@ -2,16 +2,17 @@ package com.rafael.nailspro.webapp.application.appointment.message;
 
 import com.rafael.nailspro.webapp.application.messages.AppointmentMessageBuilder;
 import com.rafael.nailspro.webapp.application.whatsapp.WhatsappProvider;
+import com.rafael.nailspro.webapp.application.whatsapp.response.SentMessageResult;
+import com.rafael.nailspro.webapp.domain.enums.appointment.AppointmentNotificationStatus;
 import com.rafael.nailspro.webapp.domain.enums.appointment.AppointmentNotificationType;
 import com.rafael.nailspro.webapp.domain.model.Appointment;
+import com.rafael.nailspro.webapp.domain.repository.AppointmentRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
-import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import static com.rafael.nailspro.webapp.domain.enums.appointment.AppointmentNotificationStatus.FAILED;
-import static com.rafael.nailspro.webapp.domain.enums.appointment.AppointmentNotificationStatus.SENT;
 import static com.rafael.nailspro.webapp.domain.enums.appointment.AppointmentNotificationType.CONFIRMATION;
 import static com.rafael.nailspro.webapp.domain.enums.appointment.AppointmentNotificationType.REMINDER;
 
@@ -23,38 +24,39 @@ public class AppointmentMessagingUseCase {
     private final WhatsappProvider whatsappProvider;
     private final AppointmentMessageBuilder messageBuilder;
     private final AppointmentNotificationService appointmentNotificationService;
+    private final AppointmentRepository appointmentRepository;
 
     public void processNotification(Long appointmentId, AppointmentNotificationType type) {
-
         var notification = appointmentNotificationService.prepareNotification(appointmentId, type);
 
         try {
-            var message = buildMessage(notification.getAppointment(), type);
+            var appointment = appointmentRepository.findFullById(appointmentId)
+                    .orElseThrow(() -> new IllegalArgumentException("Appointment not found"));
+            var message = buildMessage(appointment, type);
 
-            dispatchMessage(
-                    notification.getAppointment(),
+            SentMessageResult sentMessageResult = dispatchMessage(
+                    notification.getAppointment().getTenantId(),
                     message,
                     notification.getDestinationNumber()
             );
 
             appointmentNotificationService.updateNotificationStatus(
-                    notification.getId(),
-                    SENT,
-                    null
+                    AppointmentNotificationStatus.fromEvolutionStatus(sentMessageResult.status()),
+                    null,
+                    sentMessageResult.messageId(),
+                    notification.getId()
             );
-
         } catch (Exception e) {
-
             appointmentNotificationService.updateNotificationStatus(
-                    notification.getId(),
                     FAILED,
-                    e.getMessage()
+                    e.getMessage(),
+                    null,
+                    notification.getId()
             );
         }
     }
 
-    @Async
-    public void sendAppointmentConfirmationMessageAsync(Long appointmentId) {
+    public void sendAppointmentConfirmationMessage(Long appointmentId) {
         processNotification(appointmentId, CONFIRMATION);
     }
 
@@ -70,11 +72,11 @@ public class AppointmentMessagingUseCase {
         };
     }
 
-    private void dispatchMessage(Appointment appointment,
-                                 String message,
-                                 String targetNumber) {
-        whatsappProvider.sendText(
-                appointment.getTenantId(),
+    private SentMessageResult dispatchMessage(String tenantId,
+                                              String message,
+                                              String targetNumber) {
+        return whatsappProvider.sendText(
+                tenantId,
                 message,
                 targetNumber
         );

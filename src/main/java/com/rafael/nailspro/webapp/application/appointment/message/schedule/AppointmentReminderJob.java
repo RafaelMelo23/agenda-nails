@@ -18,7 +18,7 @@ import java.util.List;
 @Log4j2
 @Component
 @RequiredArgsConstructor
-public class AppointmentReminderScheduler {
+public class AppointmentReminderJob {
 
     private final AppointmentRepository appointmentRepository;
     private final AppointmentMessagingUseCase messagingUseCase;

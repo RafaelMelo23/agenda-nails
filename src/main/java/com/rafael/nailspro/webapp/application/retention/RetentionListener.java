@@ -16,7 +16,7 @@ public class RetentionListener {
     private final VisitPredictionService forecastUseCase;
     private final AppointmentRepository appointmentRepository;
 
-    @Async
+    @Async("messagingExecutor")
     @TransactionalEventListener(phase = TransactionPhase.AFTER_COMMIT)
     public void onFinished(AppointmentFinishedEvent event) {
         Appointment appointment = appointmentRepository.findById(event.appointmentId())

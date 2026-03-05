@@ -1,10 +1,12 @@
 package com.rafael.nailspro.webapp.infrastructure.whatsapp.evolution;
 
 import com.rafael.nailspro.webapp.application.whatsapp.WhatsappProvider;
+import com.rafael.nailspro.webapp.application.whatsapp.response.SentMessageResult;
 import com.rafael.nailspro.webapp.domain.enums.evolution.EvolutionWebhookEvent;
 import com.rafael.nailspro.webapp.infrastructure.dto.whatsapp.evolution.instance.CreateInstanceRequestDTO;
-import com.rafael.nailspro.webapp.infrastructure.dto.whatsapp.evolution.text.SendTextRequestDTO;
 import com.rafael.nailspro.webapp.infrastructure.dto.whatsapp.evolution.instance.WebhookDTO;
+import com.rafael.nailspro.webapp.infrastructure.dto.whatsapp.evolution.text.SendTextRequestDTO;
+import com.rafael.nailspro.webapp.infrastructure.dto.whatsapp.evolution.text.SendTextResponseDTO;
 import com.rafael.nailspro.webapp.infrastructure.helper.PhoneNumberHelper;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -18,7 +20,6 @@ import org.springframework.web.client.RestTemplate;
 import org.springframework.web.util.UriComponentsBuilder;
 
 import java.util.List;
-import java.util.Optional;
 
 import static com.rafael.nailspro.webapp.domain.enums.evolution.EvolutionIntegraton.WHATSAPP_BAILEYS;
 
@@ -67,7 +68,7 @@ public class EvolutionWhatsappService implements WhatsappProvider {
     }
 
     @Override
-    public void instanceConnect(String instanceName, Optional<String> phoneNumber) {
+    public void instanceConnect(String instanceName, String phoneNumber) {
         String url = buildConnectUrl(instanceName, phoneNumber);
         log.info("Evolution API - CONNECT request. instanceName={}", instanceName);
 
@@ -126,22 +127,42 @@ public class EvolutionWhatsappService implements WhatsappProvider {
     }
 
     @Override
-    public void sendText(String instanceName, String message, String targetNumber) {
+    public SentMessageResult sendText(String instanceName, String message, String targetNumber) {
         String url = buildMessageUrl("/sendText/" + instanceName);
-
+        applyRandomDelay();
         String formattedNumber = PhoneNumberHelper.formatPhoneNumber(targetNumber);
-        log.info(
-                "Evolution API - SEND TEXT request. instanceName={} targetEnding={}", instanceName, maskNumber(formattedNumber));
+        log.info("Evolution API - SEND TEXT request. instanceName={} targetEnding={}", instanceName, maskNumber(formattedNumber));
 
         SendTextRequestDTO bodyDTO = SendTextRequestDTO.of(formattedNumber, message);
         HttpEntity<SendTextRequestDTO> request = new HttpEntity<>(bodyDTO, getHeaders());
         try {
-            restTemplate.postForObject(url, request, Void.class);
-            log.debug("Evolution API - SEND TEXT success. instanceName={}", instanceName);
+            log.debug("Evolution API - SENDING TEXT. instanceName={}", instanceName);
+            SendTextResponseDTO dto = restTemplate.postForObject(url, request, SendTextResponseDTO.class);
+
+            if (dto != null) return buildFromResponse(dto);
         } catch (Exception ex) {
             log.error("Evolution API - SEND TEXT failed. instanceName={}", instanceName, ex);
             throw ex;
         }
+        throw new IllegalStateException("Failed to send message");
+    }
+
+    private void applyRandomDelay() {
+        final int minMillis = 850, maxMillis = 4000;
+        try {
+            Thread.sleep((long) (Math.random() * (maxMillis - minMillis + 1)) + minMillis);
+        } catch (InterruptedException ex) {
+            Thread.currentThread().interrupt();
+            log.error("Random delay interrupted", ex);
+        }
+    }
+
+    private SentMessageResult buildFromResponse(SendTextResponseDTO dto) {
+
+        return SentMessageResult.builder()
+                .messageId(dto.messageId())
+                .status(dto.status())
+                .build();
     }
 
     private CreateInstanceRequestDTO buildCreateInstancePayload(String tenantId) {
@@ -181,14 +202,14 @@ public class EvolutionWhatsappService implements WhatsappProvider {
                 .toUriString();
     }
 
-    private String buildConnectUrl(String instanceName, Optional<String> phoneNumber) {
+    private String buildConnectUrl(String instanceName, String phoneNumber) {
         UriComponentsBuilder builder = UriComponentsBuilder
                 .fromUriString(evolutionApiBaseUrl)
                 .pathSegment("instance", "connect", instanceName);
 
-        phoneNumber.ifPresent(number ->
-                builder.queryParam("phoneNumber", number)
-        );
+        if (phoneNumber != null) {
+            builder.queryParam("phoneNumber", phoneNumber);
+        }
 
         return builder.toUriString();
     }

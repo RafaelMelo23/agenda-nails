@@ -20,7 +20,7 @@ public class ClientMetricsListener {
     private final ClientAuditMetricsRepository repository;
     private final ClientRepository clientRepository;
 
-    @Async
+    @Async("metricsExecutor")
     @TransactionalEventListener(phase = TransactionPhase.AFTER_COMMIT)
     public void onFinished(AppointmentFinishedEvent event) {
         ClientAuditMetrics metrics = getAuditMetricsOrCreate(event.clientId(), event.tenantId());
@@ -32,7 +32,7 @@ public class ClientMetricsListener {
         repository.save(metrics);
     }
 
-    @Async
+    @Async("metricsExecutor")
     @TransactionalEventListener(phase = TransactionPhase.AFTER_COMMIT)
     public void onCancelled(AppointmentCancelledEvent event) {
         ClientAuditMetrics metrics = getAuditMetricsOrCreate(event.clientId(), event.tenantId());
@@ -42,7 +42,7 @@ public class ClientMetricsListener {
         repository.save(metrics);
     }
 
-    @Async
+    @Async("metricsExecutor")
     @TransactionalEventListener(phase = TransactionPhase.AFTER_COMMIT)
     public void onMissed(AppointmentMissedEvent event) {
         ClientAuditMetrics metrics = getAuditMetricsOrCreate(event.clientId(), event.tenantId());

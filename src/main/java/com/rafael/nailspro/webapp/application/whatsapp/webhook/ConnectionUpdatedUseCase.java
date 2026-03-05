@@ -4,6 +4,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.rafael.nailspro.webapp.application.salon.business.SalonProfileService;
 import com.rafael.nailspro.webapp.application.sse.EvolutionConnectionNotificationService;
 import com.rafael.nailspro.webapp.application.whatsapp.WhatsappProvider;
+import com.rafael.nailspro.webapp.domain.enums.evolution.EvolutionConnectionState;
 import com.rafael.nailspro.webapp.domain.enums.evolution.EvolutionWebhookEvent;
 import com.rafael.nailspro.webapp.domain.model.SalonProfile;
 import com.rafael.nailspro.webapp.infrastructure.dto.whatsapp.evolution.webhook.connection.ConnectionDataDTO;
@@ -39,10 +40,10 @@ public class ConnectionUpdatedUseCase implements WebhookStrategy {
                 data = objectMapper.convertValue(data, ConnectionDataDTO.class);
             }
 
-            if (data instanceof ConnectionDataDTO connectionDataDTO) {
-
+            if (data instanceof ConnectionDataDTO(
+                    EvolutionConnectionState state
+            )) {
                 log.info("Successfully converted LinkedHashMap to ConnectionData for instance: {}", response.instance());
-
                 SalonProfile salon = salonProfileService.findWithOwnerByTenantId(tenantId);
 
                 if (isUnderCooldown(salon)) {
@@ -50,7 +51,7 @@ public class ConnectionUpdatedUseCase implements WebhookStrategy {
                     return;
                 }
 
-                switch (connectionDataDTO.state()) {
+                switch (state) {
                     case OPEN -> {
                         if (shouldIgnoreClose(salon)) {
                             log.info("Ignoring inconsistent CLOSE event for tenant: {}", tenantId);

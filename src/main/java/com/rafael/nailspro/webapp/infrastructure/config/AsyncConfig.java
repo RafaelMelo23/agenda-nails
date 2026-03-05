@@ -34,4 +34,15 @@ public class AsyncConfig implements AsyncConfigurer {
         executor.initialize();
         return executor;
     }
+
+    @Bean(name = "metricsExecutor")
+    public Executor metricsExecutor() {
+        ThreadPoolTaskExecutor executor = new ThreadPoolTaskExecutor();
+        executor.setCorePoolSize(2);
+        executor.setMaxPoolSize(4);
+        executor.setQueueCapacity(200);
+        executor.setThreadNamePrefix("MetricsExecutor-");
+        executor.initialize();
+        return executor;
+    }
 }

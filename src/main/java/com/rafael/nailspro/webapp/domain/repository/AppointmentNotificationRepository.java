@@ -41,4 +41,8 @@ public interface AppointmentNotificationRepository extends JpaRepository<Appoint
                                                         @Param("type") AppointmentNotificationType type);
 
     Optional<AppointmentNotification> findByAppointmentIdAndNotificationType(Long appointmentId, AppointmentNotificationType type);
+
+    boolean existsAppointmentNotificationByExternalMessageId(String externalMessageId);
+
+    Optional<AppointmentNotification> findByExternalMessageId(String externalMessageId);
 }

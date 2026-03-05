@@ -23,6 +23,17 @@ public interface AppointmentRepository extends JpaRepository<Appointment, Long> 
                                                                Instant startDateBefore);
 
     @Query("""
+            SELECT a FROM Appointment a
+            LEFT JOIN FETCH a.mainSalonService
+            LEFT JOIN FETCH a.addOns ao
+            LEFT JOIN FETCH ao.service
+            LEFT JOIN FETCH a.client
+            LEFT JOIN FETCH a.professional
+            WHERE a.id = :id
+            """)
+    Optional<Appointment> findFullById(Long id);
+
+    @Query("""
             SELECT ap FROM Appointment ap
             WHERE ap.startDate > :now
             AND ap.startDate <= :windowEnd

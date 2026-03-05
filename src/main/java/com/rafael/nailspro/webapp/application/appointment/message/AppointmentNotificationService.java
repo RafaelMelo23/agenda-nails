@@ -42,12 +42,14 @@ public class AppointmentNotificationService {
     }
 
     @Transactional
-    public void updateNotificationStatus(Long id,
-                                         AppointmentNotificationStatus status,
-                                         String error) {
+    public void updateNotificationStatus(AppointmentNotificationStatus status,
+                                         String error,
+                                         String externalMessageId,
+                                         Long id) {
 
         notificationRepository.findById(id).ifPresent(n -> {
             n.setNotificationStatus(status);
+            n.setExternalMessageId(externalMessageId);
             n.setAttempts(n.getAttempts() + 1);
             n.setLastAttemptAt(Instant.now());
             n.setLastErrorMessage(error);

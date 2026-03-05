@@ -1,12 +1,17 @@
 package com.rafael.nailspro.webapp.application.whatsapp;
 
-import java.util.Optional;
+import com.rafael.nailspro.webapp.application.whatsapp.response.SentMessageResult;
 
 public interface WhatsappProvider {
 
     void createInstance(String tenantId);
     void deleteInstance(String instanceId);
-    void instanceConnect(String instanceName, Optional<String> phoneNumber);
-    void sendText(String tenantId, String message, String targetNumber);
+    void instanceConnect(String instanceName, String phoneNumber);
     void logout(String instanceName);
+
+    SentMessageResult sendText(
+            String tenantId,
+            String message,
+            String targetNumber
+    );
 }
