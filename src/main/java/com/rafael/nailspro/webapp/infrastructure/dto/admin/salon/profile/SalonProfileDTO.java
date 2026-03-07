@@ -17,7 +17,7 @@ public record SalonProfileDTO(String tradeName,
                               String warningMessage,
                               Integer appointmentBufferMinutes,
                               ZoneId zoneId,
-                              boolean isLoyalClientelePrioritized,
-                              int loyalClientBookingWindowDays,
-                              int standardBookingWindow) {
+                              Boolean isLoyalClientelePrioritized,
+                              Integer loyalClientBookingWindowDays,
+                              Integer standardBookingWindow) {
 }

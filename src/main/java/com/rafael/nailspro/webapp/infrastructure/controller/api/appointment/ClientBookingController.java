@@ -8,13 +8,19 @@ import com.rafael.nailspro.webapp.infrastructure.dto.appointment.AppointmentCrea
 import com.rafael.nailspro.webapp.infrastructure.dto.appointment.ProfessionalAvailabilityDTO;
 import com.rafael.nailspro.webapp.infrastructure.dto.professional.FindProfessionalAvailabilityDTO;
 import jakarta.validation.Valid;
+import jakarta.validation.constraints.Min;
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotEmpty;
+import jakarta.validation.constraints.NotNull;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
+@Validated
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/api/v1/booking")
@@ -43,9 +49,18 @@ public class ClientBookingController {
     @GetMapping("/{professionalExternalId}/availability")
     public ResponseEntity<ProfessionalAvailabilityDTO> findAvailableProfessionalTimes(
             @AuthenticationPrincipal UserPrincipal userPrincipal,
-            @PathVariable String professionalExternalId,
-            @RequestParam int serviceDurationInSeconds,
-            @RequestParam List<Long> servicesIds
+
+            @PathVariable
+            @NotBlank(message = "O identificador externo do profissional é obrigatório.")
+            String professionalExternalId,
+
+            @RequestParam
+            @Min(value = 1, message = "A duração do serviço deve ser maior que zero segundos.")
+            int serviceDurationInSeconds,
+
+            @RequestParam
+            @NotEmpty(message = "Pelo menos um serviço deve ser informado.")
+            List<@NotNull(message = "O ID do serviço não pode ser nulo.") Long> servicesIds
     ) {
 
         FindProfessionalAvailabilityDTO dto = FindProfessionalAvailabilityDTO.builder()
