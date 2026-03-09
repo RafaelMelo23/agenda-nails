@@ -2,7 +2,6 @@ package com.rafael.nailspro.webapp.domain.repository;
 
 import com.rafael.nailspro.webapp.domain.enums.appointment.AppointmentNotificationStatus;
 import com.rafael.nailspro.webapp.domain.enums.appointment.AppointmentNotificationType;
-import com.rafael.nailspro.webapp.domain.model.Appointment;
 import com.rafael.nailspro.webapp.domain.model.AppointmentNotification;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Modifying;
@@ -15,12 +14,6 @@ import java.util.List;
 import java.util.Optional;
 
 public interface AppointmentNotificationRepository extends JpaRepository<AppointmentNotification, Long> {
-
-
-    @Query("SELECT an FROM AppointmentNotification an WHERE an.appointment.id IN :appointments")
-    List<AppointmentNotification> findByAppointments(@Param("appointments") List<Appointment> appointmentId);
-
-    List<AppointmentNotification> findAllByNotificationStatusAndNotificationType(AppointmentNotificationStatus notificationStatus, AppointmentNotificationType notificationType);
 
     @Modifying
     @Transactional
@@ -41,8 +34,6 @@ public interface AppointmentNotificationRepository extends JpaRepository<Appoint
                                                         @Param("type") AppointmentNotificationType type);
 
     Optional<AppointmentNotification> findByAppointmentIdAndNotificationType(Long appointmentId, AppointmentNotificationType type);
-
-    boolean existsAppointmentNotificationByExternalMessageId(String externalMessageId);
 
     Optional<AppointmentNotification> findByExternalMessageId(String externalMessageId);
 }

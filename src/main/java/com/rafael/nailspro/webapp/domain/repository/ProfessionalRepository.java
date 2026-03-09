@@ -27,15 +27,15 @@ public interface ProfessionalRepository extends JpaRepository<Professional, Long
             SELECT 1 FROM Appointment ap
             WHERE ap.professional = p
             AND ap.appointmentStatus <> com.rafael.nailspro.webapp.domain.enums.appointment.AppointmentStatus.CANCELLED
-            AND ap.endDate > :startDate
-            AND ap.startDate < :endDate
+            AND ap.endDate > :startDateAndTime
+            AND ap.startDate < :endDateAndTime
             )
              OR (
             EXISTS (
             SELECT 1 From ScheduleBlock sb
             WHERE sb.professional = p
-            AND sb.dateStartTime < :endDate
-            AND sb.dateEndTime > :startDate
+            AND sb.dateStartTime < :endDateAndTime
+            AND sb.dateEndTime > :startDateAndTime
                 )
             )
                         )
@@ -48,7 +48,7 @@ public interface ProfessionalRepository extends JpaRepository<Professional, Long
     @Lock(LockModeType.PESSIMISTIC_WRITE)
     @QueryHints({@QueryHint(name = "jakarta.persistence.lock.timeout", value = "2000")})
     @Query("SELECT p FROM Professional p WHERE p.externalId = :id")
-    Professional findByExternalIdWithPessimisticLock(UUID externalId);
+    Professional findByExternalIdWithPessimisticLock(@Param("id") UUID externalId);
 
     @Query("SELECT sp.owner from SalonProfile sp WHERE sp.tenantId = :id")
     Optional<Professional> findSalonOwnerByTenantId(@Param("id") String tenantId);

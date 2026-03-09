@@ -62,6 +62,7 @@ public interface AppointmentRepository extends JpaRepository<Appointment, Long> 
     Optional<Appointment> findAndValidateClientOwnership(@Param("appointmentId") Long appointmentId,
                                                          @Param("clientId") Long clientId);
 
-    @Query("SELECT ap FROM Appointment ap WHERE ap.id = :appointmentId AND ap.professional.id = :clientId")
-    Optional<Appointment> findAndValidateProfessionalOwnership(Long appointmentId, Long professionalId);
+    @Query("SELECT ap FROM Appointment ap WHERE ap.id = :appointmentId AND ap.professional.id = :professionalId")
+    Optional<Appointment> findAndValidateProfessionalOwnership(@Param("appointmentId") Long appointmentId,
+                                                               @Param("professionalId") Long professionalId);
 }

@@ -20,7 +20,7 @@ public interface UserRepository extends JpaRepository<User, Long> {
     void updatePassword(@Param("email") String userEmail,
                         @Param("newPassword") String newPassword);
 
-    Long getUser_IdByEmail(String email);
+    Optional<Long> getUser_IdByEmail(String email);
 
     boolean existsByEmail(String email);
 

@@ -44,16 +44,19 @@ public class AuthenticationController {
     public ResponseEntity<Void> logout(@AuthenticationPrincipal UserPrincipal userPrincipal,
                                        HttpServletRequest request, HttpServletResponse response) {
 
-        Optional<Cookie> refreshToken = Arrays.stream(request.getCookies())
-                .filter(c -> "refresh_token".equalsIgnoreCase(c.getName()))
-                .findFirst();
+        if (Arrays.stream(request.getCookies()).findAny().isPresent()) {
+            Optional<Cookie> refreshToken = Arrays.stream(request.getCookies())
+                    .filter(c -> "refresh_token".equalsIgnoreCase(c.getName()))
+                    .findFirst();
 
-        if (refreshToken.isPresent()) {
-            authenticationService.logout(refreshToken.get().getValue(), userPrincipal.getUserId());
-            cookieService.deleteRefreshTokenCookie(response);
+            if (refreshToken.isPresent()) {
+                authenticationService.logout(refreshToken.get().getValue(), userPrincipal.getUserId());
+                cookieService.deleteRefreshTokenCookie(response);
+            }
+
+            return ResponseEntity.noContent().build();
         }
-
-        return ResponseEntity.noContent().build();
+        return ResponseEntity.badRequest().build();
     }
 
     @PostMapping("/register")

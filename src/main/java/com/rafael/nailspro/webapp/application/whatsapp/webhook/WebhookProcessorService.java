@@ -24,9 +24,6 @@ public class WebhookProcessorService {
     public void handleWebhook(EvolutionWebhookResponseDTO<?> webhookDTO) {
         WebhookStrategy handler = strategyMap.get(webhookDTO.event());
 
-        System.out.println("Received Events: " + webhookDTO.event());
-        System.out.println("Registered Strategies: " + strategyMap.keySet());
-
         handler.process(webhookDTO);
     }
 }

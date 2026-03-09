@@ -67,7 +67,10 @@ public class UserService {
     }
 
     public void forgotPasswordRequest(String userEmail) {
-        String resetToken = tokenService.generateResetPasswordToken(userRepository.getUser_IdByEmail(userEmail));
+        Long userId = userRepository.getUser_IdByEmail(userEmail)
+                .orElseThrow(() -> new BusinessException("Usuário não encontrado"));
+
+        String resetToken = tokenService.generateResetPasswordToken(userId);
         String passwordResetLink = domainUrl + "/redefinir-senha?resetToken=" + resetToken;
 
         String forgotPasswordEmail = emailTemplateBuilder.buildForgotPasswordEmail(userEmail, passwordResetLink);
