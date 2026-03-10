@@ -76,6 +76,7 @@ public class SecurityConfiguration {
                         .requestMatchers("/api/v1/professional/**").hasAnyRole("PROFESSIONAL", "ADMIN")
 
                         .requestMatchers("/api/v1/whatsapp/**").hasAnyRole("SUPER_ADMIN", "ADMIN")
+                        .requestMatchers("/api/internal/**").hasRole("SUPER_ADMIN")
 
                         // Client Endpoints
                         .requestMatchers("/api/v1/user/**").authenticated()

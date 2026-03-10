@@ -1,4 +1,4 @@
-package com.rafael.nailspro.webapp.application.salon.business;
+package com.rafael.nailspro.webapp.application.internal;
 
 import com.rafael.nailspro.webapp.domain.enums.user.UserRole;
 import com.rafael.nailspro.webapp.domain.enums.user.UserStatus;
@@ -24,27 +24,41 @@ public class OnboardingService {
 
     @Transactional
     public OnboardingResultDTO onboardOwner(OnboardingRequestDTO dto) {
+        String tenantId = buildSanitizedDomainSlug(dto);
 
-        String sanitizedDomainSlug = buildSanitizedDomainSlug(dto);
+        Professional owner = createSalonOwner(dto, tenantId);
+        SalonProfile profile = createSalonProfile(owner, tenantId);
 
-        Professional salonOwner = professionalRepository.save(Professional.builder()
+        return assembleOnboardingResult(owner, profile);
+    }
+
+    private Professional createSalonOwner(OnboardingRequestDTO dto, String tenantId) {
+        Professional owner = Professional.builder()
                 .fullName(dto.fullName())
                 .email(dto.email())
                 .password(passwordEncoder.encode("mudar123"))
                 .userRole(UserRole.ADMIN)
                 .status(UserStatus.ACTIVE)
-                .tenantId(sanitizedDomainSlug)
-                .build());
+                .tenantId(tenantId)
+                .build();
 
-        SalonProfile salonProfile = salonProfileRepository.save(SalonProfile.builder()
-                .owner(salonOwner)
-                .tenantId(sanitizedDomainSlug)
-                .domainSlug(sanitizedDomainSlug)
-                .build());
+        return professionalRepository.save(owner);
+    }
 
+    private SalonProfile createSalonProfile(Professional owner, String tenantId) {
+        SalonProfile profile = SalonProfile.builder()
+                .owner(owner)
+                .tenantId(tenantId)
+                .domainSlug(tenantId)
+                .build();
+
+        return salonProfileRepository.save(profile);
+    }
+
+    private OnboardingResultDTO assembleOnboardingResult(Professional owner, SalonProfile profile) {
         return OnboardingResultDTO.builder()
-                .profile(salonProfile)
-                .owner(salonOwner)
+                .profile(profile)
+                .owner(owner)
                 .build();
     }
 
