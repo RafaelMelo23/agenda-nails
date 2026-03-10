@@ -24,6 +24,12 @@ public class SalonProfileService {
                 .orElseThrow(() -> new BusinessException("Salão não encontrado"));
     }
 
+    public String getTradeNameByTenantId(String tenantId) {
+
+        return repository.findSalonTradeName(tenantId)
+                .orElseThrow(() -> new BusinessException("Salão não encontrado"));
+    }
+
     public boolean isAutoConfirmationEnabled(String tenantId) {
 
         return repository.isAutoConfirmationEnabledForTenant(tenantId);

@@ -1,6 +1,7 @@
 package com.rafael.nailspro.webapp.infrastructure.controller.api.auth;
 
-import com.rafael.nailspro.webapp.application.user.UserService;
+import com.rafael.nailspro.webapp.application.user.PasswordResetUseCase;
+import com.rafael.nailspro.webapp.application.user.UserProfileManagementUseCase;
 import com.rafael.nailspro.webapp.domain.model.UserPrincipal;
 import com.rafael.nailspro.webapp.infrastructure.dto.auth.ChangeEmailRequestDTO;
 import com.rafael.nailspro.webapp.infrastructure.dto.auth.ChangePhoneRequestDTO;
@@ -18,7 +19,8 @@ import org.springframework.web.bind.annotation.*;
 @RequestMapping("/api/v1/user")
 public class UserController {
 
-    private final UserService userService;
+    private final UserProfileManagementUseCase userService;
+    private final PasswordResetUseCase passwordResetUseCase;
 
     @PatchMapping("/email")
     public ResponseEntity<Void> updateEmail(@AuthenticationPrincipal UserPrincipal userPrincipal,
@@ -42,14 +44,14 @@ public class UserController {
                                                @Email(message = "O e-mail deve ser válido")
                                                String userEmail) {
 
-        userService.forgotPasswordRequest(userEmail);
+        passwordResetUseCase.forgotPasswordRequest(userEmail);
         return ResponseEntity.noContent().build();
     }
 
-    @PatchMapping("/password/update")
+    @PatchMapping("/password")
     public ResponseEntity<Void> updatePassword(@Valid @RequestBody ResetPasswordDTO dto) {
 
-        userService.resetPassword(dto);
+        passwordResetUseCase.resetPassword(dto);
         return ResponseEntity.noContent().build();
     }
 }
