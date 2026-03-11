@@ -20,12 +20,17 @@ import java.util.List;
 @Getter
 @NoArgsConstructor
 @AllArgsConstructor(access = AccessLevel.PROTECTED)
-@Inheritance(strategy = InheritanceType.JOINED)
+@Inheritance(strategy = InheritanceType.SINGLE_TABLE)
 @Table(name = "users",
         uniqueConstraints = {
                 @UniqueConstraint(
                         name = "uk_email_per_tenant",
-                        columnNames = {"tenant_Id", "email"})
+                        columnNames = {"tenant_Id", "email"}),
+                @UniqueConstraint(name = "uk_phone_per_tenant",
+                        columnNames = {"tenant_id", "phone_number"}),
+                @UniqueConstraint(
+                        name = "uk_professional_external_id_per_tenant",
+                        columnNames = {"tenant_id", "external_id"})
         })
 public abstract class User extends BaseEntity implements UserDetails {
     @Id

@@ -4,7 +4,6 @@ import com.rafael.nailspro.webapp.domain.enums.user.UserRole;
 import jakarta.persistence.*;
 import lombok.*;
 import lombok.experimental.SuperBuilder;
-import org.hibernate.annotations.Filter;
 
 import java.util.List;
 
@@ -15,12 +14,6 @@ import java.util.List;
 @NoArgsConstructor
 @AllArgsConstructor(access = AccessLevel.PROTECTED)
 @PrimaryKeyJoinColumn(name = "user_id")
-@Table(name = "clients",
-        uniqueConstraints = {
-                @UniqueConstraint(
-                        name = "uk_phone_per_tenant",
-                        columnNames = {"tenant_id", "phone_number"})
-        })
 public class Client extends User {
 
     @Column(name = "missed_appointments", nullable = false)

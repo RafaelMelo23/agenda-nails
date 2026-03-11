@@ -3,7 +3,6 @@ package com.rafael.nailspro.webapp.domain.model;
 import jakarta.persistence.*;
 import lombok.*;
 import lombok.experimental.SuperBuilder;
-import org.hibernate.annotations.Filter;
 
 import java.util.*;
 
@@ -14,13 +13,6 @@ import java.util.*;
 @Getter
 @NoArgsConstructor
 @AllArgsConstructor(access = AccessLevel.PROTECTED)
-@Table(name = "professional",
-        uniqueConstraints = {
-                @UniqueConstraint(
-                        name = "uk_professional_external_id_per_tenant",
-                        columnNames = {"tenant_id", "external_id"})
-        })
-@PrimaryKeyJoinColumn(name = "user_id")
 public class Professional extends User {
 
     private String professionalPicture;
