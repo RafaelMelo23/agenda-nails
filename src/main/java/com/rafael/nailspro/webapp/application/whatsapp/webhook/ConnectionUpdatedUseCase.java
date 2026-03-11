@@ -89,7 +89,7 @@ public class ConnectionUpdatedUseCase implements WebhookStrategy {
         salon.setEvolutionConnectionState(OPEN);
         salonProfileService.save(salon);
 
-        connectionNotificationService.notifyInstanceDisconnected(
+        connectionNotificationService.notifyInstanceConnected(
                 ownerId,
                 "Whatsapp instance connected");
 
