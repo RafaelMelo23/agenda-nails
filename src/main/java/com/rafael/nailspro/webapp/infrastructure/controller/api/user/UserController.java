@@ -1,4 +1,4 @@
-package com.rafael.nailspro.webapp.infrastructure.controller.api.auth;
+package com.rafael.nailspro.webapp.infrastructure.controller.api.user;
 
 import com.rafael.nailspro.webapp.application.user.PasswordResetUseCase;
 import com.rafael.nailspro.webapp.application.user.UserProfileManagementUseCase;
@@ -6,6 +6,7 @@ import com.rafael.nailspro.webapp.domain.model.UserPrincipal;
 import com.rafael.nailspro.webapp.infrastructure.dto.auth.ChangeEmailRequestDTO;
 import com.rafael.nailspro.webapp.infrastructure.dto.auth.ChangePhoneRequestDTO;
 import com.rafael.nailspro.webapp.infrastructure.dto.auth.ResetPasswordDTO;
+import com.rafael.nailspro.webapp.infrastructure.dto.user.profile.UserProfileDto;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
@@ -21,6 +22,11 @@ public class UserController {
 
     private final UserProfileManagementUseCase userService;
     private final PasswordResetUseCase passwordResetUseCase;
+
+    @GetMapping
+    public ResponseEntity<UserProfileDto> getProfile(@AuthenticationPrincipal UserPrincipal userPrincipal) {
+        return ResponseEntity.ok(userService.getProfile(userPrincipal.getUserId()));
+    }
 
     @PatchMapping("/email")
     public ResponseEntity<Void> updateEmail(@AuthenticationPrincipal UserPrincipal userPrincipal,

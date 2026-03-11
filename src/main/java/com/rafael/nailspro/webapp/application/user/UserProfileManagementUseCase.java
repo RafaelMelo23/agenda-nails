@@ -1,12 +1,17 @@
 package com.rafael.nailspro.webapp.application.user;
 
 import com.rafael.nailspro.webapp.domain.model.Client;
+import com.rafael.nailspro.webapp.domain.model.Professional;
 import com.rafael.nailspro.webapp.domain.model.User;
 import com.rafael.nailspro.webapp.domain.repository.ClientRepository;
 import com.rafael.nailspro.webapp.domain.repository.UserRepository;
 import com.rafael.nailspro.webapp.infrastructure.dto.auth.ChangeEmailRequestDTO;
 import com.rafael.nailspro.webapp.infrastructure.dto.auth.ChangePhoneRequestDTO;
+import com.rafael.nailspro.webapp.infrastructure.dto.user.profile.ClientProfileDto;
+import com.rafael.nailspro.webapp.infrastructure.dto.user.profile.ProfessionalProfileDto;
+import com.rafael.nailspro.webapp.infrastructure.dto.user.profile.UserProfileDto;
 import com.rafael.nailspro.webapp.infrastructure.exception.BusinessException;
+import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -19,6 +24,35 @@ public class UserProfileManagementUseCase {
     private final PasswordEncoder passwordEncoder;
     private final UserRepository userRepository;
     private final ClientRepository clientRepository;
+
+    public UserProfileDto getProfile(Long userId) {
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new EntityNotFoundException("User profile not found"));
+
+        if (user instanceof Client client) {
+            return ClientProfileDto.builder()
+                    .fullName(client.getFullName())
+                    .email(client.getEmail())
+                    .role(client.getUserRole().name())
+                    .phoneNumber(client.getPhoneNumber())
+                    .missedAppointments(client.getMissedAppointments())
+                    .canceledAppointments(client.getCanceledAppointments())
+                    .build();
+        }
+
+        if (user instanceof Professional professional) {
+            return ProfessionalProfileDto.builder()
+                    .fullName(professional.getFullName())
+                    .email(professional.getEmail())
+                    .role(professional.getUserRole().name())
+                    .professionalPicture(professional.getProfessionalPicture())
+                    .externalId(professional.getExternalId())
+                    .isActive(professional.getIsActive())
+                    .build();
+        }
+
+        throw new BusinessException("Tipo de usuário não encontrado.");
+    }
 
     @Transactional
     public void updateEmail(Long userId, ChangeEmailRequestDTO request) {
