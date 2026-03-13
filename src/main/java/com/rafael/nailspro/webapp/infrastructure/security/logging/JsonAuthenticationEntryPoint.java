@@ -27,9 +27,10 @@ public class JsonAuthenticationEntryPoint implements AuthenticationEntryPoint {
     @Override
     public void commence(HttpServletRequest request,
                          HttpServletResponse response,
-                         AuthenticationException authException) throws IOException, ServletException {
+                         AuthenticationException authException) throws IOException {
 
         String traceId = MDC.get("trace_id");
+        if (traceId == null) traceId = "N/A";
 
         log.warn("401 Unauthorized: method={} path={} traceId={} reason={}",
                 request.getMethod(), request.getRequestURI(), traceId, authException.getMessage());
