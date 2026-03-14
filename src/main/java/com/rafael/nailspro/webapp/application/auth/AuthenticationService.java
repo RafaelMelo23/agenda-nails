@@ -26,6 +26,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Optional;
 
+import static com.rafael.nailspro.webapp.domain.enums.user.UserStatus.BANNED;
 import static com.rafael.nailspro.webapp.infrastructure.helper.PhoneNumberHelper.formatPhoneNumber;
 
 @Service
@@ -83,9 +84,10 @@ public class AuthenticationService {
             if (!passwordEncoder.matches(loginDTO.password(), user.getPassword())) {
                 throw new BusinessException("Os dados informados são inválidos");
             }
-
-            String requestTenant = TenantContext.getTenant();
-            if (!user.getTenantId().equals(requestTenant)) {
+            if (user.getStatus().equals(BANNED)) {
+                throw new BusinessException("Você foi banido deste estabelecimento");
+            }
+            if (!user.getTenantId().equals(TenantContext.getTenant())) {
                 throw new BusinessException("Acesso negado para este estabelecimento.");
             }
         } else {
