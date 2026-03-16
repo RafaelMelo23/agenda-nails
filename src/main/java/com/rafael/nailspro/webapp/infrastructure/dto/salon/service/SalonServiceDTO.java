@@ -7,7 +7,6 @@ import jakarta.validation.constraints.Positive;
 import lombok.Builder;
 
 import java.util.List;
-import java.util.Optional;
 
 @Builder
 @JsonInclude(JsonInclude.Include.NON_NULL)
@@ -34,5 +33,5 @@ public record SalonServiceDTO(
 
         Boolean requiresLoyalty,
         Boolean isAddOn,
-        Optional<List<Long>> professionals
+        List<Long> professionalsIds
 ) {}

@@ -81,7 +81,7 @@ public class ProfessionalManagementController {
     }
 
     @PreAuthorize("hasRole('ADMIN')")
-    @Operation(summary = "List professionals", description = "Returns all professionals.")
+    @Operation(summary = "List professionalsIds", description = "Returns all professionalsIds.")
     @ApiResponses({
             @ApiResponse(responseCode = "200", description = "Professionals returned",
                     content = @Content(schema = @Schema(implementation = ProfessionalResponseDTO.class))),

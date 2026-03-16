@@ -53,7 +53,6 @@ public interface ProfessionalRepository extends JpaRepository<Professional, Long
     @Query("SELECT sp.owner from SalonProfile sp WHERE sp.tenantId = :id")
     Optional<Professional> findSalonOwnerByTenantId(@Param("id") String tenantId);
 
-
     Optional<Professional> findByExternalId(UUID uuid);
 
 }

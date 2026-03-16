@@ -7,6 +7,7 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
 import java.util.Collection;
+import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 
@@ -19,7 +20,7 @@ public interface SalonServiceRepository extends JpaRepository<SalonService, Long
     void changeSalonServiceVisibility(@Param("id") Long id,
                                       @Param("active") Boolean active);
 
-    @Modifying
-    @Query("UPDATE SalonService ss SET ss.isDeleted = TRUE where ss.id = :id")
-    void deleteService(@Param("id") Long id);
+    @Override
+    @Query("SELECT ss FROM SalonService ss WHERE ss.active = TRUE")
+    List<SalonService> findAll();
 }

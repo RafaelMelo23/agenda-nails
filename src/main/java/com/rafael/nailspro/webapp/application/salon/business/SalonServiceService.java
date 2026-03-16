@@ -16,7 +16,6 @@ import org.springframework.transaction.annotation.Transactional;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
-import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -43,6 +42,7 @@ public class SalonServiceService {
 
         return addOnRepository.findAllById(addOnIds);
     }
+
     @Transactional
     public void createService(SalonServiceDTO salonServiceDTO) {
 
@@ -52,11 +52,11 @@ public class SalonServiceService {
         salonServiceRepository.save(builtService);
     }
 
-    private Set<Professional> getProfessionals(SalonServiceDTO salonServiceDTO) {
-        return salonServiceDTO.professionals()
-                .filter(ids -> !ids.isEmpty())
-                .map(ids -> new HashSet<>(professionalRepository.findAllById(ids)))
-                .orElse(new HashSet<>());
+    private Set<Professional> getProfessionals(SalonServiceDTO dto) {
+        if (dto.professionalsIds() == null || dto.professionalsIds().isEmpty()) {
+            return new HashSet<>();
+        }
+        return new HashSet<>(professionalRepository.findAllById(dto.professionalsIds()));
     }
 
     public List<SalonServiceOutDTO> getServices() {
@@ -68,12 +68,6 @@ public class SalonServiceService {
     public void changeSalonServiceVisibility(Long id, Boolean active) {
 
         salonServiceRepository.changeSalonServiceVisibility(id, active);
-    }
-
-    @Transactional
-    public void deleteSalonService(Long id) {
-
-        salonServiceRepository.deleteService(id);
     }
 
     @Transactional
@@ -96,22 +90,9 @@ public class SalonServiceService {
             service.setValue(dto.value());
         }
 
-        dto.professionals().ifPresent(newIds -> {
-
-            service.getProfessionals().removeIf(p -> !newIds.contains(p.getId()));
-
-            Set<Long> currentIds = service.getProfessionals().stream()
-                    .map(Professional::getId)
-                    .collect(Collectors.toSet());
-
-            List<Long> idsToAdd = newIds.stream()
-                    .filter(id -> !currentIds.contains(id))
-                    .toList();
-
-            if (!idsToAdd.isEmpty()) {
-                Set<Professional> professionalsToAdd = new HashSet<>(professionalRepository.findAllById(idsToAdd));
-                service.getProfessionals().addAll(professionalsToAdd);
-            }
-        });
+        if (dto.professionalsIds() != null) {
+            Set<Professional> professionals = new HashSet<>(professionalRepository.findAllById(dto.professionalsIds()));
+            service.setProfessionals(professionals);
+        }
     }
 }

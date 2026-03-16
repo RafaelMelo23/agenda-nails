@@ -17,10 +17,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import java.io.IOException;
 
@@ -47,9 +44,9 @@ public class SalonProfileController {
                     schema = @Schema(implementation = SalonProfileDTO.class),
                     examples = @ExampleObject(name = "SalonProfileRequest", value = SwaggerExamples.SALON_PROFILE_REQUEST))
     )
-    @PostMapping
-    public ResponseEntity<Void> createOrUpdateProfile(@AuthenticationPrincipal UserPrincipal user,
-                                                      @Valid @RequestBody SalonProfileDTO dto) throws IOException {
+    @PatchMapping
+    public ResponseEntity<Void> updateProfile(@AuthenticationPrincipal UserPrincipal user,
+                                              @Valid @RequestBody SalonProfileDTO dto) throws IOException {
 
         salonProfileManagementService.updateProfile(user.getUserId(), dto);
         return ResponseEntity.ok().build();

@@ -26,7 +26,7 @@ public class ProfessionalQueryController {
 
     private final ProfessionalQueryService professionalQueryService;
 
-    @Operation(summary = "List professionals (simplified)", description = "Returns a simplified list of professionals.")
+    @Operation(summary = "List professionalsIds (simplified)", description = "Returns a simplified list of professionalsIds.")
     @ApiResponses({
             @ApiResponse(responseCode = "200", description = "Professionals returned",
                     content = @Content(schema = @Schema(implementation = ProfessionalSimplifiedDTO.class))),

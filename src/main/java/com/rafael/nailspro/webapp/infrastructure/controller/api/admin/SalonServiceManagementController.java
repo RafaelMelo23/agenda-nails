@@ -52,19 +52,6 @@ public class SalonServiceManagementController {
         return ResponseEntity.status(HttpStatus.CREATED).build();
     }
 
-    @Operation(summary = "List salon services", description = "Returns all salon services.")
-    @ApiResponses({
-            @ApiResponse(responseCode = "200", description = "Services returned",
-                    content = @Content(schema = @Schema(implementation = SalonServiceOutDTO.class))),
-            @ApiResponse(responseCode = "401", description = "Unauthorized"),
-            @ApiResponse(responseCode = "403", description = "Forbidden")
-    })
-    @GetMapping
-    public ResponseEntity<List<SalonServiceOutDTO>> getAllSalonServices() {
-
-        return ResponseEntity.ok(salonService.getServices());
-    }
-
     @Operation(summary = "Change service visibility", description = "Toggles service visibility (active/inactive).")
     @ApiResponses({
             @ApiResponse(responseCode = "204", description = "Visibility updated"),
@@ -80,22 +67,6 @@ public class SalonServiceManagementController {
             @PathVariable Boolean isActive) {
 
         salonService.changeSalonServiceVisibility(serviceId, isActive);
-        return ResponseEntity.noContent().build();
-    }
-
-    @Operation(summary = "Delete service", description = "Deletes a salon service (soft delete).")
-    @ApiResponses({
-            @ApiResponse(responseCode = "204", description = "Service deleted"),
-            @ApiResponse(responseCode = "400", description = "Invalid service id"),
-            @ApiResponse(responseCode = "401", description = "Unauthorized"),
-            @ApiResponse(responseCode = "403", description = "Forbidden")
-    })
-    @DeleteMapping("/active/{serviceId}")
-    public ResponseEntity<Void> deleteSalonService(
-            @Parameter(example = "1001")
-            @PathVariable Long serviceId) {
-
-        salonService.deleteSalonService(serviceId);
         return ResponseEntity.noContent().build();
     }
 
