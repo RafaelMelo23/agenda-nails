@@ -48,7 +48,7 @@ public class SalonProfile {
     @Builder.Default
     private String logoPath = "default-logo.png";
 
-    @Column(name = "comercial_phone", nullable = false, length = 11)
+    @Column(name = "comercial_phone", nullable = false, length = 13)
     @Builder.Default
     private String comercialPhone = "00000000000";
 

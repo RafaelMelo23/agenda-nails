@@ -31,7 +31,7 @@ public class SalonProfileController {
 
     private final SalonProfileManagementService salonProfileManagementService;
 
-    @Operation(summary = "Create or update salon profile", description = "Creates or updates the salon profile.")
+    @Operation(summary = "Update salon profile", description = "Updates the salon profile.")
     @ApiResponses({
             @ApiResponse(responseCode = "200", description = "Profile updated"),
             @ApiResponse(responseCode = "400", description = "Validation error"),
