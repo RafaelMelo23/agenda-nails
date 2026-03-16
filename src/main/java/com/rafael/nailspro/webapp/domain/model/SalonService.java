@@ -18,17 +18,7 @@ import java.util.stream.Collectors;
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
-@Table(name = "service",
-        uniqueConstraints = {
-                @UniqueConstraint(
-                        name = "uk_service_name_per_tenant",
-                        columnNames = {"tenant_Id", "name"}
-                ),
-                @UniqueConstraint(
-                        name = "uk_service_desc_per_tenant",
-                        columnNames = {"tenant_Id", "description"}
-                )
-        })
+@Table(name = "service")
 @Filter(name = "tenantFilter",
         condition = "tenant_id = :tenantId"
 )
@@ -74,6 +64,7 @@ public class SalonService extends BaseEntity {
 
     @Override
     public void prePersist() {
+        super.prePersist();
         this.active = true;
     }
 

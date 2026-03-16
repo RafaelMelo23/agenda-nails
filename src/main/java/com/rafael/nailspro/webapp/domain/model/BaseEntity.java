@@ -23,7 +23,6 @@ public class BaseEntity {
 
     @PrePersist
     public void prePersist() {
-
         if (this.tenantId == null) {
             this.tenantId = TenantContext.getTenant();
         }
