@@ -1,6 +1,7 @@
 package com.rafael.nailspro.webapp.infrastructure.controller.api.admin;
 
-import com.rafael.nailspro.webapp.application.admin.dashboard.SalonRevenueInsightService;
+import com.rafael.nailspro.webapp.application.admin.dashboard.SalonRevenueInsightUseCase;
+import com.rafael.nailspro.webapp.domain.model.UserPrincipal;
 import com.rafael.nailspro.webapp.infrastructure.dto.dashboard.SalonDashboardDTO;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Content;
@@ -12,6 +13,7 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
@@ -24,7 +26,7 @@ import org.springframework.web.bind.annotation.RestController;
 @Tag(name = "Admin - Salon", description = "Salon revenue insights")
 public class SalonRevenueInsightController {
 
-    private final SalonRevenueInsightService dashboardService;
+    private final SalonRevenueInsightUseCase salonRevenueUseCase;
 
     @Operation(summary = "Get monthly revenue", description = "Returns the salon monthly revenue dashboard.")
     @ApiResponses({
@@ -34,8 +36,8 @@ public class SalonRevenueInsightController {
             @ApiResponse(responseCode = "403", description = "Forbidden")
     })
     @GetMapping("/revenue")
-    public ResponseEntity<SalonDashboardDTO> getMonthlyRevenue() {
-        SalonDashboardDTO dashboard = dashboardService.getMonthlySalonRevenue();
+    public ResponseEntity<SalonDashboardDTO> getMonthlyRevenue(@AuthenticationPrincipal UserPrincipal userPrincipal) {
+        SalonDashboardDTO dashboard = salonRevenueUseCase.getMonthlySalonRevenue(userPrincipal.getTenantId());
         return ResponseEntity.ok(dashboard);
     }
 }
