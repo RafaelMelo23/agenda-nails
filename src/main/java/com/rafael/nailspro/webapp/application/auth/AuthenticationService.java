@@ -1,5 +1,6 @@
 package com.rafael.nailspro.webapp.application.auth;
 
+import com.rafael.nailspro.webapp.domain.enums.user.UserRole;
 import com.rafael.nailspro.webapp.domain.enums.user.UserStatus;
 import com.rafael.nailspro.webapp.domain.model.Client;
 import com.rafael.nailspro.webapp.domain.model.RefreshToken;
@@ -46,7 +47,6 @@ public class AuthenticationService {
         checkIfUserAlreadyExists(registerDTO);
 
         String encryptedPassword = passwordEncoder.encode(registerDTO.rawPassword());
-
         String normalizedPhoneNumber = formatPhoneNumber(registerDTO.phoneNumber());
 
         clientRepository.save(Client.builder()
@@ -64,7 +64,6 @@ public class AuthenticationService {
                 .ifPresent(user -> {
                     throw new UserAlreadyExistsException("O E-mail informado já está sendo utilizado");
                 });
-
         clientRepository.findByPhoneNumber(formatPhoneNumber(registerDTO.phoneNumber()))
                 .ifPresent(user -> {
                     throw new UserAlreadyExistsException("O telefone informado já está sendo utilizado");
@@ -73,23 +72,17 @@ public class AuthenticationService {
 
     @Transactional
     public AuthResultDTO login(LoginDTO loginDTO) {
-        Session session = entityManager.unwrap(Session.class);
-        session.disableFilter("tenantFilter");
+        disableTenantFilter();
 
         Optional<User> userOptional = userRepository.findByEmailIgnoreCase(loginDTO.email());
         User user;
 
         if (userOptional.isPresent()) {
             user = userOptional.get();
-            if (!passwordEncoder.matches(loginDTO.password(), user.getPassword())) {
-                throw new BusinessException("Os dados informados são inválidos");
-            }
-            if (user.getStatus().equals(BANNED)) {
-                throw new BusinessException("Você foi banido deste estabelecimento");
-            }
-            if (!user.getTenantId().equals(TenantContext.getTenant())) {
-                throw new BusinessException("Acesso negado para este estabelecimento.");
-            }
+
+            checkUserPassword(loginDTO, user);
+            checkUserStatus(user);
+            checkUsersTenant(user);
         } else {
             passwordEncoder.matches(loginDTO.password(), "$2a$12$p1DeDmHwMBRxNGAJ7II9JefEvHnrPDxCw72YF0nh1Modhwv67y1hK");
             throw new BusinessException("Os dados informados são inválidos");
@@ -103,9 +96,33 @@ public class AuthenticationService {
                 .refreshToken(refresh).build();
     }
 
+    private void disableTenantFilter() {
+        Session session = entityManager.unwrap(Session.class);
+        session.disableFilter("tenantFilter");
+    }
+
+    private static void checkUsersTenant(User user) {
+        if (UserRole.SUPER_ADMIN.equals(user.getUserRole())) return;
+
+        if (!user.getTenantId().equals(TenantContext.getTenant())) {
+            throw new BusinessException("Acesso negado para este estabelecimento.");
+        }
+    }
+
+    private void checkUserPassword(LoginDTO loginDTO, User user) {
+        if (!passwordEncoder.matches(loginDTO.password(), user.getPassword())) {
+            throw new BusinessException("Os dados informados são inválidos");
+        }
+    }
+
+    private static void checkUserStatus(User user) {
+        if (user.getStatus().equals(BANNED)) {
+            throw new BusinessException("Você foi banido deste estabelecimento");
+        }
+    }
+
     @Transactional
     public void logout(String refreshToken, Long userId) {
-
         refreshTokenService.revokeUserToken(refreshToken, userId);
     }
 
