@@ -1,9 +1,8 @@
-package com.rafael.nailspro.webapp.infrastructure.controller.api.admin;
+package com.rafael.nailspro.webapp.infrastructure.controller.api.admin.salon;
 
 import com.rafael.nailspro.webapp.application.salon.business.SalonServiceService;
 import com.rafael.nailspro.webapp.infrastructure.config.SwaggerExamples;
 import com.rafael.nailspro.webapp.infrastructure.dto.salon.service.SalonServiceDTO;
-import com.rafael.nailspro.webapp.infrastructure.dto.salon.service.SalonServiceOutDTO;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.media.Content;
@@ -19,8 +18,6 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
-
-import java.util.List;
 
 @RestController
 @RequiredArgsConstructor

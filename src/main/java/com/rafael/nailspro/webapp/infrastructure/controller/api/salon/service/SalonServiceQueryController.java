@@ -22,7 +22,7 @@ import java.util.List;
 @SecurityRequirement(name = "bearerAuth")
 @RequestMapping("/api/v1/salon/service")
 @Tag(name = "Salon Service", description = "Salon Service List")
-public class SalonServiceController {
+public class SalonServiceQueryController {
 
     private final SalonServiceService salonService;
 

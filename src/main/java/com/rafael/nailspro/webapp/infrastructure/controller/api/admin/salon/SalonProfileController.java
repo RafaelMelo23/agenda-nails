@@ -1,4 +1,4 @@
-package com.rafael.nailspro.webapp.infrastructure.controller.api.admin;
+package com.rafael.nailspro.webapp.infrastructure.controller.api.admin.salon;
 
 import com.rafael.nailspro.webapp.application.admin.salon.profile.SalonProfileManagementService;
 import com.rafael.nailspro.webapp.domain.model.UserPrincipal;
@@ -17,7 +17,10 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.PatchMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
 
 import java.io.IOException;
 

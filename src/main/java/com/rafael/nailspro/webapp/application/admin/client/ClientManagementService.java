@@ -2,12 +2,10 @@ package com.rafael.nailspro.webapp.application.admin.client;
 
 import com.rafael.nailspro.webapp.application.salon.business.SalonProfileService;
 import com.rafael.nailspro.webapp.domain.enums.user.UserStatus;
-import com.rafael.nailspro.webapp.domain.model.Client;
 import com.rafael.nailspro.webapp.domain.repository.AppointmentRepository;
 import com.rafael.nailspro.webapp.domain.repository.ClientRepository;
 import com.rafael.nailspro.webapp.infrastructure.dto.admin.client.ClientAppointmentDTO;
 import com.rafael.nailspro.webapp.infrastructure.dto.admin.client.ClientDTO;
-import com.rafael.nailspro.webapp.infrastructure.exception.BusinessException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;

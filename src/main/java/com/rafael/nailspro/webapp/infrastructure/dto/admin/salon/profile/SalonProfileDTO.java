@@ -2,7 +2,11 @@ package com.rafael.nailspro.webapp.infrastructure.dto.admin.salon.profile;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.rafael.nailspro.webapp.domain.enums.salon.OperationalStatus;
-import jakarta.validation.constraints.*;
+import jakarta.validation.constraints.Max;
+import jakarta.validation.constraints.Pattern;
+import jakarta.validation.constraints.Positive;
+import jakarta.validation.constraints.Size;
+
 import java.time.ZoneId;
 
 @JsonInclude(JsonInclude.Include.NON_NULL)

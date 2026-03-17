@@ -1,4 +1,4 @@
-package com.rafael.nailspro.webapp.infrastructure.controller.api.admin;
+package com.rafael.nailspro.webapp.infrastructure.controller.api.admin.salon;
 
 import com.rafael.nailspro.webapp.application.admin.dashboard.SalonRevenueInsightUseCase;
 import com.rafael.nailspro.webapp.domain.model.UserPrincipal;

@@ -1,7 +1,6 @@
 package com.rafael.nailspro.webapp.application.internal;
 
 import com.rafael.nailspro.webapp.domain.enums.appointment.TenantStatus;
-import com.rafael.nailspro.webapp.domain.model.SalonProfile;
 import com.rafael.nailspro.webapp.domain.repository.SalonProfileRepository;
 import com.rafael.nailspro.webapp.infrastructure.exception.BusinessException;
 import lombok.RequiredArgsConstructor;

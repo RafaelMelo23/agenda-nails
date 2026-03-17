@@ -1,4 +1,4 @@
-package com.rafael.nailspro.webapp.infrastructure.controller.api.admin;
+package com.rafael.nailspro.webapp.infrastructure.controller.api.admin.client;
 
 import com.rafael.nailspro.webapp.application.admin.dashboard.ClientInsightService;
 import com.rafael.nailspro.webapp.infrastructure.dto.client.AdminClientCrmDTO;

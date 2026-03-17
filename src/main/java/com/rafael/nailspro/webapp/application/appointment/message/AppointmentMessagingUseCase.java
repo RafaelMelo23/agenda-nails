@@ -1,12 +1,12 @@
 package com.rafael.nailspro.webapp.application.appointment.message;
 
 import com.rafael.nailspro.webapp.application.messages.AppointmentMessageBuilder;
-import com.rafael.nailspro.webapp.domain.whatsapp.WhatsappProvider;
-import com.rafael.nailspro.webapp.domain.whatsapp.SentMessageResult;
 import com.rafael.nailspro.webapp.domain.enums.appointment.AppointmentNotificationStatus;
 import com.rafael.nailspro.webapp.domain.enums.appointment.AppointmentNotificationType;
 import com.rafael.nailspro.webapp.domain.model.Appointment;
 import com.rafael.nailspro.webapp.domain.repository.AppointmentRepository;
+import com.rafael.nailspro.webapp.domain.whatsapp.SentMessageResult;
+import com.rafael.nailspro.webapp.domain.whatsapp.WhatsappProvider;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
 import org.springframework.stereotype.Service;

@@ -1,7 +1,10 @@
 package com.rafael.nailspro.webapp.domain.model;
 
 import com.rafael.nailspro.webapp.domain.enums.user.UserRole;
-import jakarta.persistence.*;
+import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
+import jakarta.persistence.OneToMany;
+import jakarta.persistence.OneToOne;
 import lombok.*;
 import lombok.experimental.SuperBuilder;
 
