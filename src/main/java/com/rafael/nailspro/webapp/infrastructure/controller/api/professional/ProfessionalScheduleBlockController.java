@@ -82,10 +82,10 @@ public class ProfessionalScheduleBlockController {
             @ApiResponse(responseCode = "401", description = "Unauthorized"),
             @ApiResponse(responseCode = "403", description = "Forbidden")
     })
-    @GetMapping("/{dateAndTime}")
+    @GetMapping
     public ResponseEntity<List<ScheduleBlockOutDTO>> getBlocks(
                                                                @Parameter(example = "2026-04-01T00:00:00")
-                                                               @PathVariable @NotNull(message = "A data e hora são obrigatórias") LocalDateTime dateAndTime,
+                                                               @RequestParam @NotNull(message = "A data e hora são obrigatórias") LocalDateTime dateAndTime,
                                                                @AuthenticationPrincipal UserPrincipal userPrincipal) {
 
         return ResponseEntity.ok(professionalScheduleBlockUseCase.getBlocks(userPrincipal.getUserId(), Optional.of(dateAndTime)));
