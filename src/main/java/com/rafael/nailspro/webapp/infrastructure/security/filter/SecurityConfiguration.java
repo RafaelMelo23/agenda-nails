@@ -61,6 +61,7 @@ public class SecurityConfiguration {
 
         CorsConfiguration config = new CorsConfiguration();
 
+        // todo: adjust to prod
         config.setAllowedOriginPatterns(List.of(
                 "http://*.localhost:8080",
                 "http://localhost:8080"
@@ -84,37 +85,58 @@ public class SecurityConfiguration {
                                                    SecurityFilter securityFilter,
                                                    JsonAuthenticationEntryPoint authenticationEntryPoint,
                                                    JsonAccessDeniedHandler accessDeniedHandler
-                                                   ) throws Exception {
-        http    .cors(cors -> {})
+    ) throws Exception {
+        http.cors(cors -> {
+                })
                 .csrf(csrf -> csrf
                         .csrfTokenRepository(CookieCsrfTokenRepository.withHttpOnlyFalse())
                         .ignoringRequestMatchers("/api/**")
                 )
                 .authorizeHttpRequests(auth -> auth
-                        .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()
-                        // Public Endpoints
-                        .requestMatchers("/api/v1/auth/**").permitAll()
-                        .requestMatchers("/api/v1/webhook/**").permitAll()
-                        .requestMatchers("/v3/api-docs/**").permitAll()
-                        .requestMatchers("/swagger-ui/**", "/swagger-ui.html").permitAll()
-                        .requestMatchers("/error").permitAll()
 
-                        .requestMatchers("/api/internal/**").hasRole("SUPER_ADMIN")
+                        // ===== PUBLIC =====
+                        .requestMatchers(
+                                HttpMethod.OPTIONS, "/**"
+                        ).permitAll()
+                        .requestMatchers(
+                                "/api/v1/auth/**",
+                                "/api/v1/webhook/**",
+                                "/api/v1/professional/simplified",
+                                "/api/v1/booking/{professionalExternalId}/availability",
+                                "/v3/api-docs/**", // todo: adjust to prod
+                                "/swagger-ui/**",
+                                "/swagger-ui.html",
+                                "/error"
+                        ).permitAll()
 
-                        // Admin Endpoints
-                        .requestMatchers("/api/v1/admin/**").hasRole("ADMIN")
+                        // ===== SUPER ADMIN =====
+                        .requestMatchers(
+                                "/api/internal/**"
+                        ).hasRole("SUPER_ADMIN")
 
-                        // Professional Endpoints
-                        .requestMatchers("/api/v1/professional/**").hasAnyRole("PROFESSIONAL", "ADMIN")
+                        // ===== ADMIN =====
+                        .requestMatchers(
+                                "/api/v1/admin/**"
+                        ).hasRole("ADMIN")
 
-                        .requestMatchers("/api/v1/whatsapp/**").hasAnyRole("SUPER_ADMIN", "ADMIN")
-                        .requestMatchers("/api/internal/**").hasRole("SUPER_ADMIN")
+                        // ===== PROFESSIONAL + ADMIN =====
+                        .requestMatchers(
+                                "/api/v1/professional/**"
+                        ).hasAnyRole("PROFESSIONAL", "ADMIN")
 
-                        // Client Endpoints
-                        .requestMatchers("/api/v1/user/**").authenticated()
-                        .requestMatchers("/api/v1/booking/**").authenticated()
+                        // ===== ADMIN + SUPER ADMIN =====
+                        .requestMatchers(
+                                "/api/v1/whatsapp/**"
+                        ).hasAnyRole("SUPER_ADMIN", "ADMIN")
 
-                        .anyRequest().authenticated())
+                        // ===== AUTHENTICATED USERS (CLIENT AREA) =====
+                        .requestMatchers(
+                                "/api/v1/user/**",
+                                "/api/v1/booking/**"
+                        ).authenticated()
+
+                        .anyRequest().authenticated()
+                )
                 .addFilterBefore(securityFilter, UsernamePasswordAuthenticationFilter.class)
                 .exceptionHandling(ex -> ex
                         .authenticationEntryPoint(authenticationEntryPoint)
