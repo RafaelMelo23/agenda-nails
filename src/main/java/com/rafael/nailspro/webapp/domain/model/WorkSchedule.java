@@ -68,9 +68,13 @@ public class WorkSchedule extends BaseEntity {
     }
 
     @Builder
-    public WorkSchedule(DayOfWeek dayOfWeek, LocalTime workStart, LocalTime workEnd,
-                        LocalTime lunchBreakStartTime, LocalTime lunchBreakEndTime,
-                        Boolean isActive, Professional professional) {
+    public WorkSchedule(DayOfWeek dayOfWeek,
+                        LocalTime workStart,
+                        LocalTime workEnd,
+                        LocalTime lunchBreakStartTime,
+                        LocalTime lunchBreakEndTime,
+                        Boolean isActive,
+                        Professional professional) {
 
         validateTimes(workStart, workEnd, dayOfWeek);
 

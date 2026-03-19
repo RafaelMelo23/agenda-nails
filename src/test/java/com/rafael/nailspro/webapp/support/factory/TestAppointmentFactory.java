@@ -68,4 +68,16 @@ public class TestAppointmentFactory {
                 .tenantId("tenant-test")
                 .build();
     }
+
+    public static Appointment atSpecificTime(Instant start, Instant end, Professional professional, AppointmentStatus status) {
+        return Appointment.builder()
+                .id((long) (Math.random() * 1000))
+                .professional(professional)
+                .appointmentStatus(status)
+                .startDate(start)
+                .endDate(end)
+                .salonZoneId(ZoneId.of("America/Sao_Paulo"))
+                .tenantId("tenant-test")
+                .build();
+    }
 }

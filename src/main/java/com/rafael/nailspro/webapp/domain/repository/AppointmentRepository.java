@@ -58,11 +58,15 @@ public interface AppointmentRepository extends JpaRepository<Appointment, Long> 
     double countByClientIdAndAppointmentStatus(Long clientId, AppointmentStatus attr0);
 
 
-    @Query("SELECT a FROM Appointment a WHERE a.professional.id = :id " +
-            "AND a.startDate < :endRange AND a.endDate > :startRange")
+    @Query("""
+    SELECT a FROM Appointment a WHERE a.professional.id = :id
+    AND a.startDate < :endRange
+    AND a.endDate > :startRange
+    AND a.appointmentStatus IN :statuses""")
     List<Appointment> findBusyAppointmentsInRange(@Param("id") Long professionalId,
                                                   @Param("startRange") Instant startRange,
-                                                  @Param("endRange") Instant endRange);
+                                                  @Param("endRange") Instant endRange,
+                                                  @Param("statuses") List<AppointmentStatus> status);
 
     @Query("SELECT ap FROM Appointment ap WHERE ap.id = :appointmentId AND ap.client.id = :clientId")
     Optional<Appointment> findAndValidateClientOwnership(@Param("appointmentId") Long appointmentId,

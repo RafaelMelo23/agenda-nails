@@ -1,5 +1,6 @@
 package com.rafael.nailspro.webapp.domain.repository;
 
+import com.rafael.nailspro.webapp.domain.enums.appointment.AppointmentStatus;
 import com.rafael.nailspro.webapp.domain.model.Professional;
 import jakarta.persistence.LockModeType;
 import jakarta.persistence.QueryHint;
@@ -8,6 +9,7 @@ import org.springframework.data.repository.query.Param;
 
 import java.time.DayOfWeek;
 import java.time.LocalDateTime;
+import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -26,7 +28,7 @@ public interface ProfessionalRepository extends JpaRepository<Professional, Long
             EXISTS (
             SELECT 1 FROM Appointment ap
             WHERE ap.professional = p
-            AND ap.appointmentStatus <> com.rafael.nailspro.webapp.domain.enums.appointment.AppointmentStatus.CANCELLED
+            AND ap.appointmentStatus IN :statuses
             AND ap.endDate > :startDateAndTime
             AND ap.startDate < :endDateAndTime
             )
@@ -43,7 +45,7 @@ public interface ProfessionalRepository extends JpaRepository<Professional, Long
     boolean hasTimeConflicts(@Param("externalId") UUID professionalId,
                              @Param("startDateAndTime") LocalDateTime startDate,
                              @Param("endDateAndTime") LocalDateTime endDate,
-                             @Param("day") DayOfWeek day);
+                             @Param("statuses") List<AppointmentStatus> status);
 
     @Lock(LockModeType.PESSIMISTIC_WRITE)
     @QueryHints({@QueryHint(name = "jakarta.persistence.lock.timeout", value = "2000")})
