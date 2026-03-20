@@ -1,6 +1,7 @@
 package com.rafael.nailspro.webapp.domain.repository;
 
 import com.rafael.nailspro.webapp.domain.enums.appointment.RetentionStatus;
+import com.rafael.nailspro.webapp.domain.model.Appointment;
 import com.rafael.nailspro.webapp.domain.model.RetentionForecast;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
@@ -35,7 +36,7 @@ public interface RetentionForecastRepository extends JpaRepository<RetentionFore
             FROM RetentionForecast rf
             JOIN FETCH rf.client
             JOIN FETCH rf.originAppointment
-            JOIN FETCH rf.lastService
+            JOIN FETCH rf.salonServices
             WHERE rf.id = :id
             """)
     Optional<RetentionForecast> findWithJoins(@Param("id") Long id);

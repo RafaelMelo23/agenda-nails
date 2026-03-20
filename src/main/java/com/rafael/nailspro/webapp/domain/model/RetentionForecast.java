@@ -12,6 +12,10 @@ import org.hibernate.annotations.Filter;
 import java.time.Instant;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Objects;
+import java.util.stream.Stream;
 
 @Setter
 @Getter
@@ -23,7 +27,7 @@ import java.time.ZonedDateTime;
 @Filter(name = "tenantFilter",
         condition = "tenant_id = :tenantId"
 )
-public class RetentionForecast extends BaseEntity{
+public class RetentionForecast extends BaseEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
     @Column(name = "id", nullable = false)
@@ -37,9 +41,6 @@ public class RetentionForecast extends BaseEntity{
     @JoinColumn(name = "professional_id")
     private Professional professional;
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "last_service_id", nullable = false)
-    private SalonService lastService;
 
     @Column(name = "predicted_return_date", nullable = false)
     private Instant predictedReturnDate;
@@ -52,17 +53,31 @@ public class RetentionForecast extends BaseEntity{
     @JoinColumn(name = "origin_appointment_id")
     private Appointment originAppointment;
 
-    public static RetentionForecast create(Appointment appointment,
-                                           SalonService service) {
+    @ManyToMany
+    @JoinTable(name = "retention_forecast_salonServices",
+            joinColumns = @JoinColumn(name = "retentionForecast_id"),
+            inverseJoinColumns = @JoinColumn(name = "salonServices_id"))
+    private List<SalonService> salonServices = new ArrayList<>();
+
+    @Override
+    public void prePersist() {
+        super.prePersist();
+    }
+
+    public static RetentionForecast create(Appointment appointment) {
+        List<SalonService> allServices = getServicesWithMaintenanceInterval(appointment);
+        if (allServices.isEmpty()) throw new IllegalArgumentException("Cannot create an forecast without valid services");
+
+        int shortestMaintenanceInterval = getShortestMaintenanceInterval(allServices);
 
         Instant predictedReturn = predictReturnDate(
                 appointment.getEndDate(),
-                service.getMaintenanceIntervalDays(),
+                shortestMaintenanceInterval,
                 appointment.getSalonZoneId()
         );
 
         return RetentionForecast.builder()
-                .lastService(service)
+                .salonServices(allServices)
                 .client(appointment.getClient())
                 .status(RetentionStatus.PENDING)
                 .originAppointment(appointment)
@@ -71,10 +86,27 @@ public class RetentionForecast extends BaseEntity{
                 .build();
     }
 
-    public static Instant predictReturnDate(Instant appointmentEnd,
-                                     int expectedMaintenanceDays,
-                                     ZoneId salonZone) {
+    private static List<SalonService> getServicesWithMaintenanceInterval(Appointment appointment) {
+        return Stream.concat(
+                        Stream.of(appointment.getMainSalonService()),
+                        appointment.getAddOns().stream()
+                                .map(AppointmentAddOn::getService)
+                )
+                .filter(Objects::nonNull)
+                .filter(salonService -> salonService.getMaintenanceIntervalDays() != null)
+                .toList();
+    }
 
+    private static int getShortestMaintenanceInterval(List<SalonService> allServices) {
+        return allServices.stream()
+                .mapToInt(SalonService::getMaintenanceIntervalDays)
+                .min()
+                .orElse(15);
+    }
+
+    public static Instant predictReturnDate(Instant appointmentEnd,
+                                            int expectedMaintenanceDays,
+                                            ZoneId salonZone) {
         return Instant
                 .from(ZonedDateTime.ofInstant(appointmentEnd, salonZone)
                         .plusDays(expectedMaintenanceDays));

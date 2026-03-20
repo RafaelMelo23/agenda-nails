@@ -38,7 +38,7 @@ public class RetentionMessageRetryableJob {
                 if (message.getRetentionForecast() == null) {
                     return;
                 }
-                visitPredictionService.sendMaintenanceMessage(message.getRetentionForecast().getId());
+                visitPredictionService.sendRetentionMaintenanceMessage(message.getRetentionForecast().getId());
             });
         }
     }

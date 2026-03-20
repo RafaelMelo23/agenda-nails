@@ -11,10 +11,11 @@ import com.rafael.nailspro.webapp.domain.enums.whatsapp.WhatsappMessageStatus;
 import com.rafael.nailspro.webapp.domain.enums.whatsapp.WhatsappMessageType;
 import com.rafael.nailspro.webapp.domain.whatsapp.SentMessageResult;
 import com.rafael.nailspro.webapp.domain.whatsapp.WhatsappProvider;
+import com.rafael.nailspro.webapp.infrastructure.dto.retention.RetentionData;
 import lombok.RequiredArgsConstructor;
-import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.transaction.support.TransactionTemplate;
 
 import java.time.Instant;
 import java.util.ArrayList;
@@ -30,26 +31,11 @@ public class VisitPredictionService {
     private final RetentionMessageBuilder messageBuilder;
     private final WhatsappProvider whatsappProvider;
     private final WhatsappMessageService whatsappMessageService;
+    private final TransactionTemplate transactionTemplate;
 
     @Transactional
     public void createForecast(Appointment appointment) {
-        List<RetentionForecast> forecastsToSave = new ArrayList<>();
-
-        if (appointment.getMainSalonService().getMaintenanceIntervalDays() != null) {
-            forecastsToSave.add(RetentionForecast.create(appointment, appointment.getMainSalonService()));
-        }
-
-        List<RetentionForecast> addOnRetentions = appointment.getAddOns().stream()
-                .map(AppointmentAddOn::getService)
-                .filter(ss -> ss.getMaintenanceIntervalDays() != null)
-                .map(ss -> RetentionForecast.create(appointment, ss))
-                .toList();
-
-        forecastsToSave.addAll(addOnRetentions);
-
-        if (!forecastsToSave.isEmpty()) {
-            repository.saveAll(forecastsToSave);
-        }
+        repository.save(RetentionForecast.create(appointment));
     }
 
     @Transactional
@@ -65,40 +51,34 @@ public class VisitPredictionService {
         forecast.setStatus(CONVERTED);
     }
 
-    @Transactional
-    public void sendMaintenanceMessage(Long retentionForecastId) {
+    public void sendRetentionMaintenanceMessage(Long retentionForecastId) {
+        RetentionData data = transactionTemplate.execute(status -> {
+            RetentionForecast forecast = repository.findWithJoins(retentionForecastId)
+                    .orElseThrow(() -> new IllegalArgumentException("Retention forecast not found with the ID: " + retentionForecastId));
 
-        RetentionForecast retentionForecast =
-                findByIdWithClientAppointmentAndService(retentionForecastId);
+            WhatsappMessage messageRecord = whatsappMessageService.prepareRetentionMessage(
+                    retentionForecastId,
+                    WhatsappMessageType.RETENTION_MAINTENANCE
+            );
 
-        WhatsappMessage messageRecord =
-                whatsappMessageService.prepareRetentionMessage(
-                        retentionForecastId,
-                        WhatsappMessageType.RETENTION_MAINTENANCE
-                );
-
+            String messageContent = messageBuilder.buildRetentionMessage(forecast);
+            return new RetentionData(forecast, messageRecord, messageContent);
+        });
         try {
-            sendMessage(retentionForecast, messageRecord);
+            SentMessageResult result = whatsappProvider.sendText(
+                    data.forecast().getTenantId(),
+                    data.messageContent(),
+                    data.forecast().getClient().getPhoneNumber()
+            );
+
+            transactionTemplate.executeWithoutResult(status ->
+                    saveSuccessfulAttempt(result, data.messageRecord())
+            );
         } catch (Exception e) {
-            handleFailedMessage(retentionForecast, messageRecord, e);
+            transactionTemplate.executeWithoutResult(status ->
+                    handleFailedMessage(data.forecast(), data.messageRecord(), e)
+            );
         }
-    }
-
-    private RetentionForecast findByIdWithClientAppointmentAndService(Long id) {
-        return repository.findWithJoins(id)
-                .orElseThrow(() -> new IllegalArgumentException("Retention forecast not found with the ID: " + id));
-    }
-
-    private void sendMessage(RetentionForecast retentionForecast, WhatsappMessage messageRecord) {
-        String message = messageBuilder.buildRetentionMessage(retentionForecast);
-
-        SentMessageResult result = whatsappProvider.sendText(
-                retentionForecast.getTenantId(),
-                message,
-                retentionForecast.getClient().getPhoneNumber()
-        );
-
-        saveSuccessfulAttempt(result, messageRecord);
     }
 
     private void saveSuccessfulAttempt(SentMessageResult result, WhatsappMessage messageRecord) {

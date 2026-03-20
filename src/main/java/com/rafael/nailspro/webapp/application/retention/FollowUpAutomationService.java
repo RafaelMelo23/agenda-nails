@@ -28,6 +28,6 @@ public class FollowUpAutomationService {
         List<RetentionForecast> forecasts =
                 repository.findAllPredictedForecastsBetween(now, twoDaysFromNow, List.of(PENDING, FAILED_TO_SEND));
 
-        forecasts.forEach(fr -> visitPredictionService.sendMaintenanceMessage(fr.getId()));
+        forecasts.forEach(fr -> visitPredictionService.sendRetentionMaintenanceMessage(fr.getId()));
     }
 }
