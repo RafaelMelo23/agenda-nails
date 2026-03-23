@@ -66,7 +66,7 @@ public class VisitPredictionService {
         });
         try {
             SentMessageResult result = whatsappProvider.sendText(
-                    data.forecast().getTenantId(),
+                    data.forecast().getOriginAppointment().getTenantId(),
                     data.messageContent(),
                     data.forecast().getClient().getPhoneNumber()
             );

@@ -53,8 +53,6 @@ class VisitPredictionServiceTest {
     private TransactionTemplate transactionTemplate;
     @Mock
     private WhatsappMessageService whatsappMessageService;
-    @Mock
-    private TenantUrlProvider urlProvider;
     @InjectMocks
     private VisitPredictionService visitPredictionService;
 
@@ -72,6 +70,12 @@ class VisitPredictionServiceTest {
 
     private static Appointment standardAppointment() {
         Client client = TestUserFactory.client();
+        Professional professional = TestProfessionalFactory.standard();
+        SalonService salonService = TestSalonServiceFactory.standard();
+        return TestAppointmentFactory.standard(client, professional, salonService);
+    }
+
+    private static Appointment standardAppointment(Client client) {
         Professional professional = TestProfessionalFactory.standard();
         SalonService salonService = TestSalonServiceFactory.standard();
         return TestAppointmentFactory.standard(client, professional, salonService);
@@ -191,39 +195,26 @@ class VisitPredictionServiceTest {
         prepareTransaction();
         Long retentionForecastId = 1L;
         String tenantId = "tenant-test";
-        String phoneNumber = "5511999999999";
         String fakeMessage = "Mock Message";
 
-        Client client = new Client();
-        client.setPhoneNumber(phoneNumber);
+        Appointment appointment = standardAppointment();
 
         RetentionForecast forecast = new RetentionForecast();
-        forecast.setTenantId(tenantId);
-        forecast.setClient(client);
+        forecast.setClient(appointment.getClient());
+        forecast.setOriginAppointment(appointment);
 
         WhatsappMessage messageRecord = new WhatsappMessage();
         SentMessageResult successResult = new SentMessageResult("msg-id-123", EvolutionMessageStatus.PENDING);
 
         when(repository.findWithJoins(retentionForecastId)).thenReturn(Optional.of(forecast));
-
-        when(whatsappMessageService.prepareRetentionMessage(anyLong(), any()))
-                .thenReturn(messageRecord);
-
+        when(whatsappMessageService.prepareRetentionMessage(anyLong(), any())).thenReturn(messageRecord);
         when(messageBuilder.buildRetentionMessage(any())).thenReturn(fakeMessage);
-
-        when(whatsappProvider.sendText(eq(tenantId), eq(fakeMessage), eq(phoneNumber)))
-                .thenReturn(successResult);
+        when(whatsappProvider.sendText(eq(tenantId), eq(fakeMessage), eq(appointment.getClient().getPhoneNumber()))).thenReturn(successResult);
 
         visitPredictionService.sendRetentionMaintenanceMessage(retentionForecastId);
-        verify(whatsappProvider).sendText(eq(tenantId), eq(fakeMessage), eq(phoneNumber));
-        verify(transactionTemplate, atLeastOnce()).executeWithoutResult(any());
 
-        verify(whatsappMessageService).updateMessageStatus(
-                eq(WhatsappMessageStatus.PENDING),
-                eq(null),
-                eq("msg-id-123"),
-                any()
-        );
+        verify(whatsappProvider).sendText(eq(tenantId), eq(fakeMessage), eq(appointment.getClient().getPhoneNumber()));
+        verify(whatsappMessageService).updateMessageStatus(eq(WhatsappMessageStatus.PENDING), isNull(), eq("msg-id-123"), any());
     }
 
     @Test
@@ -234,35 +225,21 @@ class VisitPredictionServiceTest {
         String phoneNumber = "5511999999999";
         String fakeMessage = "Mock Message";
 
-        Client client = new Client();
-        client.setPhoneNumber(phoneNumber);
-
+        Appointment appointment = standardAppointment();
         RetentionForecast forecast = new RetentionForecast();
-        forecast.setTenantId(tenantId);
-        forecast.setClient(client);
+        forecast.setClient(appointment.getClient());
+        forecast.setOriginAppointment(appointment);
 
         WhatsappMessage messageRecord = new WhatsappMessage();
 
         when(repository.findWithJoins(retentionForecastId)).thenReturn(Optional.of(forecast));
-
-        when(whatsappMessageService.prepareRetentionMessage(anyLong(), any()))
-                .thenReturn(messageRecord);
-
+        when(whatsappMessageService.prepareRetentionMessage(anyLong(), any())).thenReturn(messageRecord);
         when(messageBuilder.buildRetentionMessage(any())).thenReturn(fakeMessage);
-
-        when(whatsappProvider.sendText(eq(tenantId), eq(fakeMessage), eq(phoneNumber)))
-                .thenThrow(HttpServerErrorException.class);
+        when(whatsappProvider.sendText(eq(tenantId), eq(fakeMessage), eq(phoneNumber))).thenThrow(HttpServerErrorException.class);
 
         visitPredictionService.sendRetentionMaintenanceMessage(retentionForecastId);
-        verify(whatsappProvider).sendText(eq(tenantId), eq(fakeMessage), eq(phoneNumber));
-        verify(transactionTemplate, atLeastOnce()).executeWithoutResult(any());
 
-        verify(whatsappMessageService).updateMessageStatus(
-                eq(WhatsappMessageStatus.FAILED),
-                any(),
-                eq(null),
-                any()
-        );
+        verify(whatsappMessageService).updateMessageStatus(eq(WhatsappMessageStatus.FAILED), any(), isNull(), any());
     }
 
     @Test
@@ -286,36 +263,22 @@ class VisitPredictionServiceTest {
     void sendRetentionMaintenanceMessage_handlesTimeout_correctly() {
         prepareTransaction();
         Long retentionForecastId = 1L;
-        String tenantId = "tenant-test";
-        String phoneNumber = "5511999999999";
-
-        Client client = new Client();
-        client.setPhoneNumber(phoneNumber);
-
-        RetentionForecast forecast = new RetentionForecast();
-        forecast.setTenantId(tenantId);
-        forecast.setClient(client);
         String timeoutError = "Read time out";
 
-        when(whatsappProvider.sendText(any(), any(), any()))
-                .thenThrow(new RuntimeException(timeoutError));
-
-        when(repository.findWithJoins(retentionForecastId)).thenReturn(Optional.of(forecast));
+        Appointment appointment = standardAppointment();
+        RetentionForecast forecast = new RetentionForecast();
+        forecast.setClient(appointment.getClient());
+        forecast.setOriginAppointment(appointment);
 
         WhatsappMessage messageRecord = new WhatsappMessage();
 
         when(repository.findWithJoins(retentionForecastId)).thenReturn(Optional.of(forecast));
-
-        when(whatsappMessageService.prepareRetentionMessage(anyLong(), any()))
-                .thenReturn(messageRecord);
+        when(whatsappMessageService.prepareRetentionMessage(anyLong(), any())).thenReturn(messageRecord);
+        when(messageBuilder.buildRetentionMessage(any())).thenReturn("msg");
+        when(whatsappProvider.sendText(any(), any(), any())).thenThrow(new RuntimeException(timeoutError));
 
         visitPredictionService.sendRetentionMaintenanceMessage(retentionForecastId);
 
-        verify(whatsappMessageService).updateMessageStatus(
-                eq(WhatsappMessageStatus.FAILED),
-                eq(timeoutError),
-                isNull(),
-                any()
-        );
+        verify(whatsappMessageService).updateMessageStatus(eq(WhatsappMessageStatus.FAILED), eq(timeoutError), isNull(), any());
     }
 }

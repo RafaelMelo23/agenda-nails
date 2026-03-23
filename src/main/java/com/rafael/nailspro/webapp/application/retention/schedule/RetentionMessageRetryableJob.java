@@ -3,10 +3,8 @@ package com.rafael.nailspro.webapp.application.retention.schedule;
 import com.rafael.nailspro.webapp.application.retention.VisitPredictionService;
 import com.rafael.nailspro.webapp.domain.model.WhatsappMessage;
 import com.rafael.nailspro.webapp.domain.repository.WhatsappMessageRepository;
-import jakarta.persistence.EntityManager;
 import jakarta.persistence.EntityManagerFactory;
 import lombok.RequiredArgsConstructor;
-import org.hibernate.Session;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 
@@ -27,19 +25,14 @@ public class RetentionMessageRetryableJob {
     public void retryFailedRetentionMessages() {
         final int MAX_RETRIES = 3;
 
-        try (EntityManager entityManager = entityManagerFactory.createEntityManager()) {
-            Session session = entityManager.unwrap(Session.class);
-            session.disableFilter("tenantFilter");
+        List<WhatsappMessage> messages =
+                messageRepository.findRetriableMessages(MAX_RETRIES, FAILED, RETENTION_MAINTENANCE);
 
-            List<WhatsappMessage> messages =
-                    messageRepository.findRetriableMessages(MAX_RETRIES, FAILED, RETENTION_MAINTENANCE);
-
-            messages.forEach(message -> {
-                if (message.getRetentionForecast() == null) {
-                    return;
-                }
-                visitPredictionService.sendRetentionMaintenanceMessage(message.getRetentionForecast().getId());
-            });
-        }
+        messages.forEach(message -> {
+            if (message.getRetentionForecast() == null) {
+                return;
+            }
+            visitPredictionService.sendRetentionMaintenanceMessage(message.getRetentionForecast().getId());
+        });
     }
 }

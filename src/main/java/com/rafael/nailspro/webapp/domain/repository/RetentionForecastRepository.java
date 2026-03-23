@@ -15,9 +15,7 @@ public interface RetentionForecastRepository extends JpaRepository<RetentionFore
 
     @Query("""
             SELECT rf FROM RetentionForecast rf
-            JOIN SalonProfile sp ON rf.tenantId = sp.tenantId
-            WHERE sp.tenantStatus = 'ACTIVE'
-            AND rf.predictedReturnDate >= :start
+            WHERE rf.predictedReturnDate >= :start
             AND rf.predictedReturnDate <= :end
             AND rf.status IN :statuses
             """)

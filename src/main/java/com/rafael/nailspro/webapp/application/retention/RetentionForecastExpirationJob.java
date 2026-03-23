@@ -3,8 +3,11 @@ package com.rafael.nailspro.webapp.application.retention;
 import com.rafael.nailspro.webapp.domain.enums.appointment.RetentionStatus;
 import com.rafael.nailspro.webapp.domain.model.RetentionForecast;
 import com.rafael.nailspro.webapp.domain.repository.RetentionForecastRepository;
+import jakarta.persistence.EntityManager;
+import jakarta.persistence.EntityManagerFactory;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.hibernate.Session;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 
@@ -18,18 +21,21 @@ public class RetentionForecastExpirationJob {
 
     private final VisitPredictionService visitPredictionService;
     private final RetentionForecastRepository repository;
+    private final EntityManagerFactory entityManagerFactory;
 
     @Scheduled(cron = "0 0 0 * * *")
     public void expireForecasts() {
         Instant now = Instant.now();
+        try (EntityManager em = entityManagerFactory.createEntityManager()) {
+            Session session = em.unwrap(Session.class);
+            session.disableFilter("tenantFilter");
 
-        try {
             List<RetentionForecast> expiredForecasts =
                     repository.findAllExpiredPredictedForecastsAndNotInStatus(
-                            now, RetentionStatus.EXPIRED);
+                            now, RetentionStatus.EXPIRED
+                    );
 
             int processed = 0;
-
             for (RetentionForecast forecast : expiredForecasts) {
                 try {
                     visitPredictionService.markForecastAsExpired(forecast);
@@ -38,7 +44,6 @@ public class RetentionForecastExpirationJob {
                     log.error("Failed to expire retention forecast id={}", forecast.getId(), ex);
                 }
             }
-
             if (processed > 0) {
                 log.info(
                         "Retention forecast expiration job: expired={} referenceTime={}",

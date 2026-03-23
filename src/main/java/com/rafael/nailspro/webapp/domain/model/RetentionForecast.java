@@ -24,10 +24,7 @@ import java.util.stream.Stream;
 @NoArgsConstructor
 @AllArgsConstructor
 @Table(name = "retention_forecast")
-@Filter(name = "tenantFilter",
-        condition = "tenant_id = :tenantId"
-)
-public class RetentionForecast extends BaseEntity {
+public class RetentionForecast {
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
     @Column(name = "id", nullable = false)
@@ -40,7 +37,6 @@ public class RetentionForecast extends BaseEntity {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "professional_id")
     private Professional professional;
-
 
     @Column(name = "predicted_return_date", nullable = false)
     private Instant predictedReturnDate;
@@ -58,11 +54,6 @@ public class RetentionForecast extends BaseEntity {
             joinColumns = @JoinColumn(name = "retentionForecast_id"),
             inverseJoinColumns = @JoinColumn(name = "salonServices_id"))
     private List<SalonService> salonServices = new ArrayList<>();
-
-    @Override
-    public void prePersist() {
-        super.prePersist();
-    }
 
     public static RetentionForecast create(Appointment appointment) {
         List<SalonService> allServices = getServicesWithMaintenanceInterval(appointment);

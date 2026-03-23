@@ -33,7 +33,6 @@ public class WhatsappMessageService {
                             .destinationNumber(appointment.getClient().getPhoneNumber())
                             .messageType(type)
                             .messageStatus(WhatsappMessageStatus.FAILED)
-                            .tenantId(appointment.getTenantId())
                             .attempts(0)
                             .build();
 
@@ -54,7 +53,6 @@ public class WhatsappMessageService {
                             .destinationNumber(retentionForecast.getClient().getPhoneNumber())
                             .messageType(type)
                             .messageStatus(WhatsappMessageStatus.FAILED)
-                            .tenantId(retentionForecast.getTenantId())
                             .attempts(0)
                             .build();
 

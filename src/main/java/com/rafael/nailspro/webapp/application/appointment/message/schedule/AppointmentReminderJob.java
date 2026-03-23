@@ -4,7 +4,6 @@ import com.rafael.nailspro.webapp.application.appointment.message.AppointmentMes
 import com.rafael.nailspro.webapp.domain.model.Appointment;
 import com.rafael.nailspro.webapp.domain.repository.AppointmentRepository;
 import jakarta.persistence.EntityManager;
-import jakarta.persistence.EntityManagerFactory;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
 import org.hibernate.Session;
@@ -22,17 +21,14 @@ public class AppointmentReminderJob {
 
     private final AppointmentRepository appointmentRepository;
     private final AppointmentMessagingUseCase messagingUseCase;
-    private final EntityManagerFactory entityManagerFactory;
+    private final EntityManager entityManager;
 
     @Scheduled(cron = "0 0/15 * * * *")
     public void scheduleReminders() {
-
         Instant startTime = Instant.now();
         log.info("Starting appointment reminder job");
-
-        try (EntityManager em = entityManagerFactory.createEntityManager()) {
-
-            Session session = em.unwrap(Session.class);
+        try {
+            Session session = entityManager.unwrap(Session.class);
             session.disableFilter("tenantFilter");
 
             int processed = sendReminders();
