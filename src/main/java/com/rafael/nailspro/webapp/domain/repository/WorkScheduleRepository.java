@@ -9,6 +9,7 @@ import org.springframework.data.repository.query.Param;
 import java.time.DayOfWeek;
 import java.time.LocalTime;
 import java.util.List;
+import java.util.Set;
 import java.util.UUID;
 
 public interface WorkScheduleRepository extends JpaRepository<WorkSchedule, Long> {
@@ -38,4 +39,6 @@ public interface WorkScheduleRepository extends JpaRepository<WorkSchedule, Long
             AND ws.professional.id = :professionalId
             """)
     void deleteByIdAndProfessional(Long scheduleId, Long professionalId);
+
+    Set<WorkSchedule> findAllByProfessionalId(Long id);
 }

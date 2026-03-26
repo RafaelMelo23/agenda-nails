@@ -47,7 +47,7 @@ public class TestWorkScheduleFactory {
         return finalizeSchedule(builtWs);
     }
 
-    private static WorkSchedule.WorkScheduleBuilder<?, ?> baseBuilder(
+    private static WorkSchedule.WorkScheduleBuilder baseBuilder(
             DayOfWeek dayOfWeek,
             Professional professional
     ) {

@@ -2,6 +2,7 @@ package com.rafael.nailspro.webapp.infrastructure.controller.api.professional;
 
 import com.rafael.nailspro.webapp.application.professional.ProfessionalWorkScheduleUseCase;
 import com.rafael.nailspro.webapp.domain.model.UserPrincipal;
+import com.rafael.nailspro.webapp.domain.model.WorkSchedule;
 import com.rafael.nailspro.webapp.infrastructure.config.SwaggerExamples;
 import com.rafael.nailspro.webapp.infrastructure.dto.professional.schedule.WorkScheduleRecordDTO;
 import io.swagger.v3.oas.annotations.Operation;
@@ -59,11 +60,10 @@ public class ProfessionalWorkScheduleController {
                     examples = @ExampleObject(name = "WorkScheduleListRequest", value = SwaggerExamples.WORK_SCHEDULE_LIST_REQUEST))
     )
     @PostMapping
-    public ResponseEntity<Void> createWorkSchedule(@Valid @RequestBody List<WorkScheduleRecordDTO> workScheduleRecordDTO,
-                                                   @AuthenticationPrincipal UserPrincipal userPrincipal) {
+    public ResponseEntity<List<WorkSchedule>> createWorkSchedule(@Valid @RequestBody List<WorkScheduleRecordDTO> workScheduleRecordDTO,
+                                                                @AuthenticationPrincipal UserPrincipal userPrincipal) {
 
-        professionalWorkScheduleUseCase.registerSchedules(workScheduleRecordDTO, userPrincipal.getUserId());
-        return ResponseEntity.status(HttpStatus.CREATED).build();
+        return ResponseEntity.ok(professionalWorkScheduleUseCase.createSchedules(workScheduleRecordDTO, userPrincipal.getUserId()));
     }
 
     @Operation(summary = "Modify work schedules", description = "Modifies the professional's weekly schedule.")

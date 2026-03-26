@@ -12,10 +12,7 @@ import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-import java.util.UUID;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @Service
@@ -26,13 +23,12 @@ public class ProfessionalWorkScheduleUseCase {
     private final ProfessionalRepository professionalRepository;
 
     @Transactional
-    public void registerSchedules(List<WorkScheduleRecordDTO> workScheduleDTO, Long professionalId) {
+    public List<WorkSchedule> createSchedules(List<WorkScheduleRecordDTO> workScheduleDTO, Long professionalId) {
         Professional professional = professionalRepository.findById(professionalId)
                 .orElseThrow(() -> new BusinessException("Profissional não encontrado(a)"));
 
         try {
-            professional.registerNewSchedules(workScheduleDTO);
-            professionalRepository.save(professional);
+            return repository.saveAll(new HashSet<>(professional.registerNewSchedules(workScheduleDTO)));
         } catch (DataIntegrityViolationException e) {
             throw new BusinessException("Erro: Você já possui horários cadastrados para um ou mais dos dias selecionados.");
         }

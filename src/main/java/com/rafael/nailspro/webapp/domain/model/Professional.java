@@ -1,11 +1,13 @@
 package com.rafael.nailspro.webapp.domain.model;
 
 import com.rafael.nailspro.webapp.infrastructure.dto.professional.schedule.WorkScheduleRecordDTO;
+import com.rafael.nailspro.webapp.infrastructure.exception.BusinessException;
 import jakarta.persistence.*;
 import lombok.*;
 import lombok.experimental.SuperBuilder;
 
 import java.time.DayOfWeek;
+import java.time.LocalTime;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -49,21 +51,54 @@ public class Professional extends User {
         this.externalId = UUID.randomUUID();
     }
 
-    public void registerNewSchedules(List<WorkScheduleRecordDTO> dtos) {
-        Set<DayOfWeek> existingDays = getExistingScheduleDays();
+    public Set<WorkSchedule> registerNewSchedules(List<WorkScheduleRecordDTO> dtos) {
+        validateAndCheckOverlap(dtos);
 
-        dtos.stream()
-                .filter(dto -> !existingDays.contains(dto.dayOfWeek()))
-                .map(dto -> WorkSchedule.builder()
-                        .dayOfWeek(dto.dayOfWeek())
-                        .workStart(dto.startTime())
-                        .workEnd(dto.endTime())
-                        .lunchBreakStartTime(dto.lunchBreakStartTime())
-                        .lunchBreakEndTime(dto.lunchBreakEndTime())
-                        .isActive(true)
-                        .professional(this)
-                        .build())
-                .forEach(this.workSchedules::add);
+        Set<WorkSchedule> newSchedules = dtos.stream()
+                .map(this::mapToEntity)
+                .collect(Collectors.toSet());
+
+        this.workSchedules.addAll(newSchedules);
+        return newSchedules;
+    }
+
+    private void validateAndCheckOverlap(List<WorkScheduleRecordDTO> dtos) {
+        Set<DayOfWeek> days = new HashSet<>();
+        for(WorkScheduleRecordDTO dto : dtos) {
+            validateDto(dto);
+            checkForRepeatedDays(dto);
+
+            if (!days.add(dto.dayOfWeek()))
+                throw new BusinessException("A requisição contém dias duplicados.");
+            if (!dto.startTime().isBefore(dto.endTime()))
+                throw new BusinessException("O horário de início deve ser menor que o de término.");
+            if (dto.lunchBreakStartTime().isAfter(dto.endTime()) || dto.lunchBreakEndTime().isAfter(dto.endTime()))
+                throw new BusinessException("O horário de almoço não pode ser depois do término do expediente.");
+        }
+    }
+
+    private void checkForRepeatedDays(WorkScheduleRecordDTO dto) {
+        Set<DayOfWeek> existingDays = getExistingScheduleDays();
+        if (existingDays.contains(dto.dayOfWeek())) throw new BusinessException("Horário já cadastrado para: " + dto.dayOfWeek());
+    }
+
+    private void validateDto(WorkScheduleRecordDTO dto) {
+        if (dto.dayOfWeek() == null || dto.startTime() == null || dto.endTime() == null ||
+                dto.lunchBreakStartTime() == null || dto.lunchBreakEndTime() == null) {
+            throw new BusinessException("Todos os campos de horário são obrigatórios.");
+        }
+    }
+
+    private WorkSchedule mapToEntity(WorkScheduleRecordDTO dto) {
+        return WorkSchedule.builder()
+                .dayOfWeek(dto.dayOfWeek())
+                .workStart(dto.startTime())
+                .workEnd(dto.endTime())
+                .lunchBreakStartTime(dto.lunchBreakStartTime())
+                .lunchBreakEndTime(dto.lunchBreakEndTime())
+                .isActive(true)
+                .professional(this)
+                .build();
     }
 
     private Set<DayOfWeek> getExistingScheduleDays() {

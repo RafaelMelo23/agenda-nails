@@ -2,6 +2,7 @@ package com.rafael.nailspro.webapp.domain.model;
 
 import com.rafael.nailspro.webapp.infrastructure.dto.professional.schedule.WorkScheduleRecordDTO;
 import com.rafael.nailspro.webapp.infrastructure.exception.BusinessException;
+import com.rafael.nailspro.webapp.shared.tenant.TenantContext;
 import jakarta.persistence.*;
 import lombok.*;
 import lombok.experimental.SuperBuilder;
@@ -10,11 +11,9 @@ import org.hibernate.annotations.Filter;
 import java.time.DayOfWeek;
 import java.time.LocalTime;
 
-
 @Entity
+@Getter @Setter
 @SuperBuilder
-@Getter
-@Setter
 @NoArgsConstructor
 @AllArgsConstructor
 @Table(
@@ -58,6 +57,11 @@ public class WorkSchedule extends BaseEntity {
     @JoinColumn(name = "professional_id", nullable = false)
     private Professional professional;
 
+    @Override
+    public void prePersist() {
+        setTenantId(this.professional.getTenantId());
+    }
+
     public void updateFromDto(WorkScheduleRecordDTO dto) {
         if (dto.dayOfWeek() != null) this.dayOfWeek = dto.dayOfWeek();
         if (dto.startTime() != null) this.workStart = dto.startTime();
@@ -85,6 +89,7 @@ public class WorkSchedule extends BaseEntity {
         this.lunchBreakEndTime = lunchBreakEndTime;
         this.isActive = isActive;
         this.professional = professional;
+        this.setTenantId(professional.getTenantId());
     }
 
     private void validateTimes(LocalTime start, LocalTime end, DayOfWeek day) {
