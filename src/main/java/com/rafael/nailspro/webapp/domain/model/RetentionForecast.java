@@ -15,6 +15,7 @@ import java.time.ZonedDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
+import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 @Setter
@@ -85,7 +86,7 @@ public class RetentionForecast {
                 )
                 .filter(Objects::nonNull)
                 .filter(salonService -> salonService.getMaintenanceIntervalDays() != null)
-                .toList();
+                .collect(Collectors.toCollection(ArrayList::new));
     }
 
     private static int getShortestMaintenanceInterval(List<SalonService> allServices) {

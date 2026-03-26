@@ -10,7 +10,6 @@ import java.time.Instant;
 import java.time.temporal.ChronoUnit;
 import java.util.List;
 
-import static com.rafael.nailspro.webapp.domain.enums.appointment.RetentionStatus.FAILED_TO_SEND;
 import static com.rafael.nailspro.webapp.domain.enums.appointment.RetentionStatus.PENDING;
 
 @Component
@@ -26,7 +25,7 @@ public class FollowUpAutomationService {
         Instant twoDaysFromNow = now.plus(2, ChronoUnit.DAYS);
 
         List<RetentionForecast> forecasts =
-                repository.findAllPredictedForecastsBetween(now, twoDaysFromNow, List.of(PENDING, FAILED_TO_SEND));
+                repository.findAllPredictedForecastsBetween(now, twoDaysFromNow, PENDING);
 
         forecasts.forEach(fr -> visitPredictionService.sendRetentionMaintenanceMessage(fr.getId()));
     }

@@ -2,6 +2,7 @@ package com.rafael.nailspro.webapp.application.retention;
 
 import com.rafael.nailspro.webapp.application.messages.RetentionMessageBuilder;
 import com.rafael.nailspro.webapp.application.whatsapp.WhatsappMessageService;
+import com.rafael.nailspro.webapp.domain.enums.appointment.RetentionStatus;
 import com.rafael.nailspro.webapp.domain.model.Appointment;
 import com.rafael.nailspro.webapp.domain.model.AppointmentAddOn;
 import com.rafael.nailspro.webapp.domain.model.RetentionForecast;
@@ -72,29 +73,29 @@ public class VisitPredictionService {
             );
 
             transactionTemplate.executeWithoutResult(status ->
-                    saveSuccessfulAttempt(result, data.messageRecord())
+                    saveSuccessfulAttempt(result, data.messageRecord(), data.forecast().getId())
             );
         } catch (Exception e) {
             transactionTemplate.executeWithoutResult(status ->
-                    handleFailedMessage(data.forecast(), data.messageRecord(), e)
+                    handleFailedMessage(data.messageRecord(), e)
             );
         }
     }
 
-    private void saveSuccessfulAttempt(SentMessageResult result, WhatsappMessage messageRecord) {
+    private void saveSuccessfulAttempt(SentMessageResult result,
+                                       WhatsappMessage messageRecord,
+                                       Long retentionForecastId) {
         whatsappMessageService.updateMessageStatus(
                 WhatsappMessageStatus.fromEvolutionStatus(result.status()),
                 null,
                 result.messageId(),
                 messageRecord.getId()
         );
+        repository.updateStatus(retentionForecastId, NOTIFIED);
     }
 
-    private void handleFailedMessage(RetentionForecast retentionForecast,
-                                     WhatsappMessage messageRecord,
+    private void handleFailedMessage(WhatsappMessage messageRecord,
                                      Exception e) {
-
-        retentionForecast.setStatus(FAILED_TO_SEND);
         whatsappMessageService.updateMessageStatus(
                 WhatsappMessageStatus.FAILED,
                 e.getMessage(),

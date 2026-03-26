@@ -13,7 +13,7 @@ public enum WhatsappMessageStatus {
         return switch (value) {
             case PENDING -> PENDING;
             case SERVER_ACK -> SENT;
-            case DELIVERY_ACK -> DELIVERED;
+            case DELIVERY_ACK, READ, PLAYED -> DELIVERED;
             default -> FAILED;
         };
     }

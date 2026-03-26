@@ -31,8 +31,8 @@ public class RetentionForecastExpirationJob {
             session.disableFilter("tenantFilter");
 
             List<RetentionForecast> expiredForecasts =
-                    repository.findAllExpiredPredictedForecastsAndNotInStatus(
-                            now, RetentionStatus.EXPIRED
+                    repository.findAllExpiredPredictedForecastsByStatus(
+                            now, List.of(RetentionStatus.PENDING, RetentionStatus.NOTIFIED)
                     );
 
             int processed = 0;

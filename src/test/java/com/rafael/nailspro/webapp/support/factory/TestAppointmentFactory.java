@@ -17,6 +17,25 @@ import java.util.concurrent.ThreadLocalRandom;
 
 public class TestAppointmentFactory {
 
+    public static Appointment standardForIt(Client client, Professional professional, SalonService mainService) {
+        Instant startDate = Instant.now().plus(1, ChronoUnit.DAYS);
+
+        return Appointment.builder()
+                .id(null)
+                .client(client)
+                .professional(professional)
+                .mainSalonService(mainService)
+                .totalValue(BigDecimal.valueOf(mainService.getValue()))
+                .appointmentStatus(AppointmentStatus.PENDING)
+                .startDate(startDate)
+                .endDate(startDate.plus(1, ChronoUnit.HOURS))
+                .salonTradeName("Test Salon")
+                .salonZoneId(ZoneId.of("America/Sao_Paulo"))
+                .addOns(new ArrayList<>())
+                .tenantId("tenant-test")
+                .build();
+    }
+
     public static Appointment standard(Client client, Professional professional, SalonService mainService) {
         return buildWithStatusAndDates(client, professional, mainService, AppointmentStatus.PENDING, 1);
     }

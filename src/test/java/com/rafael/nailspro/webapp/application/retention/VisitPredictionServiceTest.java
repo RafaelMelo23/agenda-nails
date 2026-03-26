@@ -194,8 +194,10 @@ class VisitPredictionServiceTest {
         Appointment appointment = standardAppointment();
 
         RetentionForecast forecast = new RetentionForecast();
+        forecast.setId(retentionForecastId);
         forecast.setClient(appointment.getClient());
         forecast.setOriginAppointment(appointment);
+
 
         WhatsappMessage messageRecord = new WhatsappMessage();
         SentMessageResult successResult = new SentMessageResult("msg-id-123", EvolutionMessageStatus.PENDING);
@@ -209,31 +211,32 @@ class VisitPredictionServiceTest {
 
         verify(whatsappProvider).sendText(eq(tenantId), eq(fakeMessage), eq(appointment.getClient().getPhoneNumber()));
         verify(whatsappMessageService).updateMessageStatus(eq(WhatsappMessageStatus.PENDING), isNull(), eq("msg-id-123"), any());
+        verify(repository).updateStatus(retentionForecastId, RetentionStatus.NOTIFIED);
     }
 
     @Test
     void sendRetentionMaintenanceMessage_throwsException_whenSendTextFails() {
         prepareTransaction();
         Long retentionForecastId = 1L;
-        String tenantId = "tenant-test";
-        String phoneNumber = "5511999999999";
         String fakeMessage = "Mock Message";
 
         Appointment appointment = standardAppointment();
         RetentionForecast forecast = new RetentionForecast();
         forecast.setClient(appointment.getClient());
         forecast.setOriginAppointment(appointment);
+        forecast.setStatus(RetentionStatus.PENDING);
 
         WhatsappMessage messageRecord = new WhatsappMessage();
 
         when(repository.findWithJoins(retentionForecastId)).thenReturn(Optional.of(forecast));
         when(whatsappMessageService.prepareRetentionMessage(anyLong(), any())).thenReturn(messageRecord);
         when(messageBuilder.buildRetentionMessage(any())).thenReturn(fakeMessage);
-        when(whatsappProvider.sendText(eq(tenantId), eq(fakeMessage), eq(phoneNumber))).thenThrow(HttpServerErrorException.class);
+        when(whatsappProvider.sendText(any(), any(), any())).thenThrow(HttpServerErrorException.class);
 
         visitPredictionService.sendRetentionMaintenanceMessage(retentionForecastId);
 
         verify(whatsappMessageService).updateMessageStatus(eq(WhatsappMessageStatus.FAILED), any(), isNull(), any());
+        assertEquals(RetentionStatus.PENDING, forecast.getStatus());
     }
 
     @Test

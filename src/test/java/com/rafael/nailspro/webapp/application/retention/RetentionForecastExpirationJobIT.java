@@ -153,13 +153,36 @@ class RetentionForecastExpirationJobIT extends BaseIntegrationTest {
     }
 
     @Test
-    void expireForecasts_doesNothing_whenNoExpiredForecastsExist() {
-        repository.deleteAll();
+    void expireForecasts_shouldNotExpireConvertedForecasts() {
+        var professional = professionalRepository.save(TestProfessionalFactory.standardForIt());
+        var client = clientRepository.save(TestClientFactory.standardForIt());
+        var service = salonServiceRepository.save(TestSalonServiceFactory.standardForIt());
+
+        var forecast = TestRetentionForecastFactory.activeWithOldReturnDate(professional, client, List.of(service));
+        forecast.setStatus(RetentionStatus.CONVERTED);
+        repository.save(forecast);
+        entityManager.flush();
 
         retentionForecastExpirationJob.expireForecasts();
 
-        verify(visitPredictionService, never()).markForecastAsExpired(any());
+        var updatedForecast = repository.findById(forecast.getId()).orElseThrow();
+        assertThat(updatedForecast.getStatus()).isEqualTo(RetentionStatus.CONVERTED);
+    }
 
-        assertThat(repository.findAll()).isEmpty();
+    @Test
+    void expireForecasts_shouldExpireNotifiedForecasts() {
+        var professional = professionalRepository.save(TestProfessionalFactory.standardForIt());
+        var client = clientRepository.save(TestClientFactory.standardForIt());
+        var service = salonServiceRepository.save(TestSalonServiceFactory.standardForIt());
+
+        var forecast = TestRetentionForecastFactory.activeWithOldReturnDate(professional, client, List.of(service));
+        forecast.setStatus(RetentionStatus.NOTIFIED);
+        repository.save(forecast);
+        entityManager.flush();
+
+        retentionForecastExpirationJob.expireForecasts();
+
+        var updatedForecast = repository.findById(forecast.getId()).orElseThrow();
+        assertThat(updatedForecast.getStatus()).isEqualTo(RetentionStatus.EXPIRED);
     }
 }

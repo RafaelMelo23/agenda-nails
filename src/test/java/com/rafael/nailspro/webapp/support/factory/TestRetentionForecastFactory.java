@@ -1,10 +1,7 @@
 package com.rafael.nailspro.webapp.support.factory;
 
 import com.rafael.nailspro.webapp.domain.enums.appointment.RetentionStatus;
-import com.rafael.nailspro.webapp.domain.model.Client;
-import com.rafael.nailspro.webapp.domain.model.Professional;
-import com.rafael.nailspro.webapp.domain.model.RetentionForecast;
-import com.rafael.nailspro.webapp.domain.model.SalonService;
+import com.rafael.nailspro.webapp.domain.model.*;
 
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
@@ -33,6 +30,36 @@ public class TestRetentionForecastFactory {
                 .client(c)
                 .professional(p)
                 .salonServices(s)
+                .build();
+    }
+
+    public static RetentionForecast withAppointment(Professional p,
+                                                    Client c,
+                                                    List<SalonService> s,
+                                                    Appointment origin,
+                                                    Instant returnDate) {
+        return baseBuilder()
+                .client(c)
+                .professional(p)
+                .salonServices(s)
+                .originAppointment(origin)
+                .predictedReturnDate(returnDate)
+                .build();
+    }
+
+    public static RetentionForecast withAppointmentAndStatus(Professional p,
+                                                          Client c,
+                                                          List<SalonService> s,
+                                                          Appointment origin,
+                                                          Instant returnDate,
+                                                             RetentionStatus status) {
+        return baseBuilder()
+                .client(c)
+                .professional(p)
+                .salonServices(s)
+                .originAppointment(origin)
+                .status(status)
+                .predictedReturnDate(returnDate)
                 .build();
     }
 
