@@ -10,7 +10,6 @@ import com.rafael.nailspro.webapp.domain.repository.AppointmentRepository;
 import com.rafael.nailspro.webapp.domain.repository.ClientRepository;
 import com.rafael.nailspro.webapp.domain.repository.ProfessionalRepository;
 import com.rafael.nailspro.webapp.infrastructure.dto.appointment.AppointmentCreateDTO;
-import com.rafael.nailspro.webapp.domain.model.TimeInterval;
 import com.rafael.nailspro.webapp.infrastructure.exception.BusinessException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;

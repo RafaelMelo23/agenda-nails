@@ -25,7 +25,11 @@ public class TenantStatusInterceptor implements HandlerInterceptor {
         String path = request.getRequestURI();
         boolean isWhiteListed = requestPolicyManager.isWhiteListed(path);
 
-        if (tenantId != null || !isWhiteListed) {
+        if (isWhiteListed) {
+            return true;
+        }
+
+        if (tenantId != null) {
             TenantStatus tenantStatus = salonProfileService.getStatusByTenantId(tenantId);
 
             if (tenantStatus == TenantStatus.SUSPENDED) {

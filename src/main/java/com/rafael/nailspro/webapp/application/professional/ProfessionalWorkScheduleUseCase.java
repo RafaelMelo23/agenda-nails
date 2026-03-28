@@ -1,10 +1,10 @@
 package com.rafael.nailspro.webapp.application.professional;
 
 import com.rafael.nailspro.webapp.domain.model.Professional;
+import com.rafael.nailspro.webapp.domain.model.TimeInterval;
 import com.rafael.nailspro.webapp.domain.model.WorkSchedule;
 import com.rafael.nailspro.webapp.domain.repository.ProfessionalRepository;
 import com.rafael.nailspro.webapp.domain.repository.WorkScheduleRepository;
-import com.rafael.nailspro.webapp.domain.model.TimeInterval;
 import com.rafael.nailspro.webapp.infrastructure.dto.professional.schedule.WorkScheduleRecordDTO;
 import com.rafael.nailspro.webapp.infrastructure.exception.BusinessException;
 import lombok.RequiredArgsConstructor;

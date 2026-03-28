@@ -2,14 +2,12 @@ package com.rafael.nailspro.webapp.application.retention;
 
 import com.rafael.nailspro.webapp.application.messages.RetentionMessageBuilder;
 import com.rafael.nailspro.webapp.application.whatsapp.WhatsappMessageService;
-import com.rafael.nailspro.webapp.domain.enums.appointment.RetentionStatus;
+import com.rafael.nailspro.webapp.domain.enums.whatsapp.WhatsappMessageStatus;
+import com.rafael.nailspro.webapp.domain.enums.whatsapp.WhatsappMessageType;
 import com.rafael.nailspro.webapp.domain.model.Appointment;
-import com.rafael.nailspro.webapp.domain.model.AppointmentAddOn;
 import com.rafael.nailspro.webapp.domain.model.RetentionForecast;
 import com.rafael.nailspro.webapp.domain.model.WhatsappMessage;
 import com.rafael.nailspro.webapp.domain.repository.RetentionForecastRepository;
-import com.rafael.nailspro.webapp.domain.enums.whatsapp.WhatsappMessageStatus;
-import com.rafael.nailspro.webapp.domain.enums.whatsapp.WhatsappMessageType;
 import com.rafael.nailspro.webapp.domain.whatsapp.SentMessageResult;
 import com.rafael.nailspro.webapp.domain.whatsapp.WhatsappProvider;
 import com.rafael.nailspro.webapp.infrastructure.dto.retention.RetentionData;
@@ -19,8 +17,6 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.transaction.support.TransactionTemplate;
 
 import java.time.Instant;
-import java.util.ArrayList;
-import java.util.List;
 
 import static com.rafael.nailspro.webapp.domain.enums.appointment.RetentionStatus.*;
 

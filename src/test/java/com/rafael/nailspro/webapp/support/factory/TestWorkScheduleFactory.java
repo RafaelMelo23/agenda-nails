@@ -1,7 +1,7 @@
 package com.rafael.nailspro.webapp.support.factory;
 
-import com.rafael.nailspro.webapp.domain.model.WorkSchedule;
 import com.rafael.nailspro.webapp.domain.model.Professional;
+import com.rafael.nailspro.webapp.domain.model.WorkSchedule;
 
 import java.time.DayOfWeek;
 import java.time.LocalTime;

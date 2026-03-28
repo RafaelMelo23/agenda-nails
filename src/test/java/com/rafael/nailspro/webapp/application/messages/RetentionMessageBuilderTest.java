@@ -1,7 +1,6 @@
 package com.rafael.nailspro.webapp.application.messages;
 
 import com.rafael.nailspro.webapp.domain.model.*;
-import com.rafael.nailspro.webapp.infrastructure.helper.DateAndZoneHelper;
 import com.rafael.nailspro.webapp.infrastructure.helper.TenantUrlProvider;
 import com.rafael.nailspro.webapp.support.factory.*;
 import org.junit.jupiter.api.Test;
@@ -11,12 +10,10 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.time.Instant;
-import java.time.ZoneId;
 import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
-import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)

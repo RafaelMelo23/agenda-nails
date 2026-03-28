@@ -1,7 +1,6 @@
 package com.rafael.nailspro.webapp.domain.repository;
 
 import com.rafael.nailspro.webapp.domain.enums.appointment.RetentionStatus;
-import com.rafael.nailspro.webapp.domain.model.Appointment;
 import com.rafael.nailspro.webapp.domain.model.RetentionForecast;
 import com.rafael.nailspro.webapp.shared.tenant.IgnoreTenantFilter;
 import org.springframework.data.jpa.repository.JpaRepository;

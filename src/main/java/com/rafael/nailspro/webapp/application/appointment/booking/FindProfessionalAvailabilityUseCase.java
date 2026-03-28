@@ -14,13 +14,11 @@ import com.rafael.nailspro.webapp.infrastructure.dto.appointment.ProfessionalAva
 import com.rafael.nailspro.webapp.infrastructure.dto.appointment.booking.AppointmentTimeWindow;
 import com.rafael.nailspro.webapp.infrastructure.dto.professional.FindProfessionalAvailabilityDTO;
 import com.rafael.nailspro.webapp.infrastructure.exception.BusinessException;
-import com.rafael.nailspro.webapp.shared.tenant.TenantContext;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.time.Clock;
 import java.time.Instant;
 import java.time.ZonedDateTime;
 import java.util.List;

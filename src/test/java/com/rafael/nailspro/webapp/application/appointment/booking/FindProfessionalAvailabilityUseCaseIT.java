@@ -2,14 +2,12 @@ package com.rafael.nailspro.webapp.application.appointment.booking;
 
 import com.rafael.nailspro.webapp.domain.enums.appointment.AppointmentStatus;
 import com.rafael.nailspro.webapp.domain.model.*;
-import com.rafael.nailspro.webapp.domain.repository.*;
 import com.rafael.nailspro.webapp.infrastructure.dto.appointment.AppointmentTimesDTO;
 import com.rafael.nailspro.webapp.infrastructure.dto.professional.FindProfessionalAvailabilityDTO;
 import com.rafael.nailspro.webapp.shared.tenant.TenantContext;
 import com.rafael.nailspro.webapp.support.BaseIntegrationTest;
 import com.rafael.nailspro.webapp.support.TestClockConfig;
 import com.rafael.nailspro.webapp.support.factory.*;
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;

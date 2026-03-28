@@ -3,7 +3,6 @@ package com.rafael.nailspro.webapp.application.messages;
 import com.rafael.nailspro.webapp.domain.model.Appointment;
 import com.rafael.nailspro.webapp.domain.model.RetentionForecast;
 import com.rafael.nailspro.webapp.domain.model.SalonService;
-import com.rafael.nailspro.webapp.infrastructure.helper.DateAndZoneHelper;
 import com.rafael.nailspro.webapp.infrastructure.helper.TenantUrlProvider;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;

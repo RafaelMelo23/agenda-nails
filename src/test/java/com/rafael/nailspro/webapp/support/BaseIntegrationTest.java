@@ -1,7 +1,6 @@
 package com.rafael.nailspro.webapp.support;
 
 import com.rafael.nailspro.webapp.SchedulingNailsProApplication;
-import com.rafael.nailspro.webapp.domain.model.Appointment;
 import com.rafael.nailspro.webapp.domain.repository.*;
 import com.rafael.nailspro.webapp.shared.tenant.TenantContext;
 import org.junit.jupiter.api.AfterEach;

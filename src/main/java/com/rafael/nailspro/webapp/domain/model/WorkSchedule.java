@@ -2,7 +2,6 @@ package com.rafael.nailspro.webapp.domain.model;
 
 import com.rafael.nailspro.webapp.infrastructure.dto.professional.schedule.WorkScheduleRecordDTO;
 import com.rafael.nailspro.webapp.infrastructure.exception.BusinessException;
-import com.rafael.nailspro.webapp.shared.tenant.TenantContext;
 import jakarta.persistence.*;
 import lombok.*;
 import lombok.experimental.SuperBuilder;

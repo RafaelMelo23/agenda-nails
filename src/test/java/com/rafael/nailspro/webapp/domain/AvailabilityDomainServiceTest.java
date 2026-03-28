@@ -1,21 +1,15 @@
 package com.rafael.nailspro.webapp.domain;
 
 import com.rafael.nailspro.webapp.domain.enums.appointment.AppointmentStatus;
-import com.rafael.nailspro.webapp.domain.model.Appointment;
-import com.rafael.nailspro.webapp.domain.model.Professional;
-import com.rafael.nailspro.webapp.domain.model.SalonProfile;
-import com.rafael.nailspro.webapp.domain.model.ScheduleBlock;
-import com.rafael.nailspro.webapp.domain.model.WorkSchedule;
+import com.rafael.nailspro.webapp.domain.model.*;
 import com.rafael.nailspro.webapp.domain.repository.AppointmentRepository;
 import com.rafael.nailspro.webapp.domain.repository.ProfessionalRepository;
 import com.rafael.nailspro.webapp.domain.repository.ScheduleBlockRepository;
 import com.rafael.nailspro.webapp.infrastructure.dto.appointment.AppointmentTimesDTO;
 import com.rafael.nailspro.webapp.infrastructure.dto.appointment.booking.AppointmentTimeWindow;
 import com.rafael.nailspro.webapp.infrastructure.dto.appointment.contract.BusyInterval;
-import com.rafael.nailspro.webapp.domain.model.TimeInterval;
 import com.rafael.nailspro.webapp.infrastructure.exception.BusinessException;
 import com.rafael.nailspro.webapp.support.factory.*;
-import com.rafael.nailspro.webapp.support.factory.TestScheduleBlockFactory;
 import org.jetbrains.annotations.NotNull;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -30,7 +24,8 @@ import java.util.Set;
 import java.util.UUID;
 
 import static org.junit.jupiter.api.Assertions.*;
-import static org.mockito.ArgumentMatchers.*;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)

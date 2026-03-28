@@ -1,7 +1,7 @@
 package com.rafael.nailspro.webapp.support.factory;
 
-import com.rafael.nailspro.webapp.domain.model.ScheduleBlock;
 import com.rafael.nailspro.webapp.domain.model.Professional;
+import com.rafael.nailspro.webapp.domain.model.ScheduleBlock;
 
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;

@@ -22,7 +22,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import static org.assertj.core.api.AssertionsForInterfaceTypes.assertThat;
-import static org.mockito.Mockito.*;
+import static org.mockito.Mockito.doThrow;
 
 @SpringBootTest
 @ActiveProfiles("it")

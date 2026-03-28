@@ -3,7 +3,6 @@ package com.rafael.nailspro.webapp.application.appointment.booking;
 import com.rafael.nailspro.webapp.domain.enums.appointment.AppointmentStatus;
 import com.rafael.nailspro.webapp.domain.enums.user.UserRole;
 import com.rafael.nailspro.webapp.domain.model.*;
-import com.rafael.nailspro.webapp.domain.repository.*;
 import com.rafael.nailspro.webapp.infrastructure.dto.appointment.AppointmentCreateDTO;
 import com.rafael.nailspro.webapp.infrastructure.exception.BusinessException;
 import com.rafael.nailspro.webapp.shared.tenant.TenantContext;
