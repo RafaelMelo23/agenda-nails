@@ -8,6 +8,7 @@ import org.springframework.data.jpa.repository.*;
 import org.springframework.data.repository.query.Param;
 
 import java.time.DayOfWeek;
+import java.time.Instant;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
@@ -43,8 +44,8 @@ public interface ProfessionalRepository extends JpaRepository<Professional, Long
                         )
             """)
     boolean hasTimeConflicts(@Param("externalId") UUID professionalId,
-                             @Param("startDateAndTime") LocalDateTime startDate,
-                             @Param("endDateAndTime") LocalDateTime endDate,
+                             @Param("startDateAndTime") Instant startDate,
+                             @Param("endDateAndTime") Instant endDate,
                              @Param("statuses") List<AppointmentStatus> status);
 
     @Lock(LockModeType.PESSIMISTIC_WRITE)

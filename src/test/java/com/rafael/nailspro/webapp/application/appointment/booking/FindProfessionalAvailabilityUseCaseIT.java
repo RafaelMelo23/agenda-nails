@@ -21,7 +21,6 @@ import java.util.HashSet;
 import java.util.List;
 
 import static org.assertj.core.api.AssertionsForInterfaceTypes.assertThat;
-import static org.mockito.Mockito.when;
 
 
 @SpringBootTest

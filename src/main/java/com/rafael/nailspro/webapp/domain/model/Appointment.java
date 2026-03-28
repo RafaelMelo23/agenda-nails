@@ -95,6 +95,11 @@ public class Appointment extends BaseEntity {
         domainEvents.clear();
     }
 
+    @Override
+    public void prePersist() {
+        super.prePersist();
+    }
+
     public void miss() {
         ensureStatusIsNotFinal();
 

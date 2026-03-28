@@ -216,10 +216,7 @@ public class AvailabilityDomainService {
     }
 
     public void checkIfProfessionalHasTimeConflicts(UUID professionalId, TimeInterval interval) {
-        LocalDateTime start = interval.toLocalDateTime(interval.realTimeStart());
-        LocalDateTime end = interval.toLocalDateTime(interval.endTimeWithBuffer());
-
-        if (professionalRepository.hasTimeConflicts(professionalId, start, end, List.of(CONFIRMED, FINISHED))) {
+        if (professionalRepository.hasTimeConflicts(professionalId, interval.realTimeStart(), interval.endTimeWithBuffer(), List.of(CONFIRMED, FINISHED))) {
             throw new BusinessException("O profissional já possui um compromisso ou bloqueio neste horário.");
         }
     }

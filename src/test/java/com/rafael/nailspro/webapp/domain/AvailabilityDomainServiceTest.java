@@ -120,8 +120,8 @@ class AvailabilityDomainServiceTest {
 
         when(professionalRepository.hasTimeConflicts(
                 eq(professionalId),
-                any(LocalDateTime.class),
-                any(LocalDateTime.class),
+                any(Instant.class),
+                any(Instant.class),
                 eq(List.of(AppointmentStatus.CONFIRMED, AppointmentStatus.FINISHED))
         )).thenReturn(false);
 
@@ -137,8 +137,8 @@ class AvailabilityDomainServiceTest {
 
         when(professionalRepository.hasTimeConflicts(
                 eq(professionalId),
-                any(LocalDateTime.class),
-                any(LocalDateTime.class),
+                any(Instant.class),
+                any(Instant.class),
                 eq(List.of(AppointmentStatus.CONFIRMED, AppointmentStatus.FINISHED))
         )).thenReturn(true);
 
