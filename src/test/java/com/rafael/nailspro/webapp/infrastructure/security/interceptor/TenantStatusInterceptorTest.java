@@ -49,7 +49,7 @@ class TenantStatusInterceptorTest {
     }
 
     @Test
-    void preHandle_WhenTenantIsActive_ShouldReturnTrue() throws Exception {
+    void shouldReturnTrueWhenTenantIsActive() throws Exception {
         String tenantId = "active-tenant";
         TenantContext.setTenant(tenantId);
         when(request.getRequestURI()).thenReturn("/api/appointments");
@@ -63,7 +63,7 @@ class TenantStatusInterceptorTest {
     }
 
     @Test
-    void preHandle_WhenTenantIsSuspended_ShouldReturnFalseAndSet402() throws Exception {
+    void shouldReturnFalseAndSet402WhenTenantIsSuspended() throws Exception {
         String tenantId = "suspended-tenant";
         TenantContext.setTenant(tenantId);
         when(request.getRequestURI()).thenReturn("/api/appointments");
@@ -83,7 +83,7 @@ class TenantStatusInterceptorTest {
     }
 
     @Test
-    void preHandle_WhenPathIsWhiteListed_ShouldReturnTrueEvenIfTenantSuspended() throws Exception {
+    void shouldReturnTrueEvenIfTenantSuspendedWhenPathIsWhiteListed() throws Exception {
         String tenantId = "suspended-tenant";
         TenantContext.setTenant(tenantId);
         when(request.getRequestURI()).thenReturn("/api/auth/login");
@@ -96,7 +96,7 @@ class TenantStatusInterceptorTest {
     }
 
     @Test
-    void preHandle_WhenNoTenantAndNotWhiteListed_ShouldReturnTrueWithoutCheckingStatus() throws Exception {
+    void shouldReturnTrueWithoutCheckingStatusWhenNoTenantAndNotWhiteListed() throws Exception {
         when(request.getRequestURI()).thenReturn("/api/admin");
         when(requestPolicyManager.isWhiteListed("/api/admin")).thenReturn(false);
 

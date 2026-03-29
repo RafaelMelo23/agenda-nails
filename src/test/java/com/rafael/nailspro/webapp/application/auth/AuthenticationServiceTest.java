@@ -11,13 +11,16 @@ import com.rafael.nailspro.webapp.infrastructure.dto.auth.LoginDTO;
 import com.rafael.nailspro.webapp.infrastructure.dto.auth.RegisterDTO;
 import com.rafael.nailspro.webapp.infrastructure.dto.auth.TokenRefreshResponseDTO;
 import com.rafael.nailspro.webapp.infrastructure.exception.BusinessException;
+import com.rafael.nailspro.webapp.infrastructure.exception.LoginException;
 import com.rafael.nailspro.webapp.infrastructure.exception.TokenRefreshException;
 import com.rafael.nailspro.webapp.infrastructure.exception.UserAlreadyExistsException;
 import com.rafael.nailspro.webapp.infrastructure.security.token.TokenService;
 import com.rafael.nailspro.webapp.infrastructure.security.token.refresh.RefreshTokenService;
 import com.rafael.nailspro.webapp.shared.tenant.TenantContext;
 import com.rafael.nailspro.webapp.support.factory.TestClientFactory;
-import org.junit.jupiter.api.*;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
@@ -33,20 +36,16 @@ import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
-public class AuthenticationServiceTest {
+class AuthenticationServiceTest {
 
     @Mock
     private UserRepository userRepository;
-
     @Mock
     private ClientRepository clientRepository;
-
     @Mock
     private PasswordEncoder passwordEncoder;
-
     @Mock
     private TokenService tokenService;
-
     @Mock
     private RefreshTokenService refreshTokenService;
 
@@ -66,8 +65,7 @@ public class AuthenticationServiceTest {
     }
 
     @Test
-    @DisplayName("Should register a new client successfully")
-    void shouldRegisterNewClientSuccessfully() {
+    void shouldRegisterNewClientWhenDataIsValid() {
         RegisterDTO dto = new RegisterDTO("Test Name", "email@test.com", "password123", "11999999999");
         when(userRepository.findByEmailIgnoreCase(dto.email())).thenReturn(Optional.empty());
         when(clientRepository.findByPhoneNumber(anyString())).thenReturn(Optional.empty());
@@ -79,8 +77,7 @@ public class AuthenticationServiceTest {
     }
 
     @Test
-    @DisplayName("Should throw exception when email already exists during registration")
-    void shouldThrowExceptionWhenEmailAlreadyExists() {
+    void shouldThrowExceptionWhenEmailAlreadyExistsDuringRegistration() {
         RegisterDTO dto = new RegisterDTO("Test Name", "email@test.com", "password123", "11999999999");
         when(userRepository.findByEmailIgnoreCase(dto.email())).thenReturn(Optional.of(TestClientFactory.standard()));
 
@@ -92,8 +89,7 @@ public class AuthenticationServiceTest {
     }
 
     @Test
-    @DisplayName("Should throw exception when phone number already exists during registration")
-    void shouldThrowExceptionWhenPhoneNumberAlreadyExists() {
+    void shouldThrowExceptionWhenPhoneNumberAlreadyExistsDuringRegistration() {
         RegisterDTO dto = new RegisterDTO("Test Name", "email@test.com", "password123", "11999999999");
         when(userRepository.findByEmailIgnoreCase(dto.email())).thenReturn(Optional.empty());
         when(clientRepository.findByPhoneNumber(anyString())).thenReturn(Optional.of(TestClientFactory.standard()));
@@ -106,8 +102,7 @@ public class AuthenticationServiceTest {
     }
 
     @Test
-    @DisplayName("Should login successfully and return tokens")
-    void shouldLoginSuccessfully() {
+    void shouldLoginSuccessfullyAndReturnTokensWhenCredentialsAreValid() {
         LoginDTO loginDTO = new LoginDTO("email@test.com", "password");
         Client user = TestClientFactory.builder()
                 .email(loginDTO.email())
@@ -129,8 +124,7 @@ public class AuthenticationServiceTest {
     }
 
     @Test
-    @DisplayName("Should throw exception when user not found during login")
-    void shouldThrowExceptionWhenUserNotFound() {
+    void shouldThrowExceptionWhenUserNotFoundDuringLogin() {
         LoginDTO loginDTO = new LoginDTO("email@test.com", "password");
         when(userRepository.findByEmailIgnoreCase(loginDTO.email())).thenReturn(Optional.empty());
 
@@ -142,8 +136,7 @@ public class AuthenticationServiceTest {
     }
 
     @Test
-    @DisplayName("Should throw exception when password does not match during login")
-    void shouldThrowExceptionWhenPasswordDoesNotMatch() {
+    void shouldThrowExceptionWhenPasswordDoesNotMatchDuringLogin() {
         LoginDTO loginDTO = new LoginDTO("email@test.com", "password");
         Client user = TestClientFactory.standard();
         
@@ -156,8 +149,7 @@ public class AuthenticationServiceTest {
     }
 
     @Test
-    @DisplayName("Should throw exception when user is banned during login")
-    void shouldThrowExceptionWhenUserIsBanned() {
+    void shouldThrowExceptionWhenUserIsBannedDuringLogin() {
         LoginDTO loginDTO = new LoginDTO("email@test.com", "password");
         Client user = TestClientFactory.builder()
                 .status(UserStatus.BANNED)
@@ -167,13 +159,12 @@ public class AuthenticationServiceTest {
         when(passwordEncoder.matches(loginDTO.password(), user.getPassword())).thenReturn(true);
 
         assertThatThrownBy(() -> authenticationService.login(loginDTO))
-                .isInstanceOf(BusinessException.class)
+                .isInstanceOf(LoginException.class)
                 .hasMessageContaining("Você foi banido deste estabelecimento");
     }
 
     @Test
-    @DisplayName("Should throw exception when user belongs to different tenant during login")
-    void shouldThrowExceptionWhenUserBelongsToDifferentTenant() {
+    void shouldThrowExceptionWhenUserBelongsToDifferentTenantDuringLogin() {
         LoginDTO loginDTO = new LoginDTO("email@test.com", "password");
         Client user = TestClientFactory.builder()
                 .tenantId("other-tenant")
@@ -184,13 +175,12 @@ public class AuthenticationServiceTest {
         when(passwordEncoder.matches(loginDTO.password(), user.getPassword())).thenReturn(true);
 
         assertThatThrownBy(() -> authenticationService.login(loginDTO))
-                .isInstanceOf(BusinessException.class)
+                .isInstanceOf(LoginException.class)
                 .hasMessageContaining("Acesso negado para este estabelecimento.");
     }
 
     @Test
-    @DisplayName("Should allow login for SUPER_ADMIN even with different tenant")
-    void shouldAllowSuperAdminLoginRegardlessOfTenant() {
+    void shouldAllowLoginForSuperAdminEvenWithDifferentTenant() {
         LoginDTO loginDTO = new LoginDTO("admin@test.com", "password");
         Client user = TestClientFactory.builder()
                 .tenantId("other-tenant")
@@ -208,15 +198,13 @@ public class AuthenticationServiceTest {
     }
 
     @Test
-    @DisplayName("Should revoke token on logout")
     void shouldRevokeTokenOnLogout() {
         authenticationService.logout("refresh-token", 1L);
         verify(refreshTokenService).revokeUserToken("refresh-token", 1L);
     }
 
     @Test
-    @DisplayName("Should refresh token successfully")
-    void shouldRefreshTokenSuccessfully() {
+    void shouldRefreshTokenSuccessfullyWhenTokenIsValid() {
         String oldTokenStr = "old-refresh-token";
         Client user = TestClientFactory.standard();
         RefreshToken oldToken = RefreshToken.builder()
@@ -238,8 +226,7 @@ public class AuthenticationServiceTest {
     }
 
     @Test
-    @DisplayName("Should revoke all tokens and throw exception if token is already revoked")
-    void shouldRevokeAllAndThrowExceptionIfTokenAlreadyRevoked() {
+    void shouldRevokeAllTokensAndThrowExceptionIfTokenIsAlreadyRevoked() {
         String tokenStr = "revoked-token";
         Client user = TestClientFactory.builder().id(1L).build();
         RefreshToken token = RefreshToken.builder()
@@ -258,8 +245,7 @@ public class AuthenticationServiceTest {
     }
 
     @Test
-    @DisplayName("Should throw exception if token not found")
-    void shouldThrowExceptionIfTokenNotFound() {
+    void shouldThrowExceptionWhenTokenIsNotFoundDuringRefresh() {
         when(refreshTokenService.findByToken(anyString())).thenReturn(Optional.empty());
 
         assertThatThrownBy(() -> authenticationService.refreshToken("non-existent"))

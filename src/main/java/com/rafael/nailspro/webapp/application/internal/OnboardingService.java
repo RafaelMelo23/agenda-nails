@@ -69,7 +69,9 @@ public class OnboardingService {
                 .replaceAll("\\s+", "-")
                 .replaceAll("-+", "-");
 
-        if (sanitizedDomainSlug.isEmpty()) throw new BusinessException("Slug do domínio não pode estar vazia");
+        if (sanitizedDomainSlug.isEmpty() || sanitizedDomainSlug.equals("-")) {
+            throw new BusinessException("Slug do domínio não pode estar vazia");
+        }
         return sanitizedDomainSlug;
     }
 }

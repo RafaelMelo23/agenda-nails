@@ -37,7 +37,9 @@ public class Client extends User {
     public void prePersist() {
         super.prePersist();
 
-        setUserRole(UserRole.CLIENT);
+        if (this.getUserRole() == null) {
+            setUserRole(UserRole.CLIENT);
+        }
 
         if (this.missedAppointments == null) this.missedAppointments = 0;
         if (this.canceledAppointments == null) this.setCanceledAppointments(0);

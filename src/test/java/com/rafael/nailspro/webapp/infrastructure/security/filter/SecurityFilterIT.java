@@ -24,7 +24,7 @@ class SecurityFilterIT extends BaseIntegrationTest {
     private MockMvc mvc;
 
     @Test
-    void doFilterInternal_validatesAccess_whenUserIsAuthenticated() throws Exception {
+    void shouldAllowAccessWhenUserIsAuthenticatedWithValidToken() throws Exception {
         var client = clientRepository.save(TestClientFactory.standardForIt());
 
         String token = tokenService.generateAuthToken(client);
@@ -36,15 +36,14 @@ class SecurityFilterIT extends BaseIntegrationTest {
     }
 
     @Test
-    void doFilterInternal_rejectsAccess_whenTokenIsMissing() throws Exception {
+    void shouldRejectAccessWhenTokenIsMissing() throws Exception {
         mvc.perform(get("/api/v1/user")
                         .header(HttpHeaders.HOST, "tenant-test.localhost"))
                 .andExpect(status().isUnauthorized());
     }
 
     @Test
-    void shouldNotFilter_allowsAccessToWebhookWithoutToken() throws Exception {
-
+    void shouldAllowAccessToWebhookWithoutToken() throws Exception {
         mvc.perform(post("/api/v1/webhook")
                         .header("apiKey", "test")
                         .content("{}")
@@ -58,7 +57,7 @@ class SecurityFilterIT extends BaseIntegrationTest {
     }
 
     @Test
-    void doFilterInternal_ignoresToken_whenPurposeIsWrong() throws Exception {
+    void shouldIgnoreTokenAndRejectAccessWhenTokenPurposeIsIncorrect() throws Exception {
         var client = clientRepository.save(TestClientFactory.standardForIt());
 
         String token = tokenService.generateResetPasswordToken(client.getId());
@@ -70,7 +69,7 @@ class SecurityFilterIT extends BaseIntegrationTest {
     }
 
     @Test
-    void doFilterInternal_rejectsAccess_whenUserRoleIsInsufficient() throws Exception {
+    void shouldRejectAccessWhenUserRoleIsInsufficientForResource() throws Exception {
         var client = clientRepository.save(TestClientFactory.standardForIt());
 
         String token = tokenService.generateAuthToken(client);
@@ -82,7 +81,7 @@ class SecurityFilterIT extends BaseIntegrationTest {
     }
 
     @Test
-    void doFilterInternal_correctlyMapsPrincipal() throws Exception {
+    void shouldCorrectlyMapPrincipalWhenUserIsAuthenticated() throws Exception {
         var professional = professionalRepository.save(TestProfessionalFactory.standardForIt());
         salonProfileRepository.save(TestSalonProfileFactory.standardForIT(professional));
 

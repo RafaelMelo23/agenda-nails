@@ -54,7 +54,7 @@ public class UserStatusInterceptorTest {
     }
 
     @Test
-    void preHandle_handlesActiveUser() {
+    void shouldReturnTrueWhenUserIsActive() {
         Client activeClient = TestClientFactory.standard();
         UserPrincipal userPrincipal = UserPrincipal.builder()
                 .email(activeClient.getEmail())
@@ -81,7 +81,7 @@ public class UserStatusInterceptorTest {
     }
 
     @Test
-    void preHandle_handlesBannedUser() {
+    void shouldReturnFalseWhenUserIsBanned() {
         Client activeClient = TestClientFactory.standard();
         UserPrincipal userPrincipal = UserPrincipal.builder()
                 .email(activeClient.getEmail())
@@ -108,7 +108,7 @@ public class UserStatusInterceptorTest {
     }
 
     @Test
-    void preHandle_handlesAnonymousUser() {
+    void shouldReturnTrueWhenUserIsAnonymous() {
         SecurityContext securityContext = mock(SecurityContext.class);
         Authentication anonymousAuth = new AnonymousAuthenticationToken(
                 "key",

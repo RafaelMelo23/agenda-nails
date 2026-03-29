@@ -49,7 +49,7 @@ class SecurityFilterTest {
     }
 
     @Test
-    void shouldNotFilter_ReturnsTrueForWebhookPath() {
+    void shouldReturnTrueWhenPathIsWebhook() {
         when(request.getRequestURI()).thenReturn("/api/v1/webhook/events");
 
         boolean result = securityFilter.shouldNotFilter(request);
@@ -58,7 +58,7 @@ class SecurityFilterTest {
     }
 
     @Test
-    void doFilterInternal_WhenTokenIsValid_SetsAuthentication() throws ServletException, IOException {
+    void shouldSetAuthenticationWhenTokenIsValid() throws ServletException, IOException {
         String userId = "123";
         String email = "test@example.com";
         String role = "ADMIN";
@@ -85,7 +85,7 @@ class SecurityFilterTest {
     }
 
     @Test
-    void doFilterInternal_WhenTokenIsNull_ContinuesChainWithoutAuth() throws ServletException, IOException {
+    void shouldContinueChainWithoutAuthWhenTokenIsNull() throws ServletException, IOException {
         when(tokenService.recoverAndValidate(request)).thenReturn(null);
 
         securityFilter.doFilterInternal(request, response, filterChain);
@@ -95,7 +95,7 @@ class SecurityFilterTest {
     }
 
     @Test
-    void doFilterInternal_WhenPurposeIsInvalid_ContinuesChainWithoutAuth() throws ServletException, IOException {
+    void shouldContinueChainWithoutAuthWhenPurposeIsInvalid() throws ServletException, IOException {
         when(tokenService.recoverAndValidate(request)).thenReturn(decodedJWT);
 
         Claim purposeClaim = mock(Claim.class);
