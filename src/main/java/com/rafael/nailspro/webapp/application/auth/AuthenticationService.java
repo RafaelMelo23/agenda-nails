@@ -12,13 +12,12 @@ import com.rafael.nailspro.webapp.infrastructure.dto.auth.LoginDTO;
 import com.rafael.nailspro.webapp.infrastructure.dto.auth.RegisterDTO;
 import com.rafael.nailspro.webapp.infrastructure.dto.auth.TokenRefreshResponseDTO;
 import com.rafael.nailspro.webapp.infrastructure.exception.BusinessException;
+import com.rafael.nailspro.webapp.infrastructure.exception.LoginException;
 import com.rafael.nailspro.webapp.infrastructure.exception.TokenRefreshException;
 import com.rafael.nailspro.webapp.infrastructure.exception.UserAlreadyExistsException;
 import com.rafael.nailspro.webapp.infrastructure.security.token.TokenService;
 import com.rafael.nailspro.webapp.infrastructure.security.token.refresh.RefreshTokenService;
 import com.rafael.nailspro.webapp.shared.tenant.TenantContext;
-import jakarta.persistence.EntityManager;
-import jakarta.persistence.PersistenceContext;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -38,8 +37,6 @@ public class AuthenticationService {
     private final PasswordEncoder passwordEncoder;
     private final TokenService tokenService;
     private final RefreshTokenService refreshTokenService;
-    @PersistenceContext
-    private EntityManager entityManager;
 
     @Transactional
     public void register(RegisterDTO registerDTO) {
@@ -109,7 +106,7 @@ public class AuthenticationService {
 
     private static void checkUserStatus(User user) {
         if (user.getStatus().equals(BANNED)) {
-            throw new BusinessException("Você foi banido deste estabelecimento");
+            throw new LoginException("Você foi banido deste estabelecimento");
         }
     }
 
@@ -118,7 +115,7 @@ public class AuthenticationService {
         refreshTokenService.revokeUserToken(refreshToken, userId);
     }
 
-    @Transactional
+    @Transactional(noRollbackFor = TokenRefreshException.class)
     public TokenRefreshResponseDTO refreshToken(String refreshToken) {
         return refreshTokenService.findByToken(refreshToken)
                 .map(token -> {
@@ -139,6 +136,5 @@ public class AuthenticationService {
                     return new TokenRefreshResponseDTO(newJwt, newRefresh.getToken());
                 })
                 .orElseThrow(() -> new TokenRefreshException("Token não encontrado"));
-
     }
 }

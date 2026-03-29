@@ -27,6 +27,11 @@ public class GlobalExceptionHandler {
         return buildResponse(e, request, HttpStatus.UNAUTHORIZED, "Erro de autenticação", List.of(e.getMessage()));
     }
 
+    @ExceptionHandler(LoginException.class)
+    public ResponseEntity<StandardError> auth(LoginException e, HttpServletRequest request) {
+        return buildResponse(e, request, HttpStatus.UNAUTHORIZED, "Erro de autenticação", List.of(e.getMessage()));
+    }
+
     @ExceptionHandler(MethodArgumentNotValidException.class)
     public ResponseEntity<StandardError> dtoValidation(MethodArgumentNotValidException e, HttpServletRequest request) {
         List<String> errorMessages = e.getBindingResult().getFieldErrors().stream()

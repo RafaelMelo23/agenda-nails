@@ -15,8 +15,8 @@ public class AppConfig {
     public RestTemplate restTemplate(RestTemplateBuilder builder) {
 
         return builder
-                .setConnectTimeout(Duration.ofSeconds(10))
-                .setReadTimeout(Duration.ofSeconds(15))
+                .connectTimeout(Duration.ofSeconds(10))
+                .readTimeout(Duration.ofSeconds(15))
                 .build();
     }
 
@@ -24,8 +24,8 @@ public class AppConfig {
     public RestTemplate evolutionRestTemplate(RestTemplateBuilder builder) {
 
         return builder
-                .setConnectTimeout(Duration.ofSeconds(15))
-                .setReadTimeout(Duration.ofSeconds(45))
+                .connectTimeout(Duration.ofSeconds(15))
+                .readTimeout(Duration.ofSeconds(45))
                 .build();
     }
 }

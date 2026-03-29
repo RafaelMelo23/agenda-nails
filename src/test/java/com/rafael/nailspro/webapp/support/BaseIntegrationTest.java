@@ -26,6 +26,10 @@ public abstract class BaseIntegrationTest {
     @Autowired
     protected ClientRepository clientRepository;
     @Autowired
+    protected UserRepository userRepository;
+    @Autowired
+    protected RefreshTokenRepository refreshTokenRepository;
+    @Autowired
     protected ProfessionalRepository professionalRepository;
     @Autowired
     protected SalonServiceRepository salonServiceRepository;
@@ -71,6 +75,7 @@ public abstract class BaseIntegrationTest {
         try {
             whatsappMessageRepository.deleteAllInBatch();
             retentionForecastRepository.deleteAllInBatch();
+            refreshTokenRepository.deleteAllInBatch();
             appointmentRepository.deleteAllInBatch();
             scheduleBlockRepository.deleteAllInBatch();
             workScheduleRepository.deleteAllInBatch();
@@ -79,6 +84,7 @@ public abstract class BaseIntegrationTest {
             clientAuditMetricsRepository.deleteAllInBatch();
             clientRepository.deleteAllInBatch();
             professionalRepository.deleteAllInBatch();
+            userRepository.deleteAllInBatch();
         } finally {
             TenantContext.clear();
         }
