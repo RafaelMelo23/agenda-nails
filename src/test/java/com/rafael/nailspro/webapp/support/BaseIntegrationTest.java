@@ -45,6 +45,8 @@ public abstract class BaseIntegrationTest {
     protected RetentionForecastRepository retentionForecastRepository;
     @Autowired
     protected ClientAuditMetricsRepository clientAuditMetricsRepository;
+    @Autowired
+    protected SalonDailyRevenueRepository salonDailyRevenueRepository;
 
     protected static final PostgreSQLContainer<?> POSTGRES =
             new PostgreSQLContainer<>("postgres:15-alpine")
@@ -80,6 +82,7 @@ public abstract class BaseIntegrationTest {
             scheduleBlockRepository.deleteAllInBatch();
             workScheduleRepository.deleteAllInBatch();
             salonServiceRepository.deleteAllInBatch();
+            salonDailyRevenueRepository.deleteAllInBatch();
             salonProfileRepository.deleteAllInBatch();
             clientAuditMetricsRepository.deleteAllInBatch();
             clientRepository.deleteAllInBatch();

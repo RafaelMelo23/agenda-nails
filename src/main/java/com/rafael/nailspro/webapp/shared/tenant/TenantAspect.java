@@ -27,72 +27,49 @@ public class TenantAspect {
     @Around("execution(* com.rafael.nailspro.webapp..*(..))")
     @Order(1)
     public Object handleTenancy(ProceedingJoinPoint pjp) throws Throwable {
-        boolean hasIgnore = hasIgnoreAnnotation(pjp);
+        boolean hasIgnoreAnnotation = hasIgnoreAnnotation(pjp);
         boolean isRepo = isRepositoryCall(pjp);
 
-        if (!isRepo && !hasIgnore) {
-            return pjp.proceed();
-        }
-
-        if (hasIgnore) {
+        if (hasIgnoreAnnotation) {
             boolean previous = TenantContext.isIgnoreFilter();
             TenantContext.setIgnoreFilter(true);
-            log.trace("TenantAspect: [FLAG-SET] via annotation for {}", pjp.getSignature().toShortString());
             try {
                 if (isRepo) {
-                    return proceedWithoutFilter(pjp);
+                    disableFilter();
                 }
                 return pjp.proceed();
             } finally {
                 TenantContext.setIgnoreFilter(previous);
-                log.trace("TenantAspect: [FLAG-RESTORED] to {} for {}", previous, pjp.getSignature().toShortString());
             }
         }
 
         if (isRepo) {
             if (TenantContext.isIgnoreFilter()) {
-                return proceedWithoutFilter(pjp);
+                disableFilter();
+            } else {
+                enableFilter();
             }
-            return proceedWithFilter(pjp);
         }
 
         return pjp.proceed();
     }
 
-    private Object proceedWithoutFilter(ProceedingJoinPoint pjp) throws Throwable {
-        log.debug("TenantAspect: [BYPASS] filter for {}", pjp.getSignature().toShortString());
+    private void disableFilter() {
         Session session = entityManager.unwrap(Session.class);
         session.disableFilter("tenantFilter");
-        return pjp.proceed();
+        log.trace("TenantAspect: [FILTER-OFF] disabled for session");
     }
 
-    private Object proceedWithFilter(ProceedingJoinPoint pjp) throws Throwable {
+    private void enableFilter() {
         String tenantId = TenantContext.getTenant();
         if (tenantId == null) {
-            log.error("TenantAspect: [DENIED] access without tenant for {}", pjp.getSignature().toShortString());
+            log.error("TenantAspect: [DENIED] access without tenant");
             throw new TenantNotFoundException();
         }
 
         Session session = entityManager.unwrap(Session.class);
-        Filter existing = session.getEnabledFilter("tenantFilter");
-        boolean isNewlyEnabled = false;
-
-        if (existing == null) {
-            session.enableFilter("tenantFilter").setParameter("tenantId", tenantId);
-            isNewlyEnabled = true;
-            log.debug("TenantAspect: [FILTER-ON] for tenant: [{}] during {}", tenantId, pjp.getSignature().toShortString());
-        } else {
-            existing.setParameter("tenantId", tenantId);
-        }
-
-        try {
-            return pjp.proceed();
-        } finally {
-            if (isNewlyEnabled) {
-                session.disableFilter("tenantFilter");
-                log.debug("TenantAspect: [FILTER-OFF] for tenant: [{}] after {}", tenantId, pjp.getSignature().toShortString());
-            }
-        }
+        session.enableFilter("tenantFilter").setParameter("tenantId", tenantId);
+        log.trace("TenantAspect: [FILTER-ON] enabled for tenant: [{}]", tenantId);
     }
 
     private boolean isRepositoryCall(ProceedingJoinPoint pjp) {

@@ -1,6 +1,7 @@
 package com.rafael.nailspro.webapp.shared.tenant;
 
 import com.rafael.nailspro.webapp.domain.model.Client;
+import com.rafael.nailspro.webapp.domain.model.User;
 import com.rafael.nailspro.webapp.support.BaseIntegrationTest;
 import com.rafael.nailspro.webapp.support.factory.TestClientFactory;
 import org.junit.jupiter.api.Test;
@@ -50,7 +51,7 @@ class TenantAspectIT extends BaseIntegrationTest {
     }
 
     @Test
-    void invokeWithTenantFilter_shouldNotFilterResults_whenIgnoreAnnotationIsPresent() {
+    void invokeWithTenantFilter_shouldNotFilterResults_whenIgnoreAnnotationIsPresentInService() {
         TenantContext.setTenant("TENANT_A");
         Client clientA = TestClientFactory.standardForIt();
         clientA.setTenantId("TENANT_A");
@@ -62,30 +63,51 @@ class TenantAspectIT extends BaseIntegrationTest {
         clientRepository.save(clientB);
 
         TenantContext.clear();
-
         List<Client> foundClients = testService.findAllIgnored();
-
         assertThat(foundClients).hasSize(2);
+
+        TenantContext.setTenant("TENANT_A");
+        Optional<Client> foundClientB = testService.findByEmailIgnored(clientB.getEmail());
+        assertThat(foundClientB).isPresent();
+        assertThat(foundClientB.get().getTenantId()).isEqualTo("TENANT_B");
     }
 
     @Test
-    void invokeWithTenantFilter_shouldIgnoreFilter_whenMethodIsFindByEmailIgnoreCase() {
+    void invokeWithTenantFilter_shouldFilterResults_whenIgnoreAnnotationIsNOTPresentInServiceOrRepo() {
         TenantContext.setTenant("TENANT_A");
         Client clientA = TestClientFactory.standardForIt();
         clientA.setTenantId("TENANT_A");
-        clientA.setEmail("user@tenantA.com");
         clientRepository.save(clientA);
 
         TenantContext.setTenant("TENANT_B");
         Client clientB = TestClientFactory.standardForIt();
         clientB.setTenantId("TENANT_B");
-        clientB.setEmail("user@tenantB.com");
         clientRepository.save(clientB);
 
         TenantContext.setTenant("TENANT_A");
-        TenantContext.setIgnoreFilter(true);
 
-        Optional<Client> foundClientB = clientRepository.findByEmailIgnoreCase("user@tenantB.com");
+        Optional<Client> foundClientB = testService.findByEmailNotIgnored(clientB.getEmail());
+        assertThat(foundClientB).isEmpty();
+
+        Optional<Client> foundClientA = testService.findByEmailNotIgnored(clientA.getEmail());
+        assertThat(foundClientA).isPresent();
+    }
+
+    @Test
+    void invokeWithTenantFilter_shouldIgnoreFilter_whenMethodIsFindByEmailIgnoreCaseInUserRepository() {
+        TenantContext.setTenant("TENANT_A");
+        Client clientA = TestClientFactory.standardForIt();
+        clientA.setTenantId("TENANT_A");
+        clientRepository.save(clientA);
+
+        TenantContext.setTenant("TENANT_B");
+        Client clientB = TestClientFactory.standardForIt();
+        clientB.setTenantId("TENANT_B");
+        clientRepository.save(clientB);
+
+        TenantContext.setTenant("TENANT_A");
+
+        Optional<User> foundClientB = userRepository.findByEmailIgnoreCase(clientB.getEmail());
 
         assertThat(foundClientB).isPresent();
         assertThat(foundClientB.get().getTenantId()).isEqualTo("TENANT_B");

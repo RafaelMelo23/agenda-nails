@@ -3,12 +3,14 @@ package com.rafael.nailspro.webapp.application.internal;
 import com.rafael.nailspro.webapp.domain.enums.appointment.TenantStatus;
 import com.rafael.nailspro.webapp.domain.repository.SalonProfileRepository;
 import com.rafael.nailspro.webapp.infrastructure.exception.BusinessException;
+import com.rafael.nailspro.webapp.shared.tenant.IgnoreTenantFilter;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 @Service
 @RequiredArgsConstructor
+@IgnoreTenantFilter
 public class TenantManagementService {
 
     private final SalonProfileRepository salonProfileRepository;

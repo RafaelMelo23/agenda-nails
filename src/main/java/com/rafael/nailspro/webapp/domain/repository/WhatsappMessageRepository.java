@@ -40,5 +40,6 @@ public interface WhatsappMessageRepository extends JpaRepository<WhatsappMessage
 
     Optional<WhatsappMessage> findByRetentionForecastIdAndMessageType(Long retentionForecastId, WhatsappMessageType type);
 
+    @IgnoreTenantFilter
     Optional<WhatsappMessage> findByExternalMessageId(String externalMessageId);
 }

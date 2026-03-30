@@ -6,6 +6,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.Optional;
 
 @Service
 public class IgnoreFilterTestService {
@@ -15,5 +16,14 @@ public class IgnoreFilterTestService {
     @IgnoreTenantFilter
     public List<Client> findAllIgnored() {
         return clientRepository.findAll();
+    }
+
+    @IgnoreTenantFilter
+    public Optional<Client> findByEmailIgnored(String email) {
+        return clientRepository.findByEmailIgnoreCase(email);
+    }
+
+    public Optional<Client> findByEmailNotIgnored(String email) {
+        return clientRepository.findByEmailIgnoreCase(email);
     }
 }

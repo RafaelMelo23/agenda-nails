@@ -14,17 +14,12 @@ import java.util.Optional;
 public interface UserRepository extends JpaRepository<User, Long> {
 
     @IgnoreTenantFilter
-    UserDetails findByEmail(String email);
-
-    @IgnoreTenantFilter
     Optional<User> findByEmailIgnoreCase(String email);
 
     @Modifying(clearAutomatically = true)
     @Query("UPDATE User u SET u.password = :newPassword WHERE u.email = :email")
     void updatePassword(@Param("email") String userEmail,
                         @Param("newPassword") String newPassword);
-
-    Optional<Long> getUser_IdByEmail(String email);
 
     @IgnoreTenantFilter
     boolean existsByEmail(String email);
