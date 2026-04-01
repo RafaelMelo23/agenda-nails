@@ -1,0 +1,147 @@
+<!DOCTYPE html>
+<html lang="pt-BR"
+      xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{layouts/main-layout}">
+<head>
+    <title>Agendamento</title>
+    <th:block layout:fragment="styles">
+        <link rel="stylesheet" th:href="@{/css/pages/booking.css}">
+    </th:block>
+</head>
+<body>
+
+<main layout:fragment="content">
+    <div class="container">
+        <div style="text-align: center; margin-bottom: 20px;">
+            <h1 style="font-size: 20px; font-weight: 700;">Novo Agendamento</h1>
+            <p style="font-size: 13px; color: var(--text-muted);">Configure sua experiência</p>
+        </div>
+
+        <div class="stepper">
+            <div class="step active" id="st-1">
+                <div class="step-circle">1</div>
+                <span class="step-label">Prof</span></div>
+            <div class="step" id="st-2">
+                <div class="step-circle">2</div>
+                <span class="step-label">Serviço</span></div>
+            <div class="step" id="st-3">
+                <div class="step-circle">3</div>
+                <span class="step-label">Extras</span></div>
+            <div class="step" id="st-4">
+                <div class="step-circle">4</div>
+                <span class="step-label">Data</span></div>
+            <div class="step" id="st-5">
+                <div class="step-circle">5</div>
+                <span class="step-label">Fim</span></div>
+        </div>
+
+        <form id="booking-form" onsubmit="event.preventDefault()">
+
+            <div id="step-1" class="fade-in">
+                <h2 style="margin-bottom: 15px; font-size: 18px;">Quem vai te atender?</h2>
+                <div class="selection-grid" id="prof-list">
+                    <p>Carregando profissionais...</p>
+                </div>
+            </div>
+
+            <div id="step-2" class="hidden fade-in">
+                <h2 style="margin-bottom: 15px; font-size: 18px;">Qual o procedimento?</h2>
+                <div class="selection-grid" id="service-list">
+                    <p>Carregando serviços...</p>
+                </div>
+            </div>
+
+            <div id="step-3" class="hidden fade-in">
+                <h2 style="margin-bottom: 5px; font-size: 18px;">Adicionais?</h2>
+                <p style="color: var(--text-muted); font-size: 13px; margin-bottom: 15px;">Selecione itens extras ou
+                    quantidade de reparos.</p>
+                <div class="selection-grid" id="addons-list">
+                </div>
+            </div>
+
+            <div id="step-4" class="hidden fade-in">
+                <h2 style="margin-bottom: 15px; font-size: 18px;">Escolha o Horário</h2>
+                <div id="recommended-date-container"></div>
+                <div class="calendar-container">
+                    <div class="month-nav">
+                        <button type="button" class="nav-btn" onclick="bookingApp.navMonth(-1)">❮</button>
+                        <h3 id="month-display">Mês</h3>
+                        <button type="button" class="nav-btn" onclick="bookingApp.navMonth(1)">❯</button>
+                    </div>
+                    <div class="week-days">
+                        <div>D</div>
+                        <div>S</div>
+                        <div>T</div>
+                        <div>Q</div>
+                        <div>Q</div>
+                        <div>S</div>
+                        <div>S</div>
+                    </div>
+                    <div class="days-grid" id="calendar-grid"></div>
+                    <div class="slots-grid hidden" id="time-slots"></div>
+                </div>
+            </div>
+
+            <div id="step-5" class="hidden fade-in">
+                <h2 style="margin-bottom: 15px; font-size: 18px;">Resumo do Pedido</h2>
+                <div class="review-box">
+                    <div class="review-row"><span>Profissional</span> <strong id="rev-prof">...</strong></div>
+                    <div class="review-row"><span>Serviço</span> <strong id="rev-serv">...</strong></div>
+                    <div class="review-row"><span>Data</span> <strong id="rev-date">...</strong></div>
+
+                    <div id="rev-addons"
+                         style="margin: 10px 0; padding: 10px 0; border-top: 1px solid #eee; font-size: 13px; color: #555;"></div>
+
+                    <div class="review-total">
+                        <span>Total Estimado</span>
+                        <span id="rev-total">R$ 0,00</span>
+                    </div>
+                </div>
+                <div>
+                    <label class="form-label">Observações</label>
+                    <textarea rows="3" id="obs-input" class="form-textarea" placeholder="Ex: Alergia a esmalte comum..."></textarea>
+                </div>
+            </div>
+
+            <div id="step-6" class="hidden fade-in" style="text-align: center; padding: 40px 20px;">
+                <div style="font-size: 64px; color: #28a745; margin-bottom: 20px;">✓</div>
+                <h2 style="font-size: 22px; margin-bottom: 10px; font-weight: 700;">Agendamento Confirmado!</h2>
+                <p style="color: var(--text-muted); margin-bottom: 30px; font-size: 14px;">Tudo pronto! Seu horário foi reservado com sucesso. Você pode acompanhar os detalhes no seu perfil.</p>
+                
+                <div style="display: flex; flex-direction: column; gap: 12px; max-width: 280px; margin: 0 auto;">
+                    <a href="/perfil" class="btn btn-primary" style="text-decoration: none; display: flex; align-items: center; justify-content: center;">
+                        Ver Meus Agendamentos
+                    </a>
+                    <a href="/agendar" class="btn btn-outline" style="text-decoration: none; border: 1px solid var(--primary-color); color: var(--primary-color); padding: 10px; border-radius: 8px; font-size: 14px; font-weight: 600;">
+                        Novo Agendamento
+                    </a>
+                </div>
+            </div>
+        </form>
+    </div>
+
+    <div class="bottom-bar" id="booking-footer">
+        <div class="container-inner">
+            <button class="btn-back" id="btn-back" onclick="bookingApp.prevStep()" style="visibility: hidden;">
+                <span>←</span>
+            </button>
+
+            <div class="total-display">
+                <span class="total-label">Total Estimado</span>
+                <span class="total-amount" id="footer-total">R$ 0,00</span>
+            </div>
+
+            <button class="btn btn-primary btn-round btn-next" id="btn-next" onclick="bookingApp.nextStep()" disabled>
+                Continuar
+            </button>
+        </div>
+    </div>
+</main>
+
+<th:block layout:fragment="scripts">
+    <script th:src="@{/js/pages/booking.js}"></script>
+</th:block>
+
+</body>
+</html>

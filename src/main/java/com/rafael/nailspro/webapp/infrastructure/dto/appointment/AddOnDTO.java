@@ -1,8 +1,0 @@
-package com.rafael.nailspro.webapp.infrastructure.dto.appointment;
-
-public record AddOnDTO(
-        Long serviceId,
-        String serviceName,
-        Integer quantity,
-        Integer unitPriceSnapshot
-) {}

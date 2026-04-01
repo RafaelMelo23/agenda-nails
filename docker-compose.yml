@@ -15,6 +15,7 @@ services:
       - UPLOADS_PATH=/var/nailspro/uploads
       - RESEND_API_KEY=${RESEND_API_KEY}
       - RESEND_EMAIL_ADDRESS=
+      - ALLOWED_ORIGINS=${ALLOWED_ORIGINS}
       # --- SENTRY & OBSERVABILITY ---
       - SENTRY_DSN=${SENTRY_DSN}
       - SENTRY_ENVIRONMENT=${SENTRY_ENVIRONMENT}
@@ -54,6 +55,9 @@ services:
     depends_on:
       db:
         condition: service_healthy
+    volumes:
+      - ./src/main/resources/static:/app/static
+      - ./src/main/resources/templates:/app/templates
 
   db:
     image: postgres:15-alpine

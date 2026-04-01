@@ -7,7 +7,7 @@
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap"
           rel="stylesheet">
     <style>
-        /* --- VARIÁVEIS --- */
+
         :root {
             --primary: #E91E63;
             --primary-light: #FCE4EC;
@@ -61,7 +61,6 @@
             }
         }
 
-        /* --- STEPPER --- */
         .stepper {
             display: flex;
             justify-content: space-between;
@@ -121,7 +120,6 @@
             background: var(--status-avail);
         }
 
-        /* --- CARDS GENÉRICOS --- */
         .selection-grid {
             display: flex;
             flex-direction: column;
@@ -184,7 +182,6 @@
             color: var(--primary);
         }
 
-        /* --- CHECKBOX E QTD CONTROLS --- */
         .checkbox-circle {
             width: 24px;
             height: 24px;
@@ -203,7 +200,6 @@
             color: white;
         }
 
-        /* Estilos do Seletor de Quantidade */
         .qty-control {
             display: none;
             align-items: center;
@@ -219,7 +215,6 @@
             animation: popIn 0.2s;
         }
 
-        /* Esconde o checkbox se o controle de quantidade estiver visível */
         .card-item.selected.has-qty .checkbox-circle {
             display: none;
         }
@@ -262,7 +257,6 @@
             }
         }
 
-        /* --- CALENDÁRIO --- */
         .calendar-container {
             background: var(--bg-card);
             border-radius: var(--radius);
@@ -341,7 +335,6 @@
             margin-top: 4px;
         }
 
-        /* Time Slots */
         .slots-grid {
             display: grid;
             grid-template-columns: repeat(auto-fill, minmax(80px, 1fr));
@@ -367,7 +360,6 @@
             border-color: var(--primary);
         }
 
-        /* --- FOOTER E REVISÃO --- */
         .review-box {
             background: var(--bg-card);
             padding: 20px;
@@ -542,7 +534,7 @@
 </div>
 
 <script>
-    /* --- DADOS MOCKADOS (Simulando Backend) --- */
+
     const professionals = [
         {id: 1, name: "Dra. Ana", role: "Biomédica", initial: "A"},
         {id: 2, name: "Carla S.", role: "Manicure", initial: "C"},
@@ -556,25 +548,23 @@
     ];
 
     const addons = [
-        {id: 901, name: "Decoração (Por Dedo)", price: 15, perUnit: true}, // FLAG: Por Unidade
-        {id: 902, name: "Conserto de Unha", price: 20, perUnit: true},     // FLAG: Por Unidade
-        {id: 903, name: "Massagem nas Mãos", price: 25, perUnit: false},   // Fixo
-        {id: 904, name: "Hidratação Cutículas", price: 15, perUnit: false} // Fixo
+        {id: 901, name: "Decoração (Por Dedo)", price: 15, perUnit: true},
+        {id: 902, name: "Conserto de Unha", price: 20, perUnit: true},
+        {id: 903, name: "Massagem nas Mãos", price: 25, perUnit: false},
+        {id: 904, name: "Hidratação Cutículas", price: 15, perUnit: false}
     ];
 
-    /* --- ESTADO --- */
     let step = 1;
     let booking = {
         professional: null,
         mainService: null,
-        addOns: [], // Array de { id, qty, price, name }
+        addOns: [],
         date: null,
         time: null,
         total: 0
     };
     let currentMonth = new Date();
 
-    /* --- INICIALIZAÇÃO --- */
     document.addEventListener("DOMContentLoaded", () => {
         renderProf();
         renderServices();
@@ -582,7 +572,6 @@
         renderCalendar();
     });
 
-    /* --- RENDERIZADORES --- */
     function renderProf() {
         const el = document.getElementById('prof-list');
         el.innerHTML = professionals.map(p => `
@@ -608,11 +597,10 @@
     `).join('');
     }
 
-    // --- LÓGICA CORE: RENDERIZAÇÃO INTELIGENTE DOS ADDONS ---
     function renderAddons() {
         const el = document.getElementById('addons-list');
         el.innerHTML = addons.map(a => {
-            // Se for item unitário (nailCount=1 no back), usa classe 'has-qty'
+
             const hasQtyClass = a.perUnit ? 'has-qty' : '';
             const unitLabel = a.perUnit ? '<span style="font-size:10px; font-weight:400; color:#999">/unid</span>' : '';
 
@@ -658,7 +646,7 @@
 
         for (let i = 1; i <= daysInMonth; i++) {
             let status = "avail";
-            if (i % 7 === 0) status = "busy"; // Mock
+            if (i % 7 === 0) status = "busy";
 
             const btn = document.createElement("div");
             btn.className = `day-card ${status}`;
@@ -673,8 +661,6 @@
         currentMonth.setMonth(currentMonth.getMonth() + dir);
         renderCalendar();
     }
-
-    /* --- INTERAÇÃO --- */
 
     function selectProf(el, id) {
         document.querySelectorAll('#prof-list .card-item').forEach(e => e.classList.remove('selected'));
@@ -691,36 +677,33 @@
         checkValidity();
     }
 
-    // --- LÓGICA CORE: TOGGLE ADDON ---
     function toggleAddon(el, id) {
         const addonData = addons.find(a => a.id === id);
         const isSelected = el.classList.contains('selected');
 
         if (isSelected) {
-            // Remover
+
             el.classList.remove('selected');
             booking.addOns = booking.addOns.filter(item => item.id !== id);
         } else {
-            // Adicionar
+
             el.classList.add('selected');
-            // Default qty = 1
+
             booking.addOns.push({...addonData, qty: 1});
 
-            // Resetar visual do contador para 1 se existir
             const qtyDisplay = document.getElementById(`qty-${id}`);
             if (qtyDisplay) qtyDisplay.innerText = "1";
         }
         updateTotal();
     }
 
-    // --- LÓGICA CORE: MUDAR QUANTIDADE ---
     function changeQty(id, delta) {
         const index = booking.addOns.findIndex(a => a.id === id);
         if (index === -1) return;
 
         let newQty = booking.addOns[index].qty + delta;
-        if (newQty < 1) newQty = 1;  // Mínimo
-        if (newQty > 10) newQty = 10; // Máximo (ex: dedos da mão)
+        if (newQty < 1) newQty = 1;
+        if (newQty > 10) newQty = 10;
 
         booking.addOns[index].qty = newQty;
         document.getElementById(`qty-${id}`).innerText = newQty;
@@ -732,7 +715,6 @@
         el.classList.add('selected');
         booking.date = `${day}/${currentMonth.getMonth() + 1}`;
 
-        // Render time slots
         const slotContainer = document.getElementById('time-slots');
         slotContainer.classList.remove('hidden');
         const times = ["09:00", "10:00", "14:00", "16:30"];
@@ -750,7 +732,7 @@
     function updateTotal() {
         let t = 0;
         if (booking.mainService) t += booking.mainService.price;
-        // Soma: Preço * Quantidade
+
         booking.addOns.forEach(a => t += (a.price * a.qty));
 
         booking.total = t;
@@ -759,7 +741,6 @@
         if (step === 5) renderReview();
     }
 
-    /* --- NAVEGAÇÃO --- */
     function checkValidity() {
         let ok = false;
         if (step === 1 && booking.professional) ok = true;
@@ -777,7 +758,7 @@
             return;
         }
 
-        if (step === 4) renderReview(); // Prepara review antes de entrar no passo 5
+        if (step === 4) renderReview();
 
         document.getElementById(`st-${step}`).classList.remove('active');
         document.getElementById(`st-${step}`).classList.add('completed');
@@ -814,7 +795,7 @@
         document.getElementById('rev-total').innerText = `R$ ${booking.total}`;
 
         const addonsHTML = booking.addOns.map(a => {
-            // Mostra Qtd apenas se for unitário ou qty > 1
+
             const qtyStr = a.perUnit ? ` <strong>(${a.qty}x)</strong>` : '';
             return `<div style="display:flex; justify-content:space-between; margin-bottom:4px">
                 <span>+ ${a.name}${qtyStr}</span>

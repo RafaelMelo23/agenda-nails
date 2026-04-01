@@ -7,10 +7,10 @@
 
     <style>
         :root {
-            /* Paleta Modern Beauty SaaS */
-            --primary: #E91E63;       /* Rosa Fúcsia */
-            --primary-hover: #D81B60; /* Um tom mais escuro p/ hover */
-            --secondary-bg: #FCE4EC;  /* Rosa Pálido */
+
+            --primary: #E91E63;
+            --primary-hover: #D81B60;
+            --secondary-bg: #FCE4EC;
 
             --bg-body: #F3F4F6;
             --bg-card: #FFFFFF;
@@ -19,7 +19,6 @@
             --text-main: #1F2937;
             --text-sec: #6B7280;
 
-            /* Radius System */
             --radius-card: 12px;
             --radius-elem: 8px;
         }
@@ -35,13 +34,12 @@
             padding: 20px;
         }
 
-        /* Container Principal - Card Branco */
         .schedule-container {
             background: var(--bg-card);
             width: 100%;
-            max-width: 800px; /* Largura confortável p/ desktop */
+            max-width: 800px;
             border-radius: var(--radius-card);
-            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05); /* Sombra Flat */
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
             padding: 30px;
             border: 1px solid var(--border);
         }
@@ -62,7 +60,6 @@
             font-size: 1.1rem;
         }
 
-        /* --- PARTE 1: ROTINA SEMANAL (WorkSchedule) --- */
         .week-list {
             display: flex;
             flex-direction: column;
@@ -72,7 +69,7 @@
 
         .day-card {
             border: 1px solid var(--border);
-            border-radius: var(--radius-card); /* 12px */
+            border-radius: var(--radius-card);
             padding: 16px;
             transition: all 0.2s ease;
             background: #fff;
@@ -80,10 +77,9 @@
 
         .day-card:hover {
             border-color: var(--secondary-bg);
-            box-shadow: 0 2px 8px rgba(233, 30, 99, 0.1); /* Sombra rosa leve */
+            box-shadow: 0 2px 8px rgba(233, 30, 99, 0.1);
         }
 
-        /* Cabeçalho do Card do Dia (Switch + Nome) */
         .day-header {
             display: flex;
             align-items: center;
@@ -97,7 +93,6 @@
             color: var(--text-main);
         }
 
-        /* Grid de Inputs (Mobile First: Wrap) */
         .time-grid {
             display: flex;
             flex-wrap: wrap;
@@ -106,7 +101,7 @@
 
         .time-block {
             flex: 1;
-            min-width: 200px; /* Quebra linha em telas muito pequenas */
+            min-width: 200px;
         }
 
         .label-small {
@@ -124,14 +119,13 @@
             gap: 8px;
         }
 
-        /* Inputs Estilizados */
         input[type="time"] {
             border: 1px solid var(--border);
-            border-radius: var(--radius-elem); /* 8px */
+            border-radius: var(--radius-elem);
             padding: 8px 12px;
             font-family: 'Poppins', sans-serif;
             color: var(--text-main);
-            background: var(--bg-body); /* Fundo cinza claro */
+            background: var(--bg-body);
             outline: none;
             width: 100%;
             transition: border-color 0.2s;
@@ -147,7 +141,6 @@
             cursor: not-allowed;
         }
 
-        /* SWITCH (Toggle) - Estilo iOS com cor Primária */
         .switch {
             position: relative;
             display: inline-block;
@@ -159,7 +152,7 @@
             position: absolute;
             cursor: pointer;
             top: 0; left: 0; right: 0; bottom: 0;
-            background-color: #E5E7EB; /* Cinza inativo */
+            background-color: #E5E7EB;
             transition: .4s;
             border-radius: 34px;
         }
@@ -176,13 +169,12 @@
             box-shadow: 0 1px 3px rgba(0,0,0,0.2);
         }
         input:checked + .slider {
-            background-color: var(--primary); /* #E91E63 */
+            background-color: var(--primary);
         }
         input:checked + .slider:before {
             transform: translateX(20px);
         }
 
-        /* --- PARTE 2: BLOQUEIOS (ScheduleBlock) --- */
         .blocks-container {
             border-top: 1px solid var(--border);
             padding-top: 30px;
@@ -196,7 +188,7 @@
         }
 
         .block-item {
-            background: var(--secondary-bg); /* Rosa Pálido #FCE4EC */
+            background: var(--secondary-bg);
             border-radius: var(--radius-elem);
             padding: 16px;
             position: relative;
@@ -236,13 +228,12 @@
         }
         .btn-delete-block:hover { opacity: 1; }
 
-        /* --- BOTÕES GERAIS --- */
         .btn-primary {
             background-color: var(--primary);
             color: white;
             border: none;
             padding: 12px 24px;
-            border-radius: var(--radius-elem); /* 8px */
+            border-radius: var(--radius-elem);
             font-weight: 600;
             font-family: 'Poppins', sans-serif;
             cursor: pointer;
@@ -282,18 +273,14 @@
             margin-top: 20px;
         }
 
-        /* --- ESTILOS DO MODAL --- */
-
-        /* Fundo Escuro com Blur */
         .modal-overlay {
             position: fixed;
             top: 0; left: 0; width: 100%; height: 100%;
-            background: rgba(31, 41, 55, 0.6); /* Escuro com transparência */
-            backdrop-filter: blur(4px); /* Efeito moderno */
+            background: rgba(31, 41, 55, 0.6);
+            backdrop-filter: blur(4px);
             z-index: 1000;
 
-            /* Centralização */
-            display: flex; /* Mude para 'none' para esconder inicialmente */
+            display: flex;
             align-items: center;
             justify-content: center;
             padding: 20px;
@@ -302,14 +289,13 @@
         .modal-card {
             background: #FFFFFF;
             width: 100%;
-            max-width: 400px; /* Compacto */
-            border-radius: var(--radius-card); /* 12px */
+            max-width: 400px;
+            border-radius: var(--radius-card);
             box-shadow: 0 10px 25px rgba(0,0,0,0.1);
             animation: slideUp 0.3s ease-out;
             overflow: hidden;
         }
 
-        /* Animação de entrada suave */
         @keyframes slideUp {
             from { transform: translateY(20px); opacity: 0; }
             to { transform: translateY(0); opacity: 1; }
@@ -347,11 +333,10 @@
             gap: 6px;
         }
 
-        /* Input Moderno (Igual ao resto do sistema) */
         .input-modern {
             background: var(--bg-body);
             border: 1px solid var(--border);
-            border-radius: var(--radius-elem); /* 8px */
+            border-radius: var(--radius-elem);
             padding: 10px 12px;
             font-family: 'Poppins', sans-serif;
             color: var(--text-main);
@@ -363,7 +348,6 @@
             background: #fff;
         }
 
-        /* Layout do Switch dentro do Modal */
         .form-row-switch {
             display: flex;
             justify-content: space-between;
@@ -376,7 +360,6 @@
             color: var(--text-main);
         }
 
-        /* Container de Data/Hora lado a lado */
         .time-range-container {
             display: flex;
             gap: 12px;
@@ -387,7 +370,7 @@
 
         .modal-footer {
             padding: 16px 24px;
-            background: var(--bg-body); /* Fundo levemente cinza no rodapé */
+            background: var(--bg-body);
             display: flex;
             gap: 12px;
             justify-content: flex-end;
@@ -545,13 +528,10 @@
 </div>
 </body>
 <script>
-    // Referências
+
     const modal = document.getElementById('addBlockModal');
     const timeInputs = document.getElementById('timeRangeInputs');
     const wholeDaySwitch = document.getElementById('wholeDaySwitch');
-
-    // Inicializa fechado (no CSS mudei display:flex para fins de visualização)
-    // modal.style.display = 'none';
 
     function openModal() {
         modal.style.display = 'flex';
@@ -561,7 +541,6 @@
         modal.style.display = 'none';
     }
 
-    // Lógica de UI: Se "Dia Inteiro" estiver marcado, esconde as horas
     function toggleTimeInputs() {
         if (wholeDaySwitch.checked) {
             timeInputs.style.display = 'none';
@@ -570,7 +549,6 @@
         }
     }
 
-    // Clique fora fecha o modal (UX padrão)
     window.onclick = function(event) {
         if (event.target == modal) {
             closeModal();

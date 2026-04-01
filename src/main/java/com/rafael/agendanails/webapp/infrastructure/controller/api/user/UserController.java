@@ -1,0 +1,122 @@
+package com.rafael.agendanails.webapp.infrastructure.controller.api.user;
+
+import com.rafael.agendanails.webapp.application.user.PasswordResetUseCase;
+import com.rafael.agendanails.webapp.application.user.UserProfileManagementUseCase;
+import com.rafael.agendanails.webapp.domain.model.UserPrincipal;
+import com.rafael.agendanails.webapp.infrastructure.config.SwaggerExamples;
+import com.rafael.agendanails.webapp.infrastructure.dto.auth.ChangeEmailRequestDTO;
+import com.rafael.agendanails.webapp.infrastructure.dto.auth.ChangePhoneRequestDTO;
+import com.rafael.agendanails.webapp.infrastructure.dto.auth.ResetPasswordDTO;
+import com.rafael.agendanails.webapp.infrastructure.dto.user.profile.UserProfileDto;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.media.ExampleObject;
+import io.swagger.v3.oas.annotations.media.Schema;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.responses.ApiResponses;
+import io.swagger.v3.oas.annotations.security.SecurityRequirement;
+import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.validation.Valid;
+import jakarta.validation.constraints.Email;
+import jakarta.validation.constraints.NotBlank;
+import lombok.RequiredArgsConstructor;
+import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.web.bind.annotation.*;
+
+@RestController
+@RequiredArgsConstructor
+@RequestMapping("/api/v1/user")
+@SecurityRequirement(name = "bearerAuth")
+@Tag(name = "User", description = "Authenticated user profile and password management")
+public class UserController {
+
+    private final UserProfileManagementUseCase userService;
+    private final PasswordResetUseCase passwordResetUseCase;
+
+    @Operation(summary = "Get profile", description = "Returns the authenticated user's profile.")
+    @ApiResponses({
+            @ApiResponse(responseCode = "200", description = "Profile returned",
+                    content = @Content(schema = @Schema(implementation = UserProfileDto.class))),
+            @ApiResponse(responseCode = "401", description = "Unauthorized")
+    })
+    @GetMapping
+    public ResponseEntity<UserProfileDto> getProfile(@AuthenticationPrincipal UserPrincipal userPrincipal) {
+        return ResponseEntity.ok(userService.getProfile(userPrincipal.getUserId()));
+    }
+
+    @Operation(summary = "Update email", description = "Updates the authenticated user's email.")
+    @ApiResponses({
+            @ApiResponse(responseCode = "204", description = "Email updated"),
+            @ApiResponse(responseCode = "400", description = "Validation error or password mismatch"),
+            @ApiResponse(responseCode = "401", description = "Unauthorized")
+    })
+    @io.swagger.v3.oas.annotations.parameters.RequestBody(
+            required = true,
+            content = @Content(mediaType = "application/json",
+                    schema = @Schema(implementation = ChangeEmailRequestDTO.class),
+                    examples = @ExampleObject(name = "ChangeEmailRequest", value = SwaggerExamples.CHANGE_EMAIL_REQUEST))
+    )
+    @PatchMapping("/email")
+    public ResponseEntity<Void> updateEmail(@AuthenticationPrincipal UserPrincipal userPrincipal,
+                                            @Valid @RequestBody ChangeEmailRequestDTO dto) {
+
+        userService.updateEmail(userPrincipal.getUserId(), dto);
+        return ResponseEntity.noContent().build();
+    }
+
+    @Operation(summary = "Update phone", description = "Updates the authenticated user's phone number.")
+    @ApiResponses({
+            @ApiResponse(responseCode = "204", description = "Phone updated"),
+            @ApiResponse(responseCode = "400", description = "Validation error or password mismatch"),
+            @ApiResponse(responseCode = "401", description = "Unauthorized")
+    })
+    @io.swagger.v3.oas.annotations.parameters.RequestBody(
+            required = true,
+            content = @Content(mediaType = "application/json",
+                    schema = @Schema(implementation = ChangePhoneRequestDTO.class),
+                    examples = @ExampleObject(name = "ChangePhoneRequest", value = SwaggerExamples.CHANGE_PHONE_REQUEST))
+    )
+    @PatchMapping("/phone")
+    public ResponseEntity<Void> updatePhone(@AuthenticationPrincipal UserPrincipal userPrincipal,
+                                            @Valid @RequestBody ChangePhoneRequestDTO dto) {
+
+        userService.updatePhone(userPrincipal.getUserId(), dto);
+        return ResponseEntity.noContent().build();
+    }
+
+    //todo: test
+    @Operation(summary = "Forgot password", description = "Triggers a password reset email.")
+    @ApiResponses({
+            @ApiResponse(responseCode = "204", description = "Reset email triggered"),
+            @ApiResponse(responseCode = "400", description = "Validation error")
+    })
+    @PostMapping("/password/forgot")
+    public ResponseEntity<Void> forgotPassword(@RequestParam @NotBlank(message = "O e-mail é obrigatório")
+                                               @Email(message = "O e-mail deve ser válido")
+                                               @Parameter(example = "cliente@exemplo.com")
+                                               String userEmail) {
+
+        passwordResetUseCase.forgotPasswordRequest(userEmail);
+        return ResponseEntity.noContent().build();
+    }
+
+    @Operation(summary = "Reset password", description = "Resets the user's password using a reset token.")
+    @ApiResponses({
+            @ApiResponse(responseCode = "204", description = "Password reset"),
+            @ApiResponse(responseCode = "400", description = "Validation error or invalid token")
+    })
+    @io.swagger.v3.oas.annotations.parameters.RequestBody(
+            required = true,
+            content = @Content(mediaType = "application/json",
+                    schema = @Schema(implementation = ResetPasswordDTO.class),
+                    examples = @ExampleObject(name = "ResetPasswordRequest", value = SwaggerExamples.RESET_PASSWORD_REQUEST))
+    )
+    @PatchMapping("/password")
+    public ResponseEntity<Void> updatePassword(@Valid @RequestBody ResetPasswordDTO dto) {
+
+        passwordResetUseCase.resetPassword(dto);
+        return ResponseEntity.noContent().build();
+    }
+}

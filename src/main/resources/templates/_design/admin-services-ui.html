@@ -23,7 +23,6 @@
         .btn-add { background: var(--primary); color: white; padding: 12px 24px; border: none; border-radius: 8px; font-weight: 600; cursor: pointer; transition: 0.2s; }
         .btn-add:hover { background: #D81B60; }
 
-        /* LISTA DE SERVIÇOS */
         .service-list { display: flex; flex-direction: column; gap: 15px; }
 
         .service-card {
@@ -32,7 +31,6 @@
             border: 1px solid var(--border); box-shadow: 0 2px 4px rgba(0,0,0,0.02);
         }
 
-        /* Topo do Card (Info + Preço + Ações) */
         .card-top { display: flex; justify-content: space-between; align-items: flex-start; }
         .service-info h3 { font-size: 1.1rem; margin-bottom: 5px; }
         .service-meta { color: #666; font-size: 0.9rem; display: flex; gap: 10px; align-items: center; }
@@ -41,7 +39,6 @@
         .actions { display: flex; gap: 15px; align-items: center; }
         .btn-icon { background: none; border: none; font-size: 1.2rem; cursor: pointer; color: #666; }
 
-        /* Toggle Switch */
         .switch { position: relative; display: inline-block; width: 40px; height: 22px; }
         .switch input { opacity: 0; width: 0; height: 0; }
         .slider { position: absolute; cursor: pointer; top: 0; left: 0; right: 0; bottom: 0; background-color: #ccc; transition: .4s; border-radius: 34px; }
@@ -49,7 +46,6 @@
         input:checked + .slider { background-color: var(--primary); }
         input:checked + .slider:before { transform: translateX(18px); }
 
-        /* Rodapé do Card (Associação com Profissionais) */
         .card-footer {
             padding-top: 15px; border-top: 1px solid #f0f0f0;
             display: flex; align-items: center; gap: 10px;
@@ -60,11 +56,10 @@
         .mini-avatar {
             width: 28px; height: 28px; border-radius: 50%; background: #eee; border: 2px solid white;
             display: flex; align-items: center; justify-content: center; font-size: 0.7rem; font-weight: bold; color: #555;
-            margin-left: -8px; /* Sobreposição visual */
+            margin-left: -8px;
         }
         .mini-avatar:first-child { margin-left: 0; }
 
-        /* --- MODAL DE CADASTRO/EDIÇÃO --- */
         .modal-overlay {
             position: fixed; top: 0; left: 0; width: 100%; height: 100%;
             background: rgba(0,0,0,0.5); display: none; justify-content: center; align-items: center; z-index: 1000;
@@ -81,7 +76,6 @@
         label { display: block; margin-bottom: 5px; font-weight: 600; font-size: 0.9rem; }
         input, select { width: 100%; padding: 10px; border: 1px solid var(--border); border-radius: 8px; font-family: 'Poppins'; }
 
-        /* Checkbox List para Profissionais */
         .prof-selection-list {
             border: 1px solid var(--border); border-radius: 8px; max-height: 150px; overflow-y: auto;
         }
@@ -96,7 +90,6 @@
         .btn-cancel { background: transparent; border: 1px solid var(--border); padding: 10px 20px; border-radius: 8px; cursor: pointer; }
         .btn-save { background: var(--primary); color: white; border: none; padding: 10px 20px; border-radius: 8px; font-weight: 600; cursor: pointer; }
 
-        /* Responsividade */
         @media (max-width: 600px) {
             .card-top { flex-direction: column; gap: 10px; }
             .actions { width: 100%; justify-content: space-between; margin-top: 10px; }

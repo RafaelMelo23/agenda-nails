@@ -6,19 +6,19 @@
     <title>Login - Beleza & Estética</title>
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
     <style>
-        /* --- DESIGN SYSTEM: Modern Beauty SaaS --- */
-        :root {
-            --primary-color: #E91E63;       /* Rosa Fúcsia */
-            --primary-hover: #D81B60;       /* Tom levemente mais escuro para hover */
-            --primary-bg-light: #FCE4EC;    /* Fundo suave */
-            --text-dark: #1F2937;           /* Cinza Chumbo */
-            --text-gray: #6B7280;           /* Cinza Médio */
-            --bg-body: #F3F4F6;             /* Cinza Frio Claro */
-            --bg-card: #FFFFFF;             /* Branco Puro */
-            --border-color: #E5E7EB;        /* Cinza Borda */
 
-            --radius-lg: 12px;              /* Containers */
-            --radius-sm: 8px;               /* Inputs/Botões */
+        :root {
+            --primary-color: #E91E63;
+            --primary-hover: #D81B60;
+            --primary-bg-light: #FCE4EC;
+            --text-dark: #1F2937;
+            --text-gray: #6B7280;
+            --bg-body: #F3F4F6;
+            --bg-card: #FFFFFF;
+            --border-color: #E5E7EB;
+
+            --radius-lg: 12px;
+            --radius-sm: 8px;
             --font-main: 'Poppins', sans-serif;
             --shadow-card: 0 4px 6px -1px rgba(0, 0, 0, 0.05), 0 2px 4px -1px rgba(0, 0, 0, 0.03);
         }
@@ -36,7 +36,6 @@
             padding: 20px;
         }
 
-        /* --- LAYOUT DO LOGIN --- */
         .login-container {
             width: 100%;
             max-width: 420px;
@@ -45,10 +44,9 @@
             box-shadow: var(--shadow-card);
             padding: 40px 30px;
             text-align: center;
-            border: 1px solid var(--border-color); /* Borda sutil para definição */
+            border: 1px solid var(--border-color);
         }
 
-        /* Header da Marca */
         .brand-section {
             margin-bottom: 30px;
             display: flex;
@@ -78,7 +76,6 @@
             color: var(--text-gray);
         }
 
-        /* Formulário */
         .form-group {
             margin-bottom: 20px;
             text-align: left;
@@ -108,14 +105,12 @@
             color: #9CA3AF;
         }
 
-        /* Estado de Foco (Identidade Visual) */
         .input-field:focus {
             outline: none;
             border-color: var(--primary-color);
-            box-shadow: 0 0 0 3px rgba(233, 30, 99, 0.1); /* Glow rosa suave */
+            box-shadow: 0 0 0 3px rgba(233, 30, 99, 0.1);
         }
 
-        /* Ações Auxiliares */
         .form-actions {
             display: flex;
             justify-content: space-between;
@@ -149,7 +144,6 @@
             color: var(--primary-hover);
         }
 
-        /* Botão Principal */
         .btn-login {
             width: 100%;
             padding: 14px;
@@ -169,7 +163,6 @@
             background-color: var(--primary-hover);
         }
 
-        /* Rodapé do Card */
         .card-footer {
             margin-top: 25px;
             padding-top: 20px;
@@ -188,11 +181,10 @@
             text-decoration: underline;
         }
 
-        /* Responsividade */
         @media (max-width: 480px) {
             .login-container {
                 padding: 30px 20px;
-                box-shadow: none; /* Mais flat no mobile */
+                box-shadow: none;
             }
         }
     </style>
@@ -239,23 +231,21 @@
         const email = document.getElementById('email').value;
         const btn = document.querySelector('.btn-login');
 
-        // Simulação de Loading
         const originalText = btn.innerText;
         btn.innerText = "Autenticando...";
         btn.style.opacity = "0.8";
         btn.disabled = true;
 
         setTimeout(() => {
-            // Simulação simples de roteamento baseada no email
+
             if(email.includes('admin')) {
                 alert("Login de ADMIN detectado. Redirecionando para Dashboard...");
-                // window.location.href = 'dashboard.html';
+
             } else {
                 alert("Login de CLIENTE detectado. Redirecionando para Agendamento...");
-                // window.location.href = 'agendamento.html';
+
             }
 
-            // Reset (apenas para teste)
             btn.innerText = originalText;
             btn.style.opacity = "1";
             btn.disabled = false;

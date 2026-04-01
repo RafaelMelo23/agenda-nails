@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html lang="pt-BR"
+      xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{layouts/main-layout}">
+<head>
+    <title>Meus Agendamentos</title>
+    <link rel="stylesheet" th:href="@{/css/pages/profile.css}">
+</head>
+<body>
+
+<main layout:fragment="content">
+    <div class="container">
+        <header class="dashboard-header">
+            <div class="user-welcome">
+                <h1>Olá, <span id="user-name">...</span> 👋</h1>
+                <p>Seus momentos de beleza</p>
+            </div>
+            <button class="logout-btn" onclick="Auth.logout()">Sair</button>
+        </header>
+
+        <div class="tabs">
+            <button class="tab-btn active" id="tab-upcoming">Próximos</button>
+            <button class="tab-btn" id="tab-history">Histórico</button>
+        </div>
+
+        <div id="list-upcoming" class="appointment-list">
+
+            <div class="empty-state">Carregando seus agendamentos...</div>
+        </div>
+
+        <div id="list-history" class="appointment-list hidden">
+
+        </div>
+    </div>
+
+    <a th:href="@{/agendar}" class="fab-add" title="Novo Agendamento">+</a>
+</main>
+
+<th:block layout:fragment="scripts">
+    <script th:src="@{/js/pages/profile.js}"></script>
+</th:block>
+
+</body>
+</html>

@@ -1,0 +1,63 @@
+
+:root {
+  --primary: #E91E63;
+  --primary-hover: color-mix(in srgb, var(--primary), black 10%);
+  --primary-light: color-mix(in srgb, var(--primary), white 85%);
+  --secondary: color-mix(in srgb, var(--primary), white 85%);
+
+  --bg-body: #F3F4F6;
+  --bg-card: #FFFFFF;
+  --border: #E5E7EB;
+  --text-main: #1F2937;
+  --text-muted: #6B7280;
+
+  --status-avail: #10B981;
+  --status-busy: #EF4444;
+  --status-part: #F59E0B;
+
+  --radius: 12px;
+  --radius-sm: 8px;
+  --shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
+  --shadow-flat: 0 1px 3px rgba(0,0,0,0.1);
+}
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+body {
+  font-family: 'Poppins', sans-serif;
+  background-color: var(--bg-body);
+  color: var(--text-main);
+  line-height: 1.5;
+  -webkit-font-smoothing: antialiased;
+}
+
+h1, h2, h3, h4, h5, h6 {
+  font-weight: 700;
+}
+
+p {
+  color: var(--text-muted);
+}
+
+.hidden {
+  display: none !important;
+}
+
+.fade-in {
+  animation: fadeIn 0.4s ease-out;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}

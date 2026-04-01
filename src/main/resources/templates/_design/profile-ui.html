@@ -6,7 +6,7 @@
   <title>Meus Agendamentos - Beleza & Estética</title>
   <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
   <style>
-    /* --- DESIGN SYSTEM: Modern Beauty SaaS --- */
+
     :root {
       --primary-color: #E91E63;
       --primary-bg-light: #FCE4EC;
@@ -33,7 +33,7 @@
       font-family: var(--font-main);
       background-color: var(--bg-body);
       color: var(--text-dark);
-      padding-bottom: 80px; /* Espaço para botão flutuante */
+      padding-bottom: 80px;
     }
 
     .container {
@@ -43,7 +43,6 @@
       padding-top: 20px;
     }
 
-    /* Header Simples */
     .dashboard-header {
       display: flex;
       justify-content: space-between;
@@ -58,7 +57,6 @@
       font-size: 0.85rem; color: var(--text-gray); text-decoration: none; font-weight: 500;
     }
 
-    /* Tabs de Navegação */
     .tabs {
       display: flex;
       background: #fff;
@@ -86,10 +84,8 @@
       color: var(--primary-color);
     }
 
-    /* Lista de Cards */
     .appointment-list { display: flex; flex-direction: column; gap: 15px; }
 
-    /* Card de Agendamento */
     .appt-card {
       background: var(--bg-card);
       border-radius: var(--radius-lg);
@@ -109,7 +105,6 @@
     .date-day { font-size: 1.1rem; font-weight: 700; color: var(--text-dark); }
     .date-time { font-size: 0.9rem; color: var(--text-gray); font-weight: 500; }
 
-    /* Badges de Status */
     .status-badge {
       font-size: 0.75rem; font-weight: 600; padding: 4px 10px; border-radius: 20px; text-transform: uppercase; letter-spacing: 0.5px;
     }
@@ -139,7 +134,6 @@
     .btn-rebook { background: var(--primary-bg-light); color: var(--primary-color); }
     .btn-rebook:hover { background: #F8BBD0; }
 
-    /* Botão Flutuante (FAB) para Novo Agendamento */
     .fab-add {
       position: fixed;
       bottom: 25px;
@@ -158,7 +152,6 @@
     }
     .fab-add:hover { transform: scale(1.05); }
 
-    /* Utilitário */
     .hidden { display: none; }
     .empty-state { text-align: center; padding: 40px 0; color: var(--text-gray); font-size: 0.9rem; }
 
@@ -258,23 +251,21 @@
 
 <script>
   function switchTab(tabName) {
-    // Remove active das abas
+
     document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
-    // Adiciona active na clicada
+
     event.target.classList.add('active');
 
-    // Esconde listas
     document.getElementById('list-upcoming').classList.add('hidden');
     document.getElementById('list-history').classList.add('hidden');
 
-    // Mostra a correta
     document.getElementById(`list-${tabName}`).classList.remove('hidden');
   }
 
   function confirmCancel() {
     if(confirm("Tem certeza que deseja cancelar este agendamento?")) {
       alert("Agendamento cancelado com sucesso.");
-      // Lógica de reload ou remoção do DOM
+
     }
   }
 </script>

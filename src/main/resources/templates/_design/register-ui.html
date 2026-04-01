@@ -6,7 +6,7 @@
   <title>Criar Conta - Beleza & Estética</title>
   <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
   <style>
-    /* --- DESIGN SYSTEM: Modern Beauty SaaS (Consistente com Login) --- */
+
     :root {
       --primary-color: #E91E63;
       --primary-hover: #D81B60;
@@ -36,10 +36,9 @@
       padding: 20px;
     }
 
-    /* Container Principal */
     .auth-container {
       width: 100%;
-      max-width: 480px; /* Um pouco mais largo que o login por ter mais campos */
+      max-width: 480px;
       background: var(--bg-card);
       border-radius: var(--radius-lg);
       box-shadow: var(--shadow-card);
@@ -48,7 +47,6 @@
       border: 1px solid var(--border-color);
     }
 
-    /* Header */
     .brand-section {
       margin-bottom: 25px;
       display: flex;
@@ -78,11 +76,10 @@
       max-width: 80%;
     }
 
-    /* Grid do Formulário */
     .form-grid {
       display: flex;
       flex-direction: column;
-      gap: 16px; /* Espaçamento vertical consistente */
+      gap: 16px;
       text-align: left;
       margin-bottom: 25px;
     }
@@ -115,7 +112,6 @@
       box-shadow: 0 0 0 3px rgba(233, 30, 99, 0.1);
     }
 
-    /* Termos de Uso */
     .terms-check {
       display: flex;
       align-items: flex-start;
@@ -139,7 +135,6 @@
       font-weight: 600;
     }
 
-    /* Botão */
     .btn-primary {
       width: 100%;
       padding: 14px;
@@ -157,7 +152,6 @@
 
     .btn-primary:hover { background-color: var(--primary-hover); }
 
-    /* Rodapé */
     .card-footer {
       margin-top: 25px;
       padding-top: 20px;
@@ -174,7 +168,6 @@
 
     .card-footer a:hover { text-decoration: underline; }
 
-    /* Ajuste Mobile */
     @media (max-width: 480px) {
       .auth-container { padding: 30px 20px; }
     }
@@ -233,12 +226,12 @@
 </div>
 
 <script>
-  // Máscara simples para Telefone Brasileiro (UX Vital)
+
   function maskPhone(input) {
     let v = input.value;
-    v = v.replace(/\D/g,""); //Remove tudo o que não é dígito
-    v = v.replace(/^(\d{2})(\d)/g,"($1) $2"); //Coloca parênteses em volta dos dois primeiros dígitos
-    v = v.replace(/(\d)(\d{4})$/,"$1-$2"); //Coloca hífen entre o quarto e o quinto dígitos
+    v = v.replace(/\D/g,"");
+    v = v.replace(/^(\d{2})(\d)/g,"($1) $2");
+    v = v.replace(/(\d)(\d{4})$/,"$1-$2");
     input.value = v;
   }
 
@@ -254,7 +247,6 @@
       return;
     }
 
-    // Simulação de Loading
     const originalText = btn.innerText;
     btn.innerText = "Criando conta...";
     btn.style.opacity = "0.8";
@@ -262,9 +254,7 @@
 
     setTimeout(() => {
       alert("Conta criada com sucesso! Redirecionando para login...");
-      // window.location.href = 'login.html';
 
-      // Reset (apenas para teste)
       btn.innerText = originalText;
       btn.style.opacity = "1";
       btn.disabled = false;
