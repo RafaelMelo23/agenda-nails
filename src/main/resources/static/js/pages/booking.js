@@ -468,7 +468,7 @@ const bookingApp = {
         const footer = document.getElementById('booking-footer');
         if (footer) footer.style.display = 'none';
 
-        const headerTitle = document.querySelector('.container > div:first-child');
+        const headerTitle = document.getElementById('booking-header');
         if (headerTitle) headerTitle.style.display = 'none';
 
         for (let i = 1; i <= 5; i++) {

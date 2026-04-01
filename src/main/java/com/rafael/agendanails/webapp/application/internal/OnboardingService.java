@@ -51,6 +51,7 @@ public class OnboardingService {
         SalonProfile profile = SalonProfile.builder()
                 .owner(owner)
                 .tenantId(tenantId)
+                .appointmentBufferMinutes(0)
                 .build();
 
         return salonProfileRepository.save(profile);
