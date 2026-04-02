@@ -3,21 +3,6 @@ const profileApp = {
     appointments: [],
     appointmentToCancel: null,
 
-    init: async function() {
-        if (!Auth.getToken()) {
-            window.location.href = '/entrar';
-            return;
-        }
-
-        this.setupTabs();
-        await Promise.all([
-            this.loadProfile(),
-            this.loadAppointments()
-        ]);
-
-        document.getElementById('btn-confirm-cancel').addEventListener('click', () => this.confirmCancel());
-    },
-
     setupTabs: function() {
         const tabs = {
             'tab-upcoming': { section: 'section-appointments', list: 'list-upcoming' },
@@ -277,4 +262,23 @@ const profileApp = {
     }
 };
 
-document.addEventListener('DOMContentLoaded', () => profileApp.init());
+function initProfile() {
+    const el = document.getElementById('user-name');
+    if (!el) return;
+
+    if (!Auth.getToken()) {
+        App.navigate('/entrar');
+        return;
+    }
+
+    profileApp.setupTabs();
+    Promise.all([
+        profileApp.loadProfile(),
+        profileApp.loadAppointments()
+    ]);
+
+    const confirmBtn = document.getElementById('btn-confirm-cancel');
+    if (confirmBtn) {
+        confirmBtn.addEventListener('click', () => profileApp.confirmCancel());
+    }
+}

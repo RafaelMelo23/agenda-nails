@@ -80,6 +80,10 @@ class SecurityFilterTest {
         setupClaimMock(TokenClaim.EMAIL.getValue(), email);
         setupClaimMock(TokenClaim.TENANT_ID.getValue(), tenantId);
 
+        Claim firstLoginClaim = mock(Claim.class);
+        when(firstLoginClaim.asBoolean()).thenReturn(false);
+        when(decodedJWT.getClaim(TokenClaim.FIRST_LOGIN.getValue())).thenReturn(firstLoginClaim);
+
         securityFilter.doFilterInternal(request, response, filterChain);
 
         var authentication = SecurityContextHolder.getContext().getAuthentication();

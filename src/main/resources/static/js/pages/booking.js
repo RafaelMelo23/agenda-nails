@@ -521,6 +521,6 @@ const bookingApp = {
             btn.innerText = 'Confirmar Agendamento';
         }
     }
-};
+    };
 
-document.addEventListener('DOMContentLoaded', () => bookingApp.init());
+    // bookingApp.init() will be called by App.initPage()

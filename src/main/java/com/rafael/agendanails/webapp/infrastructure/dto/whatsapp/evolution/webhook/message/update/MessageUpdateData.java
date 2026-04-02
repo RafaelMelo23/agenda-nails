@@ -6,5 +6,5 @@ import com.rafael.agendanails.webapp.domain.enums.evolution.EvolutionMessageStat
 public record MessageUpdateData(
         @JsonProperty("keyId")
         String messageId,
-        EvolutionMessageStatus status // PODE SER: PENDING, SERVER_ACK, DELIVERY_ACK, READ, PLAYED
+        EvolutionMessageStatus status
 ) {}

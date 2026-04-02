@@ -119,4 +119,16 @@ public class UserController {
         passwordResetUseCase.resetPassword(dto);
         return ResponseEntity.noContent().build();
     }
+
+    @Operation(summary = "Change password", description = "Changes the authenticated user's password (used for first login).")
+    @ApiResponses({
+            @ApiResponse(responseCode = "204", description = "Password changed"),
+            @ApiResponse(responseCode = "401", description = "Unauthorized")
+    })
+    @PostMapping("/change-password")
+    public ResponseEntity<Void> changePassword(@AuthenticationPrincipal UserPrincipal userPrincipal,
+                                               @RequestBody @NotBlank String newPassword) {
+        userService.changePassword(userPrincipal.getUserId(), newPassword);
+        return ResponseEntity.noContent().build();
+    }
 }

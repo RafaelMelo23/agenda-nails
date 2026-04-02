@@ -6,9 +6,10 @@ import com.auth0.jwt.algorithms.Algorithm;
 import com.auth0.jwt.exceptions.JWTCreationException;
 import com.auth0.jwt.exceptions.JWTVerificationException;
 import com.auth0.jwt.interfaces.DecodedJWT;
-import com.rafael.agendanails.webapp.domain.enums.security.TokenClaim;
-import com.rafael.agendanails.webapp.domain.enums.security.TokenPurpose;
 import com.rafael.agendanails.webapp.domain.enums.user.UserRole;
+import com.rafael.agendanails.webapp.domain.enums.security.TokenPurpose;
+import com.rafael.agendanails.webapp.domain.enums.security.TokenClaim;
+import com.rafael.agendanails.webapp.domain.model.Professional;
 import com.rafael.agendanails.webapp.domain.model.User;
 import com.rafael.agendanails.webapp.infrastructure.dto.auth.ResetPasswordDTO;
 import com.rafael.agendanails.webapp.infrastructure.exception.BusinessException;
@@ -32,6 +33,12 @@ public class TokenService {
     public String generateAuthToken(User user) {
         try {
             Algorithm algorithm = Algorithm.HMAC256(secret);
+
+            boolean isFirstLogin = false;
+            if (user instanceof Professional prof) {
+                isFirstLogin = prof.getIsFirstLogin();
+            }
+
             return JWT.create()
                     .withIssuer(ISSUER_CLAIM)
                     .withSubject(user.getId().toString())
@@ -42,9 +49,9 @@ public class TokenService {
                             .toList())
                     .withClaim(TokenClaim.TENANT_ID.getValue(), user.getTenantId())
                     .withClaim(TokenClaim.PURPOSE.getValue(), TokenPurpose.AUTHENTICATION.getValue())
+                    .withClaim(TokenClaim.FIRST_LOGIN.getValue(), isFirstLogin)
                     .withExpiresAt(generateAuthExpirationTime())
                     .sign(algorithm);
-
         } catch (JWTCreationException e) {
             throw new JWTCreationException("Failed to create JWT", e);
         }

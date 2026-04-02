@@ -106,27 +106,29 @@ public class SecurityConfiguration {
                                 "/error"
                         ).permitAll()
 
-                        .requestMatchers(HttpMethod.GET, "/api/v1/salon/service").permitAll()
+                        .requestMatchers(HttpMethod.GET, 
+                                "/api/v1/salon/service",
+                                "/api/v1/salon/profile").permitAll()
 
                         // ===== PUBLIC HTML PAGES =====
                         .requestMatchers(HttpMethod.GET,
+                                "/",
+                                "/index.html",
                                 "/assets/**",
                                 "/css/**",
                                 "/js/**",
+                                "/pages/**",
                                 "/agendar",
                                 "/entrar",
                                 "/cadastro",
                                 "/perfil",
-                                "/manutencao")
-                        .permitAll()
+                                "/manutencao",
+                                "/redefinir-senha",
+                                "/admin/servicos",
+                                "/admin/configuracoes").permitAll()
 
-                        // ===== ADMIN HTML PAGES =====
-                        .requestMatchers("/admin/servicos",
-                                "/admin/configuracoes").hasRole("ADMIN")
-
-                        // ===== PROFESSIONAL HTML PAGES =====
-                        .requestMatchers("/profissional/agendamentos").hasRole("PROFESSIONAL")
-
+                        // ===== ADMIN HTML PAGES (PROTECTED BY JS/API) =====
+                        
                         // ===== SWAGGER (RESTRICTED TO SUPER_ADMIN) =====
                         .requestMatchers(
                                 "/v3/api-docs/**",

@@ -50,12 +50,14 @@ public class SecurityFilter extends OncePerRequestFilter {
                 Long userId = Long.parseLong(token.getSubject());
                 String userEmail = token.getClaim(TokenClaim.EMAIL.getValue()).asString();
                 String tenantId = token.getClaim(TokenClaim.TENANT_ID.getValue()).asString();
+                Boolean isFirstLogin = token.getClaim(TokenClaim.FIRST_LOGIN.getValue()).asBoolean();
 
                 UserPrincipal userPrincipal = UserPrincipal.builder()
                         .userId(userId)
                         .email(userEmail)
                         .userRole(userRoles)
                         .tenantId(tenantId)
+                        .isFirstLogin(Boolean.TRUE.equals(isFirstLogin))
                         .build();
 
                 log.info("Authorities: {}", userPrincipal.getAuthorities());

@@ -1,15 +1,6 @@
-<!DOCTYPE html>
-<html lang="pt-BR"
-      xmlns:th="http://www.thymeleaf.org"
-      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
-      layout:decorate="~{layouts/main-layout}">
-<head>
-    <title>Meus Agendamentos</title>
-    <link rel="stylesheet" th:href="@{/css/pages/profile.css}">
-</head>
-<body>
+<link rel="stylesheet" href="/css/pages/profile.css">
 
-<main layout:fragment="content">
+<main>
     <div class="container">
         <header class="dashboard-header">
             <div class="user-welcome">
@@ -122,14 +113,8 @@
             </div>
         </div>
     </div>
-    </div>
 
-    <a th:href="@{/agendar}" class="fab-add" title="Novo Agendamento">+</a>
+    <a href="/agendar" class="fab-add" title="Novo Agendamento">+</a>
 </main>
 
-<th:block layout:fragment="scripts">
-    <script th:src="@{/js/pages/profile.js}"></script>
-</th:block>
-
-</body>
-</html>
+<script src="/js/pages/profile.js"></script>

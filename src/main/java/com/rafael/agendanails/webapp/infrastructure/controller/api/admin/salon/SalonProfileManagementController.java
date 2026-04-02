@@ -17,10 +17,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
-import org.springframework.web.bind.annotation.PatchMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import java.io.IOException;
 
@@ -33,6 +30,18 @@ import java.io.IOException;
 public class SalonProfileManagementController {
 
     private final SalonProfileManagementService salonProfileManagementService;
+
+    @Operation(summary = "Get salon profile", description = "Returns the salon profile.")
+    @ApiResponses({
+            @ApiResponse(responseCode = "200", description = "Profile returned",
+                    content = @Content(schema = @Schema(implementation = SalonProfileDTO.class))),
+            @ApiResponse(responseCode = "401", description = "Unauthorized"),
+            @ApiResponse(responseCode = "403", description = "Forbidden")
+    })
+    @GetMapping
+    public ResponseEntity<SalonProfileDTO> getProfile(@AuthenticationPrincipal UserPrincipal user) {
+        return ResponseEntity.ok(salonProfileManagementService.getProfile(user.getUserId()));
+    }
 
     @Operation(summary = "Update salon profile", description = "Updates the salon profile.")
     @ApiResponses({

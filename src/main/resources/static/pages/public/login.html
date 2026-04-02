@@ -1,15 +1,6 @@
-<!DOCTYPE html>
-<html lang="pt-BR"
-      xmlns:th="http://www.thymeleaf.org"
-      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
-      layout:decorate="~{layouts/main-layout}">
-<head>
-    <title>Entrar</title>
-    <link rel="stylesheet" th:href="@{/css/pages/login.css}">
-</head>
-<body>
+<link rel="stylesheet" href="/css/pages/login.css">
 
-<main layout:fragment="content">
+<main>
     <div class="auth-wrapper">
         <div class="login-container">
             <div class="brand-section">
@@ -30,7 +21,7 @@
                 </div>
 
                 <div class="form-actions">
-                    <a th:href="@{/redefinir-senha}" class="forgot-link">Esqueci minha senha</a>
+                    <a href="/redefinir-senha" class="forgot-link">Esqueci minha senha</a>
                 </div>
 
                 <button type="submit" class="btn btn-primary btn-block" id="btn-login">Entrar</button>
@@ -38,15 +29,10 @@
 
             <div class="card-footer">
                 Ainda não tem uma conta? <br>
-                <a th:href="@{/cadastro}">Cadastre-se gratuitamente</a>
+                <a href="/cadastro">Cadastre-se gratuitamente</a>
             </div>
         </div>
     </div>
 </main>
 
-<th:block layout:fragment="scripts">
-    <script th:src="@{/js/pages/login.js}"></script>
-</th:block>
-
-</body>
-</html>
+<script src="/js/pages/login.js"></script>

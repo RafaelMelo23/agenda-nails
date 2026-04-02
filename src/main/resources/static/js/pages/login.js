@@ -1,4 +1,4 @@
-document.addEventListener('DOMContentLoaded', () => {
+function initLogin() {
     const loginForm = document.getElementById('login-form');
     const btnLogin = document.getElementById('btn-login');
 
@@ -33,11 +33,11 @@ document.addEventListener('DOMContentLoaded', () => {
 
                     setTimeout(() => {
                         if (payload.role === 'ADMIN' || payload.role === 'SUPER_ADMIN') {
-                            window.location.href = '/admin/dashboard';
+                            App.navigate('/admin/dashboard');
                         } else if (payload.role === 'PROFESSIONAL') {
-                            window.location.href = '/agenda-profissional';
+                            App.navigate('/agenda-profissional');
                         } else {
-                            window.location.href = '/agendar';
+                            App.navigate('/agendar');
                         }
                     }, 1000);
                 }
@@ -48,4 +48,4 @@ document.addEventListener('DOMContentLoaded', () => {
             }
         });
     }
-});
+}

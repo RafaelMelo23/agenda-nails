@@ -1,15 +1,6 @@
-<!DOCTYPE html>
-<html lang="pt-BR"
-      xmlns:th="http://www.thymeleaf.org"
-      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
-      layout:decorate="~{layouts/main-layout}">
-<head>
-    <title>Criar Conta</title>
-    <link rel="stylesheet" th:href="@{/css/pages/register.css}">
-</head>
-<body>
+<link rel="stylesheet" href="/css/pages/register.css">
 
-<main layout:fragment="content">
+<main>
     <div class="auth-wrapper">
         <div class="register-container">
             <div class="brand-section">
@@ -46,25 +37,20 @@
                     </div>
                 </div>
 
-                <label class="terms-check">
+                <!--<label class="terms-check">
                     <input type="checkbox" required>
                     <span>Li e concordo com os <a href="#">Termos de Uso</a> e a <a href="#">Política de Privacidade</a>.</span>
-                </label>
+                </label>-->
 
                 <button type="submit" class="btn btn-primary btn-block" id="btn-register">Cadastrar</button>
             </form>
 
             <div class="card-footer">
                 Já possui uma conta? <br>
-                <a th:href="@{/entrar}">Fazer Login</a>
+                <a href="/entrar">Fazer Login</a>
             </div>
         </div>
     </div>
 </main>
 
-<th:block layout:fragment="scripts">
-    <script th:src="@{/js/pages/register.js}"></script>
-</th:block>
-
-</body>
-</html>
+<script src="/js/pages/register.js"></script>

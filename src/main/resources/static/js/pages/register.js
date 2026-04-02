@@ -1,4 +1,4 @@
-document.addEventListener('DOMContentLoaded', () => {
+function initRegister() {
     const registerForm = document.getElementById('register-form');
     const btnRegister = document.getElementById('btn-register');
     const phoneInput = document.getElementById('phone');
@@ -64,7 +64,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 if (response.ok) {
                     UI.showToast('Conta criada com sucesso! Redirecionando para login...', 'success');
                     setTimeout(() => {
-                        window.location.href = '/entrar';
+                        App.navigate('/entrar');
                     }, 2000);
                 }
             } catch (error) {
@@ -74,4 +74,4 @@ document.addEventListener('DOMContentLoaded', () => {
             }
         });
     }
-});
+}

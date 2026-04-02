@@ -1,18 +1,7 @@
-<!DOCTYPE html>
-<html lang="pt-BR"
-      xmlns:th="http://www.thymeleaf.org"
-      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
-      layout:decorate="~{layouts/main-layout}">
-<head>
-    <title>Gestão de Serviços</title>
-    <th:block layout:fragment="styles">
-        <link rel="stylesheet" th:href="@{/css/pages/admin/services.css}">
-        <link rel="stylesheet" th:href="@{/css/pages/profile.css}">
-    </th:block>
-</head>
-<body>
+<link rel="stylesheet" href="/css/pages/admin/services.css">
+<link rel="stylesheet" href="/css/pages/profile.css">
 
-<main layout:fragment="content">
+<main>
     <div class="container">
         <div class="page-header">
             <h2>Catálogo de Serviços</h2>
@@ -90,12 +79,6 @@
             </form>
         </div>
     </div>
-
 </main>
 
-<th:block layout:fragment="scripts">
-    <script th:src="@{/js/pages/admin/services.js}"></script>
-</th:block>
-
-</body>
-</html>
+<script src="/js/pages/admin/services.js"></script>

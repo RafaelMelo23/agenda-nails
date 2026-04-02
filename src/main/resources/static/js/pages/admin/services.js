@@ -4,6 +4,9 @@ const adminServicesApp = {
     editingServiceId: null,
 
     init: async function() {
+        const el = document.getElementById('service-list');
+        if (!el) return;
+
         if (!Auth.getToken()) {
             window.location.href = '/entrar';
             return;
@@ -237,4 +240,4 @@ const adminServicesApp = {
     }
 };
 
-document.addEventListener('DOMContentLoaded', () => adminServicesApp.init());
+// adminServicesApp.init() will be called by App.initPage()

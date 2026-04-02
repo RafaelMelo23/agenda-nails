@@ -1,17 +1,6 @@
-<!DOCTYPE html>
-<html lang="pt-BR"
-      xmlns:th="http://www.thymeleaf.org"
-      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
-      layout:decorate="~{layouts/main-layout}">
-<head>
-    <title>Configurações do Salão</title>
-    <th:block layout:fragment="styles">
-        <link rel="stylesheet" th:href="@{/css/pages/admin/settings.css}">
-    </th:block>
-</head>
-<body>
+<link rel="stylesheet" href="/css/pages/admin/settings.css">
 
-<main layout:fragment="content">
+<main>
     <div class="container">
         <!-- Profissionais Section -->
         <section class="admin-section">
@@ -77,26 +66,26 @@
                     <div class="form-grid">
                         <div class="form-group">
                             <label class="form-label">Nome Fantasia</label>
-                            <input type="text" name="tradeName" class="form-input" th:value="${salon?.tradeName}" required>
+                            <input type="text" name="tradeName" class="form-input" value="" required>
                         </div>
                         <div class="form-group">
                             <label class="form-label">Slogan</label>
-                            <input type="text" name="slogan" class="form-input" th:value="${salon?.slogan}">
+                            <input type="text" name="slogan" class="form-input" value="">
                         </div>
                         <div class="form-group">
                             <label class="form-label">WhatsApp Comercial</label>
-                            <input type="text" name="comercialPhone" class="form-input" th:value="${salon?.comercialPhone}" placeholder="(00) 00000-0000">
+                            <input type="text" name="comercialPhone" class="form-input" value="" placeholder="(00) 00000-0000">
                         </div>
                         <div class="form-group">
                             <label class="form-label">Cor Primária</label>
                             <div class="color-picker-wrapper">
-                                <input type="color" name="primaryColor" class="color-picker" th:value="${salon?.primaryColor ?: '#E91E63'}">
-                                <input type="text" class="form-input color-text" th:value="${salon?.primaryColor ?: '#E91E63'}" readonly>
+                                <input type="color" name="primaryColor" class="color-picker" value="#E91E63">
+                                <input type="text" class="form-input color-text" value="#E91E63" readonly>
                             </div>
                         </div>
                         <div class="form-group full-width">
                             <label class="form-label">Endereço Completo</label>
-                            <input type="text" name="fullAddress" class="form-input" th:value="${salon?.fullAddress}">
+                            <input type="text" name="fullAddress" class="form-input" value="">
                         </div>
                     </div>
                     <div class="form-actions">
@@ -140,7 +129,6 @@
         </div>
     </div>
 
-    <!-- Custom Confirm Modal -->
     <div id="confirm-modal" class="modal-overlay hidden">
         <div class="modal-content">
             <h3 id="confirm-title">Confirmar Ação</h3>
@@ -151,12 +139,6 @@
             </div>
         </div>
     </div>
-
 </main>
 
-<th:block layout:fragment="scripts">
-    <script th:src="@{/js/pages/admin/settings.js}"></script>
-</th:block>
-
-</body>
-</html>
+<script src="/js/pages/admin/settings.js"></script>

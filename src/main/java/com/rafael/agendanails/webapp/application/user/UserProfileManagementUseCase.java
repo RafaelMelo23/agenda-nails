@@ -92,4 +92,18 @@ public class UserProfileManagementUseCase {
         client.setPhoneNumber(cleanPhone);
         clientRepository.save(client);
     }
+
+    @Transactional
+    public void changePassword(Long userId, String newPassword) {
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new BusinessException("Usuário não encontrado."));
+
+        user.setPassword(passwordEncoder.encode(newPassword));
+        
+        if (user instanceof Professional prof) {
+            prof.setIsFirstLogin(false);
+        }
+        
+        userRepository.save(user);
+    }
 }

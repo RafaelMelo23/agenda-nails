@@ -8,7 +8,8 @@ public enum TokenClaim {
     EMAIL("email"),
     ROLE("roles"),
     TENANT_ID("tenantId"),
-    PURPOSE("purpose");
+    PURPOSE("purpose"),
+    FIRST_LOGIN("isFirstLogin");
 
     private final String value;
 

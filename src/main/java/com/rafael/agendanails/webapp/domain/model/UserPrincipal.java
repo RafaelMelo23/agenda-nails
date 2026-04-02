@@ -20,20 +20,20 @@ public class UserPrincipal implements UserDetails {
     private String email;
     private List<UserRole> userRole;
     private String tenantId;
+    private boolean isFirstLogin;
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
 
         List<SimpleGrantedAuthority> authorities = new ArrayList<>();
         authorities.add(new SimpleGrantedAuthority("ROLE_USER"));
+        
         userRole.forEach(role -> authorities.add(new SimpleGrantedAuthority("ROLE_" + role.name())));
 
         if (this.userRole.contains(UserRole.SUPER_ADMIN)) {
             authorities.add(new SimpleGrantedAuthority("ROLE_ADMIN"));
             authorities.add(new SimpleGrantedAuthority("ROLE_PROFESSIONAL"));
-        }
-
-        if (this.userRole.contains(UserRole.ADMIN)) {
+        } else if (this.userRole.contains(UserRole.ADMIN)) {
             authorities.add(new SimpleGrantedAuthority("ROLE_PROFESSIONAL"));
         }
 

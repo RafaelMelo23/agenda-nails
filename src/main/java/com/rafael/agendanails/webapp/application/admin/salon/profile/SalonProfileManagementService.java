@@ -20,6 +20,28 @@ public class SalonProfileManagementService {
     private final SalonProfileRepository repository;
     private final FileUploadService fileUploadService;
 
+    @Transactional(readOnly = true)
+    public SalonProfileDTO getProfile(Long ownerId) {
+        SalonProfile salonProfile = repository.findByOwner_Id(ownerId)
+                .orElseThrow(() -> new BusinessException("O perfil do salão não foi encontrado."));
+
+        return SalonProfileDTO.builder()
+                .tradeName(salonProfile.getTradeName())
+                .slogan(salonProfile.getSlogan())
+                .primaryColor(salonProfile.getPrimaryColor())
+                .comercialPhone(salonProfile.getComercialPhone())
+                .fullAddress(salonProfile.getFullAddress())
+                .socialMediaLink(salonProfile.getSocialMediaLink())
+                .status(salonProfile.getOperationalStatus())
+                .warningMessage(salonProfile.getWarningMessage())
+                .appointmentBufferMinutes(salonProfile.getAppointmentBufferMinutes())
+                .zoneId(salonProfile.getZoneId())
+                .isLoyalClientelePrioritized(salonProfile.isLoyalClientelePrioritized())
+                .loyalClientBookingWindowDays(salonProfile.getLoyalClientBookingWindowDays())
+                .standardBookingWindow(salonProfile.getStandardBookingWindow())
+                .build();
+    }
+
     @Transactional
     public void updateProfile(Long ownerId, SalonProfileDTO profile) throws IOException {
 

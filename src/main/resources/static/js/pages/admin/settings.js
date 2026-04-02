@@ -3,9 +3,33 @@ const adminSettingsApp = {
     clientsSearchTimeout: null,
 
     init: function() {
-        adminSettingsApp.loadProfessionals();
-        adminSettingsApp.loadClients();
-        adminSettingsApp.setupColorPicker();
+        const profList = document.getElementById('professionals-list');
+        if (profList) {
+            adminSettingsApp.loadProfessionals();
+            adminSettingsApp.loadClients();
+            adminSettingsApp.loadSalonProfile();
+            adminSettingsApp.setupColorPicker();
+        }
+    },
+
+    loadSalonProfile: async function() {
+        try {
+            const res = await fetch('/api/v1/admin/salon/profile');
+            if (res.ok) {
+                const salon = await res.json();
+                const form = document.getElementById('salon-profile-form');
+                if (form) {
+                    form.querySelector('[name="tradeName"]').value = salon.tradeName || '';
+                    form.querySelector('[name="slogan"]').value = salon.slogan || '';
+                    form.querySelector('[name="comercialPhone"]').value = salon.comercialPhone || '';
+                    form.querySelector('[name="primaryColor"]').value = salon.primaryColor || '#E91E63';
+                    form.querySelector('.color-text').value = (salon.primaryColor || '#E91E63').toUpperCase();
+                    form.querySelector('[name="fullAddress"]').value = salon.fullAddress || '';
+                }
+            }
+        } catch (e) {
+            console.error('Error loading profile:', e);
+        }
     },
 
     // --- Helpers ---
@@ -45,14 +69,6 @@ const adminSettingsApp = {
 
     getInitials: function(name) {
         return name.split(' ').map(n => n[0]).join('').substring(0, 2).toUpperCase();
-    },
-
-    reloadWithDelay: function() {
-        console.log('Scheduling page reload...');
-        setTimeout(() => {
-            console.log('Reloading now!');
-            window.location.reload();
-        }, 1000);
     },
 
     // --- Professionals ---
@@ -108,7 +124,7 @@ const adminSettingsApp = {
             const response = await fetch(`/api/v1/admin/professional/${id}/deactivate`, { method: 'PATCH' });
             if (response.ok) {
                 Toast.success('Profissional desativada com sucesso!');
-                adminSettingsApp.reloadWithDelay();
+                await adminSettingsApp.loadProfessionals();
             }
         } finally {
             adminSettingsApp.setLoading(btn, false);
@@ -124,7 +140,7 @@ const adminSettingsApp = {
             const response = await fetch(`/api/v1/admin/professional/${id}/activate`, { method: 'PATCH' });
             if (response.ok) {
                 Toast.success('Profissional ativada com sucesso!');
-                adminSettingsApp.reloadWithDelay();
+                await adminSettingsApp.loadProfessionals();
             }
         } finally {
             adminSettingsApp.setLoading(btn, false);
@@ -191,7 +207,7 @@ const adminSettingsApp = {
             if (response.ok) {
                 Toast.success('Profissional cadastrada com sucesso!');
                 adminSettingsApp.closeProfessionalModal();
-                adminSettingsApp.reloadWithDelay();
+                await adminSettingsApp.loadProfessionals();
             }
         } finally {
             adminSettingsApp.setLoading(btn, false);
@@ -278,7 +294,7 @@ const adminSettingsApp = {
             const response = await fetch(`/api/v1/admin/client/status/${clientId}/${status}`, { method: 'PATCH' });
             if (response.ok) {
                 Toast.success(`Cliente ${status === 'BANNED' ? 'banido' : 'desbloqueado'} com sucesso!`);
-                adminSettingsApp.reloadWithDelay();
+                await adminSettingsApp.loadClients();
             }
         } finally {
             adminSettingsApp.setLoading(btn, false);
@@ -313,7 +329,11 @@ const adminSettingsApp = {
 
             if (response.ok) {
                 Toast.success('Configurações salvas com sucesso!');
-                adminSettingsApp.reloadWithDelay();
+                await adminSettingsApp.loadSalonProfile();
+                // Also trigger a theme refresh globally if possible, or let it be for now.
+                if (typeof App !== 'undefined' && App.initTheme) {
+                    await App.initTheme();
+                }
             }
         } finally {
             adminSettingsApp.setLoading(btn, false);
@@ -321,4 +341,4 @@ const adminSettingsApp = {
     }
 };
 
-document.addEventListener('DOMContentLoaded', () => adminSettingsApp.init());
+// adminSettingsApp.init() will be called by App.initPage()
