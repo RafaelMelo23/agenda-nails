@@ -44,6 +44,7 @@ public class Professional extends User {
     @OneToOne(mappedBy = "owner", orphanRemoval = true)
     private SalonProfile salonProfile;
 
+    @Override
     public void prePersist() {
         this.isActive = Boolean.TRUE;
         this.isFirstLogin = Boolean.TRUE;

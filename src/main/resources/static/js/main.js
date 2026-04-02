@@ -99,7 +99,6 @@ const App = {
         const appContent = document.getElementById('app-content');
         if (!appContent) return;
 
-        // Guard for protected routes
         if (path.startsWith('/admin') || path.startsWith('/perfil') || path.startsWith('/profissional')) {
             if (!Auth.getToken()) {
                 console.warn('Unauthorized access to', path, '- redirecting to login');
@@ -107,14 +106,12 @@ const App = {
                 return;
             }
 
-            // Specific role check for admin pages
             if (path.startsWith('/admin') && !Auth.hasRole('ADMIN')) {
                 console.warn('Forbidden: User is not an admin. Redirecting to booking.');
                 this.navigate('/agendar');
                 return;
             }
 
-            // Specific role check for professional pages
             if (path.startsWith('/profissional') && !Auth.hasRole('PROFESSIONAL')) {
                 console.warn('Forbidden: User is not a professional. Redirecting to booking.');
                 this.navigate('/agendar');
@@ -241,7 +238,8 @@ const App = {
 
     checkAuth: function() {
         const payload = Auth.getPayload();
-        if (payload && payload.isFirstLogin && !window.location.pathname.includes('/entrar')) {
+
+        if (payload && payload.isFirstLogin && window.location.pathname !== '/entrar') {
             this.showFirstLoginModal();
         }
     },
@@ -251,26 +249,37 @@ const App = {
 
         const modalHtml = `
             <div id="first-login-modal" class="modal-overlay">
-                <div class="modal-content">
-                    <h3>Primeiro Acesso</h3>
-                    <p>Para sua segurança, você deve alterar sua senha inicial.</p>
-                    <form id="first-login-form" style="margin-top: 20px;">
+                <div class="modal-content fade-in" style="max-width: 400px;">
+                    <div style="text-align: center; margin-bottom: 20px;">
+                        <span style="font-size: 40px;">🔒</span>
+                        <h2 style="margin-top: 10px; color: var(--text-main);">Primeiro Acesso</h2>
+                        <p style="font-size: 14px; color: var(--text-muted);">Para sua segurança, você deve alterar sua senha inicial para continuar.</p>
+                    </div>
+                    
+                    <form id="first-login-form">
                         <div class="form-group">
                             <label class="form-label">Nova Senha</label>
-                            <input type="password" id="new-password" class="form-input" required minlength="6">
+                            <input type="password" id="new-password" class="form-input" 
+                                   placeholder="Mínimo 6 caracteres" required minlength="6">
                         </div>
                         <div class="form-group">
                             <label class="form-label">Confirmar Nova Senha</label>
-                            <input type="password" id="confirm-password" class="form-input" required minlength="6">
+                            <input type="password" id="confirm-password" class="form-input" 
+                                   placeholder="Repita a nova senha" required minlength="6">
                         </div>
-                        <button type="submit" class="btn btn-primary btn-block">Alterar Senha</button>
+                        <button type="submit" id="btn-change-pass" class="btn btn-primary btn-block">
+                            Definir Nova Senha
+                        </button>
                     </form>
                 </div>
             </div>
         `;
         document.body.insertAdjacentHTML('beforeend', modalHtml);
 
-        document.getElementById('first-login-form').addEventListener('submit', async (e) => {
+        const form = document.getElementById('first-login-form');
+        const btn = document.getElementById('btn-change-pass');
+
+        form.addEventListener('submit', async (e) => {
             e.preventDefault();
             const newPassword = document.getElementById('new-password').value;
             const confirmPassword = document.getElementById('confirm-password').value;
@@ -280,19 +289,33 @@ const App = {
                 return;
             }
 
+            btn.disabled = true;
+            btn.innerText = 'Processando...';
+
             try {
+
                 const res = await fetch('/api/v1/user/change-password', {
                     method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ newPassword })
+                    headers: { 
+                        'Content-Type': 'text/plain',
+                        'Authorization': `Bearer ${Auth.getToken()}`
+                    },
+                    body: newPassword
                 });
 
                 if (res.ok) {
                     Toast.success('Senha alterada com sucesso! Faça login novamente.');
                     setTimeout(() => Auth.logout(), 2000);
+                } else {
+                    const err = await res.json();
+                    Toast.error(err.messages?.[0] || 'Erro ao alterar senha.');
                 }
             } catch (err) {
                 console.error('Error changing password:', err);
+                Toast.error('Erro de conexão ao alterar senha.');
+            } finally {
+                btn.disabled = false;
+                btn.innerText = 'Definir Nova Senha';
             }
         });
     }
