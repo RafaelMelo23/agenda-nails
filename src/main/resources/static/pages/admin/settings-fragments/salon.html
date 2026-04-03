@@ -1,0 +1,101 @@
+<!-- Identidade Section -->
+<section id="tab-salon" class="admin-section tab-content">
+    <div class="section-header">
+        <h2>Configurações do Salão</h2>
+    </div>
+    <div class="card settings-card">
+        <form id="salon-profile-form" onsubmit="adminSettingsApp.handleSaveProfile(event)">
+            <div class="settings-group">
+                <h3 class="settings-subtitle">Identidade Visual</h3>
+                <div class="form-grid">
+                    <div class="form-group">
+                        <label class="form-label">Nome Fantasia <span class="required">*</span></label>
+                        <input type="text" name="tradeName" class="form-input" required>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Slogan</label>
+                        <input type="text" name="slogan" class="form-input">
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Cor Primária <span class="required">*</span></label>
+                        <div class="color-picker-wrapper">
+                            <input type="color" name="primaryColor" class="color-picker" value="#E91E63">
+                            <input type="text" class="form-input color-text" value="#E91E63" readonly>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="settings-group">
+                <h3 class="settings-subtitle">Contato & Localização</h3>
+                <div class="form-grid">
+                    <div class="form-group">
+                        <label class="form-label">WhatsApp Comercial <span class="required">*</span></label>
+                        <input type="text" name="comercialPhone" class="form-input" placeholder="(00) 00000-0000" required>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Link Instagram / Redes Sociais</label>
+                        <input type="url" name="socialMediaLink" class="form-input" placeholder="https://instagram.com/seu-salao">
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Fuso Horário (Timezone) <span class="required">*</span></label>
+                        <select name="zoneId" class="form-input" required>
+                            <option value="America/Sao_Paulo">Brasília (GMT-3)</option>
+                            <option value="America/Manaus">Manaus (GMT-4)</option>
+                            <option value="America/Cuiaba">Cuiabá (GMT-4)</option>
+                            <option value="America/Fortaleza">Fortaleza (GMT-3)</option>
+                            <option value="America/Recife">Recife (GMT-3)</option>
+                        </select>
+                    </div>
+                    <div class="form-group full-width">
+                        <label class="form-label">Endereço Completo <span class="required">*</span></label>
+                        <input type="text" name="fullAddress" class="form-input" required>
+                    </div>
+                </div>
+            </div>
+
+            <div class="settings-group">
+                <h3 class="settings-subtitle">Políticas & Status</h3>
+                <div class="form-grid">
+                    <div class="form-group">
+                        <label class="form-label">Buffer entre Agendamentos (minutos) <span class="required">*</span></label>
+                        <input type="number" name="appointmentBufferMinutes" class="form-input" min="0" max="120" step="5" required>
+                        <small class="field-hint">Tempo de limpeza/preparação entre clientes.</small>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Janela de Agendamento (dias) <span class="required">*</span></label>
+                        <input type="number" name="standardBookingWindow" class="form-input" min="1" max="180" required>
+                        <small class="field-hint">Com quanta antecedência o cliente pode agendar.</small>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Status Operacional <span class="required">*</span></label>
+                        <select name="status" class="form-input" required onchange="adminSettingsApp.handleStatusChange(this.value)">
+                            <option value="OPEN">Aberto / Recebendo Agendamentos</option>
+                            <option value="CLOSED_TEMPORARY">Fechado Temporariamente</option>
+                        </select>
+                    </div>
+                    <div id="warning-message-group" class="form-group hidden">
+                        <label class="form-label">Mensagem de Aviso (Banner)</label>
+                        <textarea name="warningMessage" class="form-input" rows="1" placeholder="Ex: Estaremos de férias do dia 10 ao dia 15..."></textarea>
+                        <small class="field-hint">Aparece na página de manutenção.</small>
+                    </div>
+                    <div class="form-group full-width">
+                        <label class="checkbox-item" style="margin-top: 10px;">
+                            <input type="checkbox" name="isLoyalClientelePrioritized" id="isLoyalClientelePrioritized" onchange="adminSettingsApp.toggleLoyalWindow(this.checked)">        
+                            <strong>Priorizar Clientes Fiéis</strong>
+                        </label>
+                        <small class="field-hint" style="margin-left: 25px;">Permite que clientes frequentes agendem com mais antecedência.</small>
+                    </div>
+                    <div id="loyal-window-group" class="form-group hidden">
+                        <label class="form-label">Janela para Clientes Fiéis (dias)</label>
+                        <input type="number" name="loyalClientBookingWindowDays" class="form-input" min="1" max="365">
+                    </div>
+                </div>
+            </div>
+
+            <div class="form-actions">
+                <button type="submit" class="btn btn-primary btn-block">Salvar Todas as Alterações</button>
+            </div>
+        </form>
+    </div>
+</section>

@@ -1,0 +1,26 @@
+<!-- Profissionais Section -->
+<section id="tab-professionals" class="admin-section tab-content active">
+    <div class="section-header">
+        <h2>Equipe & Profissionais</h2>
+        <button class="btn btn-primary btn-sm" onclick="adminSettingsApp.openProfessionalModal()">+ Nova Profissional</button>
+    </div>
+    <div class="card overflow-hidden">
+        <table class="admin-table">
+            <thead>
+            <tr>
+                <th>Profissional</th>
+                <th>E-mail</th>
+                <th>Serviços</th>
+                <th>Gestão</th>
+                <th>Status</th>
+                <th>Ação</th>
+            </tr>
+            </thead>
+            <tbody id="professionals-list">
+            <tr>
+                <td colspan="6" class="empty-state">Carregando profissionais...</td>
+            </tr>
+            </tbody>
+        </table>
+    </div>
+</section>

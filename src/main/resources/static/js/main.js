@@ -122,6 +122,7 @@ const App = {
         
         let templatePath = '';
         let scriptPath = '';
+        let isModule = false;
         let pageTitle = 'Agendamento';
 
         if (path === '/entrar') {
@@ -135,6 +136,7 @@ const App = {
         } else if (path === '/admin/configuracoes') {
             templatePath = '/pages/admin/settings.html';
             scriptPath = '/js/pages/admin/settings.js';
+            isModule = true;
             pageTitle = 'Configurações';
         } else if (path === '/admin/servicos') {
             templatePath = '/pages/admin/services.html';
@@ -182,7 +184,7 @@ const App = {
                     this.applyBranding();
 
                     if (scriptPath) {
-                        await this.loadScript(scriptPath);
+                        await this.loadScript(scriptPath, isModule);
                         this.initPage(path);
                     }
                 } else if (res.status === 400) {
@@ -205,7 +207,7 @@ const App = {
         if (path === '/perfil' && typeof initProfile === 'function') initProfile();
     },
 
-    loadScript: function(src) {
+    loadScript: function(src, isModule = false) {
         return new Promise((resolve, reject) => {
             const existing = document.querySelector(`script[src="${src}"]`);
             if (existing) {
@@ -216,6 +218,9 @@ const App = {
             const script = document.createElement('script');
             script.src = src;
             script.async = true;
+            if (isModule) {
+                script.type = 'module';
+            }
             script.onload = resolve;
             script.onerror = reject;
             document.body.appendChild(script);
