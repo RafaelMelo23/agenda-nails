@@ -4,6 +4,7 @@ import com.auth0.jwt.interfaces.Claim;
 import com.auth0.jwt.interfaces.DecodedJWT;
 import com.rafael.agendanails.webapp.domain.enums.security.TokenClaim;
 import com.rafael.agendanails.webapp.infrastructure.security.token.TokenService;
+import com.rafael.agendanails.webapp.shared.tenant.TenantResolver;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
@@ -28,6 +29,8 @@ class SecurityFilterTest {
 
     @Mock
     private TokenService tokenService;
+    @Mock
+    private TenantResolver tenantResolver;
     @Mock
     private HttpServletRequest request;
     @Mock
@@ -66,6 +69,7 @@ class SecurityFilterTest {
         String tenantId = "tenant-001";
 
         when(tokenService.recoverAndValidate(request)).thenReturn(decodedJWT);
+        when(tenantResolver.resolve(request)).thenReturn(tenantId);
 
         Claim purposeClaim = mock(Claim.class);
         when(purposeClaim.asString()).thenReturn("AUTHENTICATION");

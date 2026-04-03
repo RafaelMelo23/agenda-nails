@@ -39,14 +39,31 @@ public class HeaderOrSubdomainTenantResolver implements TenantResolver {
         if (tenantFromToken != null &&
                 tenantFromSubdomain != null &&
                 !tenantFromToken.equalsIgnoreCase(tenantFromSubdomain)) {
-            throw new TenantIdentifierMismatchException("Tenant mismatch between token and domain");
+            
+            if (isSuperAdmin(token)) {
+                log.debug("Super Admin accessing tenant [{}]. Token tenant is [{}].", tenantFromSubdomain, tenantFromToken);
+                return tenantFromSubdomain;
+            }
+
+            log.warn("Tenant mismatch between token [{}] and domain [{}]. Using domain tenant.", tenantFromToken, tenantFromSubdomain);
+            return tenantFromSubdomain;
         }
 
         String resolved = (tenantFromToken != null)
                 ? tenantFromToken
                 : tenantFromSubdomain;
 
-        log.info("Tenant resolved: [{}]", resolved);
+        log.debug("Tenant resolved: [{}]", resolved);
         return resolved;
+    }
+
+    private boolean isSuperAdmin(DecodedJWT token) {
+        if (token == null) return false;
+        try {
+            var roles = token.getClaim("roles").asList(String.class);
+            return roles != null && roles.contains("SUPER_ADMIN");
+        } catch (Exception e) {
+            return false;
+        }
     }
 }

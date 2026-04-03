@@ -4,6 +4,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.rafael.agendanails.webapp.infrastructure.security.logging.JsonAccessDeniedHandler;
 import com.rafael.agendanails.webapp.infrastructure.security.logging.JsonAuthenticationEntryPoint;
 import com.rafael.agendanails.webapp.infrastructure.security.token.TokenService;
+import com.rafael.agendanails.webapp.shared.tenant.TenantResolver;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -82,10 +83,11 @@ public class SecurityConfiguration {
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http,
                                                    TokenService tokenService,
+                                                   TenantResolver tenantResolver,
                                                    JsonAuthenticationEntryPoint authenticationEntryPoint,
                                                    JsonAccessDeniedHandler accessDeniedHandler
     ) throws Exception {
-        SecurityFilter securityFilter = new SecurityFilter(tokenService);
+        SecurityFilter securityFilter = new SecurityFilter(tokenService, tenantResolver);
         http.cors(cors -> {
                 })
                 .csrf(AbstractHttpConfigurer::disable)
@@ -102,7 +104,7 @@ public class SecurityConfiguration {
                                 "/api/v1/webhook/**",
                                 "/api/v1/professional/simplified",
                                 "/api/v1/booking/{professionalExternalId}/availability",
-                                "/error",
+                                "/error/**",
                                 "/uploads/**",
                                 "/offline"
                         ).permitAll()
@@ -132,10 +134,12 @@ public class SecurityConfiguration {
                         
                         // ===== SWAGGER (RESTRICTED TO SUPER_ADMIN) =====
                         .requestMatchers(
-                                "/v3/api-docs/**",
                                 "/swagger-ui/**",
                                 "/swagger-ui.html"
-                        ).hasRole("SUPER_ADMIN")
+                        ).permitAll()
+                        .requestMatchers(
+                                "/v3/api-docs/**"
+                        ).hasAuthority("SUPER_ADMIN")
 
                         // ===== SUPER ADMIN =====
                         .requestMatchers(

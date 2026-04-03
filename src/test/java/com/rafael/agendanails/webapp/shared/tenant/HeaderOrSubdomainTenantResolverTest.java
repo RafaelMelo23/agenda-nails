@@ -129,7 +129,7 @@ class HeaderOrSubdomainTenantResolverTest {
     }
 
     @Test
-    void shouldThrowExceptionWhenTokenTenantAndSubdomainMismatch() {
+    void shouldNotThrowExceptionWhenTokenTenantAndSubdomainMismatch() {
         HttpServletRequest request = mock(HttpServletRequest.class);
 
         DecodedJWT jwt = mockToken("tenantA");
@@ -137,10 +137,30 @@ class HeaderOrSubdomainTenantResolverTest {
         when(tokenService.recoverAndValidate(request)).thenReturn(jwt);
         when(request.getHeader("X-Forwarded-Host")).thenReturn("tenantB.example.com");
 
-        assertThrows(
-                TenantIdentifierMismatchException.class,
-                () -> resolver.resolve(request)
-        );
+        String tenant = resolver.resolve(request);
+
+        assertEquals("tenantB", tenant);
+    }
+
+    @Test
+    void shouldAllowMismatchForSuperAdmin() {
+        HttpServletRequest request = mock(HttpServletRequest.class);
+
+        DecodedJWT jwt = mock(DecodedJWT.class);
+        Claim tenantClaim = mock(Claim.class);
+        Claim rolesClaim = mock(Claim.class);
+
+        when(jwt.getClaim("tenantId")).thenReturn(tenantClaim);
+        when(tenantClaim.asString()).thenReturn("system");
+        when(jwt.getClaim("roles")).thenReturn(rolesClaim);
+        when(rolesClaim.asList(String.class)).thenReturn(java.util.List.of("SUPER_ADMIN"));
+
+        when(tokenService.recoverAndValidate(request)).thenReturn(jwt);
+        when(request.getHeader("X-Forwarded-Host")).thenReturn("tenantA.example.com");
+
+        String tenant = resolver.resolve(request);
+
+        assertEquals("tenantA", tenant);
     }
 
     @Test

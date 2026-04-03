@@ -4,6 +4,7 @@ import com.rafael.agendanails.webapp.domain.enums.security.TokenClaim;
 import com.rafael.agendanails.webapp.domain.enums.user.UserRole;
 import com.rafael.agendanails.webapp.domain.model.UserPrincipal;
 import com.rafael.agendanails.webapp.infrastructure.security.token.TokenService;
+import com.rafael.agendanails.webapp.shared.tenant.TenantResolver;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
@@ -24,6 +25,7 @@ import static com.rafael.agendanails.webapp.domain.enums.security.TokenPurpose.A
 public class SecurityFilter extends OncePerRequestFilter {
 
     private final TokenService tokenService;
+    private final TenantResolver tenantResolver;
 
     @Override
     protected boolean shouldNotFilter(HttpServletRequest request) {
@@ -49,14 +51,25 @@ public class SecurityFilter extends OncePerRequestFilter {
 
                 Long userId = Long.parseLong(token.getSubject());
                 String userEmail = token.getClaim(TokenClaim.EMAIL.getValue()).asString();
-                String tenantId = token.getClaim(TokenClaim.TENANT_ID.getValue()).asString();
+                String tokenTenantId = token.getClaim(TokenClaim.TENANT_ID.getValue()).asString();
                 Boolean isFirstLogin = token.getClaim(TokenClaim.FIRST_LOGIN.getValue()).asBoolean();
+
+                String currentTenant = tenantResolver.resolve(request);
+
+                if (currentTenant != null && tokenTenantId != null &&
+                        !tokenTenantId.equalsIgnoreCase(currentTenant) &&
+                        !userRoles.contains(UserRole.SUPER_ADMIN)) {
+                    log.warn("Security mismatch: token for tenant [{}], but request for [{}]. User [{}] is not a SUPER_ADMIN. Authentication skipped.",
+                            tokenTenantId, currentTenant, userEmail);
+                    filterChain.doFilter(request, response);
+                    return;
+                }
 
                 UserPrincipal userPrincipal = UserPrincipal.builder()
                         .userId(userId)
                         .email(userEmail)
                         .userRole(userRoles)
-                        .tenantId(tenantId)
+                        .tenantId(tokenTenantId)
                         .isFirstLogin(Boolean.TRUE.equals(isFirstLogin))
                         .build();
 
