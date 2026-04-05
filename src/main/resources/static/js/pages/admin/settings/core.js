@@ -1,61 +1,57 @@
 export const CoreModule = {
     init: async function() {
-        // Load Modals
-        try {
-            const res = await fetch('/pages/admin/settings-fragments/modals.html');
-            if (res.ok) {
-                const html = await res.text();
-                document.getElementById('settings-modals-area').innerHTML = html;
-            }
-        } catch (e) {
-            console.error('Error loading modals', e);
-        }
-
-        // Core initializations
-        adminSettingsApp.loadSalonProfile();
-        adminSettingsApp.setupColorPicker();
-        
-        // Restore active tab from hash or default to professionals
-        const hash = window.location.hash.substring(1) || 'professionals';
-        await adminSettingsApp.switchTab(hash);
-    },
-
-    switchTab: async function(tabId) {
-        // Update URL Hash
-        window.location.hash = tabId;
-
-        // Update Buttons
-        document.querySelectorAll('.tab-btn').forEach(btn => {
-            btn.classList.toggle('active', btn.getAttribute('onclick').includes(tabId));
-        });
-
+        const fragments = ['modals', 'professionals', 'clients', 'salon', 'insights'];
         const contentArea = document.getElementById('settings-content-area');
-        let contentEl = document.getElementById(`tab-${tabId}`);
-        
-        if (!contentEl) {
+        const modalsArea = document.getElementById('settings-modals-area');
+
+        await Promise.all(fragments.map(async (tabId) => {
             try {
                 const response = await fetch(`/pages/admin/settings-fragments/${tabId}.html`);
                 if (response.ok) {
                     const html = await response.text();
-                    contentArea.insertAdjacentHTML('beforeend', html);
+                    if (tabId === 'modals') {
+                        modalsArea.innerHTML = html;
+                    } else {
+                        contentArea.insertAdjacentHTML('beforeend', html);
+                    }
                 }
             } catch (e) {
-                console.error('Error loading fragment', e);
             }
-        }
+        }));
 
-        // Update Visibility
+        adminSettingsApp.setupColorPicker();
+        
+        const hash = window.location.hash.substring(1) || 'professionals';
+        this.switchTabUI(hash);
+        this.loadTabData(hash);
+    },
+
+    switchTab: async function(tabId) {
+        window.location.hash = tabId;
+        this.switchTabUI(tabId);
+        this.loadTabData(tabId);
+    },
+
+    switchTabUI: function(tabId) {
+        document.querySelectorAll('.tab-btn').forEach(btn => {
+            const onClick = btn.getAttribute('onclick') || '';
+            btn.classList.toggle('active', onClick.includes(tabId));
+        });
+
         document.querySelectorAll('.tab-content').forEach(content => {
             content.classList.toggle('active', content.id === `tab-${tabId}`);
         });
+    },
 
-        // Specific Tab Actions
+    loadTabData: function(tabId) {
         if (tabId === 'professionals') {
             adminSettingsApp.loadProfessionals();
         } else if (tabId === 'clients') {
             adminSettingsApp.loadClients();
         } else if (tabId === 'insights') {
             adminSettingsApp.loadSalonRevenue();
+        } else if (tabId === 'salon') {
+            adminSettingsApp.loadSalonProfile();
         }
     },
 

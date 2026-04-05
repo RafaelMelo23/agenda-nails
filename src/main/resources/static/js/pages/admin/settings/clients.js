@@ -23,7 +23,6 @@ export const ClientsModule = {
                 this.renderPagination(data);
             }
         } catch (error) {
-            console.error('Error loading clients:', error);
         }
     },
 
@@ -74,7 +73,6 @@ export const ClientsModule = {
     loadAppointmentHistory: async function(clientId, page) {
         const container = document.getElementById('client-history-container');
         if (!container) return;
-        container.innerHTML = '<p class="empty-state">Carregando histórico...</p>';
         try {
             const response = await fetch(`/api/v1/admin/client/${clientId}/appointments?page=${page}&size=5&sort=startDate,desc`);
             if (response.ok) {
@@ -194,7 +192,6 @@ export const ClientsModule = {
         }
     },
 
-    // --- CRM ---
     debounceSearchCrmClients: function() {
         clearTimeout(this.crmSearchTimeout);
         this.crmSearchTimeout = setTimeout(() => {
@@ -232,7 +229,6 @@ export const ClientsModule = {
                 resultsContainer.style.display = 'block';
             }
         } catch (error) {
-            console.error('Error searching crm clients:', error);
         }
     },
 
@@ -248,10 +244,6 @@ export const ClientsModule = {
         detailsContainer.style.display = 'block';
         
         const fields = ['crm-name', 'crm-phone', 'crm-total-spent', 'crm-last-visit', 'crm-completed', 'crm-canceled', 'crm-missed'];
-        fields.forEach(id => {
-            const el = document.getElementById(id);
-            if (el) el.innerText = 'Carregando...';
-        });
 
         try {
             const response = await fetch(`/api/v1/admin/insight/clients/${clientId}`);
@@ -277,7 +269,6 @@ export const ClientsModule = {
                 });
             }
         } catch (error) {
-            console.error('Failed to load client CRM info', error);
         }
     }
 };

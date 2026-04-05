@@ -63,7 +63,6 @@ export const ProfessionalsModule = {
     loadSchedules: async function(id) {
         const container = document.getElementById('schedules-container');
         if (!container) return;
-        container.innerHTML = '<p class="empty-state">Carregando horários...</p>';
         try {
             const response = await fetch(`/api/v1/admin/professional/schedule/${id}`);
             if (response.ok) {
@@ -122,7 +121,6 @@ export const ProfessionalsModule = {
     loadBlocks: async function(id) {
         const container = document.getElementById('blocks-container');
         if (!container) return;
-        container.innerHTML = '<p class="empty-state">Carregando bloqueios...</p>';
         try {
             const response = await fetch(`/api/v1/admin/professional/schedule/block/${id}`);
             if (response.ok) {

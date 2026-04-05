@@ -3,12 +3,14 @@
 <main>
     <div class="container">
         <!-- Tab Navigation -->
-        <nav class="admin-tabs">
-            <button class="tab-btn active" onclick="adminSettingsApp.switchTab('professionals')">Equipe</button>
-            <button class="tab-btn" onclick="adminSettingsApp.switchTab('clients')">Clientes</button>
-            <button class="tab-btn" onclick="adminSettingsApp.switchTab('salon')">Salão</button>
-            <button class="tab-btn" onclick="adminSettingsApp.switchTab('insights')">Receita do Salão</button>
-        </nav>
+        <div class="tabs-container">
+            <nav class="admin-tabs">
+                <button class="tab-btn active" onclick="adminSettingsApp.switchTab('professionals')">Equipe</button>
+                <button class="tab-btn" onclick="adminSettingsApp.switchTab('clients')">Clientes</button>
+                <button class="tab-btn" onclick="adminSettingsApp.switchTab('salon')">Salão</button>
+                <button class="tab-btn" onclick="adminSettingsApp.switchTab('insights')">Receita do Salão</button>
+            </nav>
+        </div>
 
         <!-- Dynamic Content Area -->
         <div id="settings-content-area">

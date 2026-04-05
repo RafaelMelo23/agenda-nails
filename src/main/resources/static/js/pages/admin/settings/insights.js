@@ -23,7 +23,6 @@ export const InsightsModule = {
                 });
             }
         } catch (e) {
-            console.error('Failed to load salon revenue', e);
         }
     }
 };

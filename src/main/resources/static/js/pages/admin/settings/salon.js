@@ -5,37 +5,44 @@ export const SalonModule = {
             if (res.ok) {
                 const salon = await res.json();
                 const form = document.getElementById('salon-profile-form');
-                if (form) {
-                    form.querySelector('[name="tradeName"]').value = salon.tradeName || '';
-                    form.querySelector('[name="slogan"]').value = salon.slogan || '';
-                    form.querySelector('[name="comercialPhone"]').value = salon.comercialPhone || '';
-                    form.querySelector('[name="primaryColor"]').value = salon.primaryColor || '#E91E63';
-                    const colorText = form.querySelector('.color-text');
-                    if (colorText) colorText.value = (salon.primaryColor || '#E91E63').toUpperCase();
-                    form.querySelector('[name="fullAddress"]').value = salon.fullAddress || '';
+                if (!form) return;
 
-                    // New fields
-                    const status = salon.status || 'OPEN';
-                    form.querySelector('[name="status"]').value = status;
+                const setVal = (name, val) => {
+                    const el = form.querySelector(`[name="${name}"]`);
+                    if (el) el.value = val || '';
+                };
+
+                setVal('tradeName', salon.tradeName);
+                setVal('slogan', salon.slogan);
+                setVal('comercialPhone', salon.comercialPhone);
+                setVal('fullAddress', salon.fullAddress);
+                setVal('socialMediaLink', salon.socialMediaLink);
+                setVal('zoneId', salon.zoneId || 'America/Sao_Paulo');
+                setVal('appointmentBufferMinutes', salon.appointmentBufferMinutes);
+                setVal('standardBookingWindow', salon.standardBookingWindow || 30);
+                setVal('warningMessage', salon.warningMessage);
+                setVal('loyalClientBookingWindowDays', salon.loyalClientBookingWindowDays || 60);
+
+                const color = salon.primaryColor || '#E91E63';
+                const colorPicker = form.querySelector('[name="primaryColor"]');
+                if (colorPicker) colorPicker.value = color;
+                const colorText = form.querySelector('.color-text');
+                if (colorText) colorText.value = color.toUpperCase();
+
+                const status = salon.status || 'OPEN';
+                const statusEl = form.querySelector('[name="status"]');
+                if (statusEl) {
+                    statusEl.value = status;
                     this.handleStatusChange(status);
+                }
 
-                    form.querySelector('[name="socialMediaLink"]').value = salon.socialMediaLink || '';
-                    form.querySelector('[name="zoneId"]').value = salon.zoneId || 'America/Sao_Paulo';
-                    form.querySelector('[name="appointmentBufferMinutes"]').value = salon.appointmentBufferMinutes || 0;
-                    form.querySelector('[name="standardBookingWindow"]').value = salon.standardBookingWindow || 30;
-                    form.querySelector('[name="warningMessage"]').value = salon.warningMessage || '';
-
-                    const loyalCheckbox = form.querySelector('[name="isLoyalClientelePrioritized"]');
-                    if (loyalCheckbox) {
-                        loyalCheckbox.checked = !!salon.isLoyalClientelePrioritized;
-                        this.toggleLoyalWindow(loyalCheckbox.checked);
-                    }
-
-                    form.querySelector('[name="loyalClientBookingWindowDays"]').value = salon.loyalClientBookingWindowDays || 60;
+                const loyalCheckbox = form.querySelector('[name="isLoyalClientelePrioritized"]');
+                if (loyalCheckbox) {
+                    loyalCheckbox.checked = !!salon.isLoyalClientelePrioritized;
+                    this.toggleLoyalWindow(loyalCheckbox.checked);
                 }
             }
         } catch (e) {
-            console.error('Error loading profile:', e);
         }
     },
 
@@ -66,7 +73,6 @@ export const SalonModule = {
         const formData = new FormData(form);
         const data = Object.fromEntries(formData.entries());
 
-        // Process numeric and boolean fields
         data.appointmentBufferMinutes = parseInt(data.appointmentBufferMinutes) || 0;
         data.standardBookingWindow = parseInt(data.standardBookingWindow) || 30;
         const loyalCheckbox = form.querySelector('#isLoyalClientelePrioritized');
