@@ -77,8 +77,9 @@ const App = {
     handleRouting: async function() {
         if (this.tenantError) return;
         const path = window.location.pathname;
-        if (this.currentPath === path) return;
-        this.currentPath = path;
+        const fullPath = path + window.location.search;
+        if (this.currentPath === fullPath) return;
+        this.currentPath = fullPath;
 
         if (this.salon) {
             UI.renderGlobalHeader(this.salon);
@@ -125,7 +126,7 @@ const App = {
             templatePath = '/pages/booking/index.html';
             scriptPath = '/js/pages/booking.js';
             pageTitle = 'Agendar';
-        } else if (path === '/perfil') {
+        } else if (path.startsWith('/perfil')) {
             templatePath = '/pages/public/profile.html';
             scriptPath = '/js/pages/profile.js';
             pageTitle = 'Meu Perfil';
@@ -180,7 +181,7 @@ const App = {
         if (path === '/admin/configuracoes' && typeof adminSettingsApp !== 'undefined') adminSettingsApp.init();
         if (path === '/admin/servicos' && typeof adminServicesApp !== 'undefined') adminServicesApp.init();
         if ((path === '/' || path === '/agendar') && typeof bookingApp !== 'undefined') bookingApp.init();
-        if (path === '/perfil' && typeof initProfile === 'function') initProfile();
+        if (path.startsWith('/perfil') && typeof initProfile === 'function') initProfile();
         if (path === '/profissional/agenda' && typeof professionalScheduleApp !== 'undefined') professionalScheduleApp.init();
     },
 

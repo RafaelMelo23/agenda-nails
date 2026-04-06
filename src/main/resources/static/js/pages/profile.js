@@ -2,6 +2,7 @@ const profileApp = {
     user: null,
     appointments: [],
     appointmentToCancel: null,
+    highlightedId: null,
 
     setupTabs: function() {
         const tabs = {
@@ -11,31 +12,46 @@ const profileApp = {
         };
 
         Object.keys(tabs).forEach(tabId => {
-            document.getElementById(tabId).addEventListener('click', (e) => {
-                document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
-                e.target.classList.add('active');
+            const btn = document.getElementById(tabId);
+            if (btn) {
+                btn.onclick = (e) => {
+                    document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
+                    e.target.classList.add('active');
 
-                document.getElementById('section-appointments').classList.add('hidden');
-                document.getElementById('section-settings').classList.add('hidden');
+                    document.getElementById('section-appointments').classList.add('hidden');
+                    document.getElementById('section-settings').classList.add('hidden');
 
-                const config = tabs[tabId];
-                document.getElementById(config.section).classList.remove('hidden');
+                    const config = tabs[tabId];
+                    document.getElementById(config.section).classList.remove('hidden');
 
-                if (config.list) {
-                    document.getElementById('list-upcoming').classList.add('hidden');
-                    document.getElementById('list-history').classList.add('hidden');
-                    document.getElementById(config.list).classList.remove('hidden');
-                }
-            });
+                    if (config.list) {
+                        document.getElementById('list-upcoming').classList.add('hidden');
+                        document.getElementById('list-history').classList.add('hidden');
+                        document.getElementById(config.list).classList.remove('hidden');
+                    }
+                };
+            }
         });
+    },
+
+    extractAppointmentId: function() {
+        const params = new URLSearchParams(window.location.search);
+        let id = params.get('id');
+        
+        if (!id) {
+            const pathParts = window.location.pathname.split('/');
+            const manageIdx = pathParts.indexOf('manage');
+            if (manageIdx !== -1 && pathParts[manageIdx + 1]) {
+                id = pathParts[manageIdx + 1];
+            }
+        }
+        
+        this.highlightedId = (id && !isNaN(id)) ? parseInt(id) : null;
     },
 
     loadProfile: async function() {
         try {
-            const res = await fetch('/api/v1/user', {
-                headers: { 'Authorization': `Bearer ${Auth.getToken()}` }
-            });
-
+            const res = await fetch('/api/v1/user');
             if (res.ok) {
                 this.user = await res.json();
                 this.renderProfile();
@@ -47,10 +63,7 @@ const profileApp = {
 
     loadAppointments: async function() {
         try {
-            const res = await fetch('/api/v1/client/appointments?size=50', {
-                headers: { 'Authorization': `Bearer ${Auth.getToken()}` }
-            });
-
+            const res = await fetch('/api/v1/client/appointments?size=50');
             if (res.ok) {
                 const data = await res.json();
                 this.appointments = data.content;
@@ -119,10 +132,7 @@ const profileApp = {
         try {
             const res = await fetch('/api/v1/professional/profile/picture', {
                 method: 'PATCH',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'Authorization': `Bearer ${Auth.getToken()}`
-                },
+                headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ pictureBase64: base64 })
             });
 
@@ -147,8 +157,25 @@ const profileApp = {
         const listHistory = document.getElementById('list-history');
 
         const now = new Date();
-        const upcoming = this.appointments.filter(a => new Date(a.startDate) >= now && a.status !== 'CANCELLED');
-        const history = this.appointments.filter(a => new Date(a.startDate) < now || a.status === 'CANCELLED');
+        let upcoming = this.appointments.filter(a => new Date(a.startDate) >= now && a.status !== 'CANCELLED' && a.status !== 'FINISHED' && a.status !== 'MISSED');
+        let history = this.appointments.filter(a => new Date(a.startDate) < now || a.status === 'CANCELLED' || a.status === 'FINISHED' || a.status === 'MISSED');
+
+        if (this.highlightedId) {
+            const upIdx = upcoming.findIndex(a => a.id === this.highlightedId);
+            if (upIdx !== -1) {
+                const highlighted = upcoming.splice(upIdx, 1)[0];
+                upcoming.unshift(highlighted);
+            } else {
+                const histIdx = history.findIndex(a => a.id === this.highlightedId);
+                if (histIdx !== -1) {
+                    const highlighted = history.splice(histIdx, 1)[0];
+                    history.unshift(highlighted);
+                    const historyTab = document.getElementById('tab-history');
+                    if (historyTab) historyTab.click();
+                }
+            }
+            this.autoScroll();
+        }
 
         listUpcoming.innerHTML = upcoming.length ? upcoming.map(a => this.createApptCard(a)).join('') : '<div class="empty-state">Você não tem agendamentos próximos.</div>';
         listHistory.innerHTML = history.length ? history.map(a => this.createApptCard(a)).join('') : '<div class="empty-state">Nenhum histórico encontrado.</div>';
@@ -168,10 +195,11 @@ const profileApp = {
         };
 
         const status = statusMap[a.status] || { label: a.status, class: '' };
-        const canCancel = a.status !== 'CANCELLED' && a.status !== 'FINISHED' && a.status !== 'MISSED' && start > new Date();
+        const canCancel = a.status !== 'CANCELLED' && a.status !== 'FINISHED' && a.status !== 'MISSED' && new Date(a.startDate) > new Date();
+        const isHighlighted = a.id === this.highlightedId;
 
         return `
-            <div class="appt-card">
+            <div class="appt-card ${isHighlighted ? 'highlighted' : ''}" data-id="${a.id}">
                 <div class="appt-header">
                     <div class="appt-date">
                         <span class="date-day">${day}</span>
@@ -191,6 +219,15 @@ const profileApp = {
                 ` : ''}
             </div>
         `;
+    },
+
+    autoScroll: function() {
+        setTimeout(() => {
+            const el = document.querySelector('.appt-card.highlighted');
+            if (el) {
+                el.scrollIntoView({ behavior: 'smooth', block: 'center' });
+            }
+        }, 200);
     },
 
     openCancelModal: function(id) {
@@ -213,8 +250,7 @@ const profileApp = {
 
         try {
             const res = await fetch(`/api/v1/booking/${id}`, {
-                method: 'PATCH',
-                headers: { 'Authorization': `Bearer ${Auth.getToken()}` }
+                method: 'PATCH'
             });
 
             if (res.ok) {
@@ -296,8 +332,7 @@ const profileApp = {
             } else if (type === 'password') {
                 url = `/api/v1/user/password/forgot?userEmail=${encodeURIComponent(this.user.email)}`;
                 const res = await fetch(url, {
-                    method: 'POST',
-                    headers: { 'Authorization': `Bearer ${Auth.getToken()}` }
+                    method: 'POST'
                 });
                 if (res.ok) {
                     Toast.success('Link de recuperação enviado para seu e-mail.');
@@ -310,10 +345,7 @@ const profileApp = {
 
             const res = await fetch(url, {
                 method: 'PATCH',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'Authorization': `Bearer ${Auth.getToken()}`
-                },
+                headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify(body)
             });
 
@@ -335,22 +367,24 @@ const profileApp = {
 };
 
 function initProfile() {
-    const el = document.getElementById('user-name');
-    if (!el) return;
-
     if (!Auth.getToken()) {
         App.navigate('/entrar');
         return;
     }
 
     profileApp.setupTabs();
-    Promise.all([
-        profileApp.loadProfile(),
-        profileApp.loadAppointments()
-    ]);
+    profileApp.extractAppointmentId();
+    
+    profileApp.loadProfile();
+    profileApp.loadAppointments();
 
     const confirmBtn = document.getElementById('btn-confirm-cancel');
     if (confirmBtn) {
-        confirmBtn.addEventListener('click', () => profileApp.confirmCancel());
+        confirmBtn.onclick = () => profileApp.confirmCancel();
     }
+
+    window.onpopstate = () => {
+        profileApp.extractAppointmentId();
+        profileApp.renderAppointments();
+    };
 }

@@ -15,8 +15,8 @@ public class TenantUrlProvider {
     @Value("${domain.url}")
     private String domain;
 
-    private static final String CLIENT_MANAGE_APPOINTMENTS_PAGE_URL = "todo/{id}/cancelar"; //todo
-    private static final String BOOK_APPOINTMENT_PAGE_URL = ""; //todo
+    private static final String CLIENT_MANAGE_APPOINTMENTS_PAGE_URL = "/perfil";
+    private static final String BOOK_APPOINTMENT_PAGE_URL = "/agendar";
 
     public String buildBaseUrl(String tenantId) {
 
@@ -27,17 +27,12 @@ public class TenantUrlProvider {
                 .toUriString();
     }
 
-    /* todo: might change this for a more generalistic URL,
-        like a manager page, that maybe, perhaps,
-        will also have a path variable as it shows right now, to direct the user
-        to that specific appointment already
-    **/
     public String buildCancelAppointmentUrl(String tenantId, Long appointmentId) {
         String baseUrl = buildBaseUrl(tenantId);
 
         return UriComponentsBuilder.fromUriString(baseUrl)
                 .path(CLIENT_MANAGE_APPOINTMENTS_PAGE_URL)
-                .buildAndExpand(appointmentId)
+                .queryParam("id", appointmentId)
                 .toUriString();
     }
 
