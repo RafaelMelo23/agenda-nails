@@ -3,6 +3,7 @@ package com.rafael.agendanails.webapp.infrastructure.controller.api.evolution;
 import com.rafael.agendanails.webapp.application.whatsapp.ManageWhatsappConnectionUseCase;
 import com.rafael.agendanails.webapp.domain.enums.evolution.WhatsappConnectionMethod;
 import com.rafael.agendanails.webapp.domain.model.UserPrincipal;
+import com.rafael.agendanails.webapp.infrastructure.dto.whatsapp.WhatsappConnectionResponseDTO;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
@@ -35,12 +36,12 @@ public class WhatsappController {
             @ApiResponse(responseCode = "403", description = "Forbidden")
     })
     @PostMapping
-    public ResponseEntity<Void> setupConnection(@RequestParam @NotNull(message = "O método de conexão é obrigatório")
+    public ResponseEntity<WhatsappConnectionResponseDTO> setupConnection(@RequestParam @NotNull(message = "O método de conexão é obrigatório")
                                                 @Parameter(example = "QR_CODE")
                                                 WhatsappConnectionMethod connectionMethod,
                                                 @AuthenticationPrincipal UserPrincipal userPrincipal) {
 
-        whatsappConnectionUseCase.setupInitialConnection(userPrincipal.getTenantId(), connectionMethod);
-        return ResponseEntity.ok().build();
+        WhatsappConnectionResponseDTO response = whatsappConnectionUseCase.setupInitialConnection(userPrincipal.getTenantId(), connectionMethod);
+        return ResponseEntity.ok(response);
     }
 }

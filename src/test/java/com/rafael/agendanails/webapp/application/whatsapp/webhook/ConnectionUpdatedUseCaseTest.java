@@ -88,7 +88,7 @@ class ConnectionUpdatedUseCaseTest {
     }
 
     @Test
-    void shouldIgnoreInconsistentCloseEvent() {
+    void shouldProcessOpenEventEvenUnderCooldown() {
         salon.setWhatsappLastResetAt(LocalDateTime.now().minusSeconds(10));
         ConnectionDataDTO data = new ConnectionDataDTO(EvolutionConnectionState.OPEN);
         
@@ -101,13 +101,15 @@ class ConnectionUpdatedUseCaseTest {
 
         connectionUpdatedUseCase.process(response);
 
-        verify(salonProfileService, never()).save(any());
-        verify(connectionNotificationService, never()).notifyInstanceConnected(anyLong(), anyString());
+        verify(salonProfileService).save(salon);
+        verify(connectionNotificationService).notifyInstanceConnected(eq(1L), anyString());
+        assert salon.getEvolutionConnectionState() == EvolutionConnectionState.OPEN;
     }
 
     @Test
-    void shouldIgnoreUnderCooldown() {
+    void shouldIgnoreDuplicateCloseUnderCooldown() {
         salon.setWhatsappLastResetAt(LocalDateTime.now().minusMinutes(1));
+        salon.setEvolutionConnectionState(EvolutionConnectionState.CLOSE);
         ConnectionDataDTO data = new ConnectionDataDTO(EvolutionConnectionState.CLOSE);
         EvolutionWebhookResponseDTO<ConnectionDataDTO> response = EvolutionWebhookResponseDTO.<ConnectionDataDTO>builder()
                 .instance(tenantId)
@@ -120,6 +122,26 @@ class ConnectionUpdatedUseCaseTest {
 
         verify(salonProfileService, never()).save(any());
         verify(whatsappProvider, never()).deleteInstance(anyString());
+    }
+
+    @Test
+    void shouldProcessCloseEvenUnderCooldownIfPreviouslyOpen() {
+        salon.setWhatsappLastResetAt(LocalDateTime.now().minusMinutes(1));
+        salon.setEvolutionConnectionState(EvolutionConnectionState.OPEN);
+        ConnectionDataDTO data = new ConnectionDataDTO(EvolutionConnectionState.CLOSE);
+        EvolutionWebhookResponseDTO<ConnectionDataDTO> response = EvolutionWebhookResponseDTO.<ConnectionDataDTO>builder()
+                .instance(tenantId)
+                .data(data)
+                .build();
+
+        when(salonProfileService.findWithOwnerByTenantId(tenantId)).thenReturn(salon);
+
+        connectionUpdatedUseCase.process(response);
+
+        verify(salonProfileService).save(salon);
+        verify(connectionNotificationService).notifyInstanceDisconnected(eq(1L), anyString());
+        verify(whatsappProvider).deleteInstance(tenantId);
+        assert salon.getEvolutionConnectionState() == EvolutionConnectionState.CLOSE;
     }
 
     @Test

@@ -4,6 +4,7 @@ import com.rafael.agendanails.webapp.domain.enums.evolution.EvolutionWebhookEven
 import com.rafael.agendanails.webapp.domain.whatsapp.SentMessageResult;
 import com.rafael.agendanails.webapp.domain.whatsapp.WhatsappProvider;
 import com.rafael.agendanails.webapp.infrastructure.dto.whatsapp.evolution.instance.CreateInstanceRequestDTO;
+import com.rafael.agendanails.webapp.infrastructure.dto.whatsapp.evolution.instance.EvolutionConnectResponseDTO;
 import com.rafael.agendanails.webapp.infrastructure.dto.whatsapp.evolution.instance.WebhookDTO;
 import com.rafael.agendanails.webapp.infrastructure.dto.whatsapp.evolution.text.SendTextRequestDTO;
 import com.rafael.agendanails.webapp.infrastructure.dto.whatsapp.evolution.text.SendTextResponseDTO;
@@ -46,12 +47,12 @@ public class EvolutionWhatsappService implements WhatsappProvider {
     private String webhookUrl;
 
     @Override
-    public void createInstance(String tenantId) {
+    public void createInstance(String tenantId, String phoneNumber) {
         String url = buildInstanceUrl("/create");
         log.info("Evolution API - CREATE instance request. tenantId={}", tenantId);
 
         HttpEntity<CreateInstanceRequestDTO> request =
-                new HttpEntity<>(buildCreateInstancePayload(tenantId), getHeaders());
+                new HttpEntity<>(buildCreateInstancePayload(tenantId, phoneNumber), getHeaders());
         try {
             ResponseEntity<Void> response =
                     restTemplate.exchange(url, HttpMethod.POST, request, Void.class);
@@ -69,19 +70,20 @@ public class EvolutionWhatsappService implements WhatsappProvider {
     }
 
     @Override
-    public void instanceConnect(String instanceName, String phoneNumber) {
+    public String instanceConnect(String instanceName, String phoneNumber) {
         String url = buildConnectUrl(instanceName, phoneNumber);
         log.info("Evolution API - CONNECT request. instanceName={}", instanceName);
 
         HttpEntity<Void> request = new HttpEntity<>(getHeaders());
         try {
-            ResponseEntity<Void> response =
-                    restTemplate.exchange(url, HttpMethod.GET, request, Void.class);
+            ResponseEntity<EvolutionConnectResponseDTO> response =
+                    restTemplate.exchange(url, HttpMethod.GET, request, EvolutionConnectResponseDTO.class);
 
             if (!response.getStatusCode().is2xxSuccessful()) {
                 throw new IllegalStateException("Unexpected response status: " + response.getStatusCode());
             }
             log.debug("Evolution API - CONNECT success. instanceName={}", instanceName);
+            return response.getBody() != null ? response.getBody().pairingCode() : null;
         } catch (Exception ex) {
             log.error("Evolution API - CONNECT failed. instanceName={}", instanceName, ex);
             throw ex;
@@ -166,7 +168,7 @@ public class EvolutionWhatsappService implements WhatsappProvider {
                 .build();
     }
 
-    private CreateInstanceRequestDTO buildCreateInstancePayload(String tenantId) {
+    private CreateInstanceRequestDTO buildCreateInstancePayload(String tenantId, String phoneNumber) {
         List<EvolutionWebhookEvent> events = List.of(
                 EvolutionWebhookEvent.QRCODE_UPDATED,
                 EvolutionWebhookEvent.SEND_MESSAGE,
@@ -187,6 +189,7 @@ public class EvolutionWhatsappService implements WhatsappProvider {
 
         return CreateInstanceRequestDTO.builder()
                 .instanceName(tenantId)
+                .number(phoneNumber)
                 .webhook(webhook)
                 .qrcode(false)
                 .integration(WHATSAPP_BAILEYS)
@@ -215,7 +218,8 @@ public class EvolutionWhatsappService implements WhatsappProvider {
                 .pathSegment("instance", "connect", instanceName);
 
         if (phoneNumber != null) {
-            builder.queryParam("phoneNumber", phoneNumber);
+            builder.queryParam("number", phoneNumber);
+            log.info("Connection Request built with number: {}", phoneNumber);
         }
 
         return builder.toUriString();

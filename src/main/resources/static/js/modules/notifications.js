@@ -3,28 +3,43 @@ window.NotificationService = {
     whatsappStatus: 'CLOSE',
 
     init: function() {
-        if (!Auth.getToken() || !Auth.hasRole('ADMIN')) return;
-        this.subscribe();
+        console.log("Initializing NotificationService...");
+        if (!Auth.getToken()) {
+            console.log("No auth token found, skipping NotificationService init");
+            return;
+        }
+        // Connect if admin or professional (professionals are salon owners usually)
+        if (Auth.hasRole('ADMIN') || Auth.hasRole('PROFESSIONAL')) {
+            console.log("User is ADMIN or PROFESSIONAL, subscribing to notifications...");
+            this.subscribe();
+        } else {
+            console.log("User is not ADMIN or PROFESSIONAL, role:", Auth.getPayload()?.roles);
+        }
     },
 
     subscribe: function() {
-        if (this.eventSource) this.eventSource.close();
+        if (this.eventSource) {
+            console.log("Closing existing EventSource");
+            this.eventSource.close();
+        }
 
         const token = Auth.getToken();
         const url = `/api/v1/notifications/subscribe?token=${token}`;
+        console.log("Connecting to SSE at:", url);
         this.eventSource = new EventSource(url);
 
         this.eventSource.onopen = () => {
-            console.log("SSE Connection opened");
+            console.log("SSE Connection opened successfully");
         };
 
         this.eventSource.onmessage = (event) => {
+            console.log("SSE Message received:", event.data);
             try {
                 const payload = JSON.parse(event.data);
                 this.handleNotification(payload);
             } catch (e) {
                 // Some events might be plain text (like the INIT event)
-                console.log("SSE message received:", event.data);
+                console.log("SSE plain text or invalid JSON:", event.data);
             }
         };
 
@@ -58,30 +73,33 @@ window.NotificationService = {
         const pairingContainer = document.getElementById('whatsapp-pairing-container');
         const loading = document.getElementById('whatsapp-loading');
         const retry = document.getElementById('whatsapp-retry');
+        const alert = document.getElementById('whatsapp-disconnected-alert');
         
         if (!qrContainer) return;
 
-        loading.classList.add('hidden');
+        if (loading) loading.classList.add('hidden');
         if (retry) retry.classList.remove('hidden');
+        if (alert) alert.classList.add('hidden');
         
         if (data.pairingCode) {
-            const codeEl = document.getElementById('whatsapp-pairing-code');
-            codeEl.innerText = data.pairingCode;
-            pairingContainer.classList.remove('hidden');
-            qrContainer.classList.add('hidden');
-            this.showWhatsappPopup();
+            this.updatePairingCodeUI(data.pairingCode);
         } else if (data.code || data.base64 || data.qrcode) {
             const qrSource = data.base64 || data.qrcode || data.code;
             const imgSrc = qrSource.startsWith('data:image') ? qrSource : `data:image/png;base64,${qrSource}`;
             
             qrContainer.innerHTML = `<img src="${imgSrc}" alt="WhatsApp QR Code">`;
             qrContainer.classList.remove('hidden');
-            pairingContainer.classList.add('hidden');
+            if (pairingContainer) pairingContainer.classList.add('hidden');
             this.showWhatsappPopup();
         }
     },
 
     handleConnectionUpdate: function(data) {
+        // If the data object contains a pairing code, update it in the UI
+        if (data && typeof data === 'object' && data.pairingCode) {
+            this.updatePairingCodeUI(data.pairingCode);
+        }
+
         // data might be the EvolutionConnectionState string or an object containing it
         const state = typeof data === 'string' ? data : (data.state || data.status);
         if (!state) return;
@@ -92,9 +110,31 @@ window.NotificationService = {
         if (state === 'OPEN') {
             Toast.success("WhatsApp conectado com sucesso!");
             this.hideWhatsappPopup();
-        } else if (state === 'CLOSE') {
-            // Only show toast if it was previously connecting/open
-            // Toast.info("WhatsApp desconectado.");
+        } else if (state === 'CLOSE' || state === 'DISCONNECTED') {
+            this.showWhatsappPopup(true);
+        }
+    },
+
+    updatePairingCodeUI: function(pairingCode) {
+        const codeEl = document.getElementById('whatsapp-pairing-code');
+        const pairingContainer = document.getElementById('whatsapp-pairing-container');
+        const qrContainer = document.getElementById('whatsapp-qr-container');
+        const loading = document.getElementById('whatsapp-loading');
+        const alert = document.getElementById('whatsapp-disconnected-alert');
+
+        if (codeEl) {
+            // Format 8-digit code as XXXX-XXXX for better readability
+            let formattedCode = pairingCode;
+            if (pairingCode && pairingCode.length === 8) {
+                formattedCode = pairingCode.substring(0, 4) + '-' + pairingCode.substring(4);
+            }
+
+            codeEl.innerText = formattedCode;
+            if (pairingContainer) pairingContainer.classList.remove('hidden');
+            if (qrContainer) qrContainer.classList.add('hidden');
+            if (loading) loading.classList.add('hidden');
+            if (alert) alert.classList.add('hidden');
+            this.showWhatsappPopup();
         }
     },
 
@@ -121,9 +161,23 @@ window.NotificationService = {
         });
     },
 
-    showWhatsappPopup: function() {
+    showWhatsappPopup: function(isDisconnected = false) {
         const popup = document.getElementById('whatsapp-popup');
-        if (popup) popup.classList.remove('hidden');
+        const alert = document.getElementById('whatsapp-disconnected-alert');
+        const title = document.querySelector('#whatsapp-popup .whatsapp-popup-header h3');
+
+        if (popup) {
+            popup.classList.remove('hidden');
+            if (isDisconnected) {
+                popup.classList.add('disconnected');
+                if (alert) alert.classList.remove('hidden');
+                if (title) title.innerText = 'WhatsApp Desconectado';
+            } else {
+                popup.classList.remove('disconnected');
+                if (alert) alert.classList.add('hidden');
+                if (title) title.innerText = 'Conectar WhatsApp';
+            }
+        }
     },
 
     hideWhatsappPopup: function() {
@@ -138,12 +192,18 @@ window.NotificationService = {
         const loading = document.getElementById('whatsapp-loading');
         const instructions = document.getElementById('whatsapp-instructions');
         const retry = document.getElementById('whatsapp-retry');
+        const alert = document.getElementById('whatsapp-disconnected-alert');
+        const popup = document.getElementById('whatsapp-popup');
+        const title = document.querySelector('#whatsapp-popup .whatsapp-popup-header h3');
 
         if (qrContainer) qrContainer.classList.add('hidden');
         if (pairingContainer) pairingContainer.classList.add('hidden');
         if (loading) loading.classList.add('hidden');
         if (instructions) instructions.classList.remove('hidden');
         if (retry) retry.classList.add('hidden');
+        if (alert) alert.classList.add('hidden');
+        if (popup) popup.classList.remove('disconnected');
+        if (title) title.innerText = 'Conectar WhatsApp';
     },
 
     retryConnection: function() {
@@ -154,10 +214,14 @@ window.NotificationService = {
         const loading = document.getElementById('whatsapp-loading');
         const instructions = document.getElementById('whatsapp-instructions');
         const retry = document.getElementById('whatsapp-retry');
+        const qrContainer = document.getElementById('whatsapp-qr-container');
+        const pairingContainer = document.getElementById('whatsapp-pairing-container');
         
         if (loading) loading.classList.remove('hidden');
         if (instructions) instructions.classList.add('hidden');
         if (retry) retry.classList.add('hidden');
+        if (qrContainer) qrContainer.classList.add('hidden');
+        if (pairingContainer) pairingContainer.classList.add('hidden');
 
         try {
             const res = await fetch(`/api/v1/whatsapp?connectionMethod=${method}`, {
@@ -169,9 +233,16 @@ window.NotificationService = {
                 if (loading) loading.classList.add('hidden');
                 if (instructions) instructions.classList.remove('hidden');
             } else {
+                const data = await res.json();
                 this.updateStatusUI('CONNECTING');
+                
+                // If the response contains a pairing code, show it immediately
+                if (data.pairingCode) {
+                    this.updatePairingCodeUI(data.pairingCode);
+                }
             }
         } catch (err) {
+            console.error("WhatsApp connection error:", err);
             Toast.error("Erro de rede ao conectar WhatsApp.");
             if (loading) loading.classList.add('hidden');
             if (instructions) instructions.classList.remove('hidden');

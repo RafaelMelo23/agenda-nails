@@ -2,6 +2,7 @@ package com.rafael.agendanails.webapp.application.salon.business;
 
 import com.rafael.agendanails.webapp.domain.enums.appointment.TenantStatus;
 import com.rafael.agendanails.webapp.domain.enums.salon.OperationalStatus;
+import com.rafael.agendanails.webapp.domain.enums.evolution.EvolutionConnectionState;
 import com.rafael.agendanails.webapp.domain.model.BaseEntity;
 import com.rafael.agendanails.webapp.domain.model.SalonProfile;
 import com.rafael.agendanails.webapp.domain.repository.SalonProfileRepository;
@@ -9,7 +10,10 @@ import com.rafael.agendanails.webapp.infrastructure.exception.BusinessException;
 import com.rafael.agendanails.webapp.shared.tenant.TenantContext;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Propagation;
+import org.springframework.transaction.annotation.Transactional;
 
+import java.time.LocalDateTime;
 import java.time.ZoneId;
 
 @Service
@@ -17,6 +21,16 @@ import java.time.ZoneId;
 public class SalonProfileService {
 
     private final SalonProfileRepository repository;
+
+    @Transactional(propagation = Propagation.REQUIRES_NEW)
+    public void resetWhatsappConnectionState(String tenantId) {
+        SalonProfile salon = repository.findByTenantId(tenantId)
+                .orElseThrow(() -> new BusinessException("Salão não encontrado"));
+
+        salon.setWhatsappLastResetAt(LocalDateTime.now());
+        salon.setEvolutionConnectionState(EvolutionConnectionState.CLOSE);
+        repository.save(salon);
+    }
 
     public SalonProfile getByTenantId(String tenantId) {
 

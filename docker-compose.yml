@@ -101,6 +101,7 @@ services:
       - CACHE_REDIS_ENABLED=false
       - SERVER_URL=http://evolution:8080
       - LOG_LEVEL=debug
+#      - WA_VERSION=2.3000.1036718222
 
     networks:
       - app-network

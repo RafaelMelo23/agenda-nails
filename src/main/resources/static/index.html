@@ -38,30 +38,68 @@
     <!-- WhatsApp Connection Popup -->
     <div id="whatsapp-popup" class="whatsapp-popup hidden">
         <div class="whatsapp-popup-header">
-            <h3>Conectar WhatsApp</h3>
+            <div style="display: flex; align-items: center; gap: 8px;">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><path d="M12.031 6.172c-3.181 0-5.767 2.586-5.768 5.766-.001 1.298.38 2.27 1.019 3.287l-.582 2.128 2.182-.573c.978.58 1.911.928 3.145.929 3.178 0 5.767-2.587 5.768-5.766 0-3.18-2.587-5.771-5.764-5.771zm3.392 8.244c-.144.405-.837.774-1.17.824-.299.045-.677.063-1.092-.069-.252-.08-.575-.187-.988-.365-1.739-.751-2.874-2.502-2.961-2.617-.087-.116-.708-.94-.708-1.793 0-.852.448-1.271.607-1.445.159-.173.346-.217.462-.217l.332.006c.106.005.249-.04.39.298.144.347.491 1.2.534 1.287.043.087.072.188.014.304-.058.116-.087.188-.173.289l-.26.304c-.087.101-.177.211-.077.383.1.173.444.735.952 1.188.654.581 1.203.761 1.377.848.173.087.275.072.376-.043.101-.116.434-.506.549-.68.116-.173.231-.144.39-.087.158.058 1.002.448 1.175.535.173.087.289.13.332.202.043.073.043.419-.101.824zM12 2C6.477 2 2 6.477 2 12c0 1.891.524 3.662 1.435 5.178L2 22l4.958-1.3c1.511.83 3.243 1.29 5.042 1.3 5.523 0 10-4.477 10-10S17.523 2 12 2zm0 18c-1.724 0-3.333-.485-4.701-1.32l-.337-.206-2.492.654.665-2.428-.226-.359C4.056 15.291 3.5 13.704 3.5 12c0-4.687 3.813-8.5 8.5-8.5s8.5 3.813 8.5 8.5-3.813 8.5-8.5 8.5z"/></svg>
+                <h3>Conectar WhatsApp</h3>
+            </div>
             <button class="whatsapp-popup-close" onclick="NotificationService.hideWhatsappPopup()">&times;</button>
         </div>
         <div class="whatsapp-popup-body">
-            <div id="whatsapp-loading" class="hidden">
-                <p>Iniciando conexão...</p>
+            <div id="whatsapp-disconnected-alert" class="whatsapp-disconnected-alert hidden">
+                <div class="alert-icon">⚠️</div>
+                <div>
+                    <h4>Conexão Perdida</h4>
+                    <p>Seu WhatsApp foi desconectado. Reconecte para continuar enviando notificações.</p>
+                </div>
             </div>
+
+            <div id="whatsapp-loading" class="hidden" style="padding: 20px 0;">
+                <div class="spinner" style="margin: 0 auto 15px;"></div>
+                <p>Iniciando conexão segura...</p>
+            </div>
+
             <div id="whatsapp-qr-container" class="qr-code-container hidden">
                 <!-- QR Code will be injected here -->
             </div>
+
             <div id="whatsapp-pairing-container" class="hidden">
-                <p style="margin-bottom: 10px;">Digite este código no seu WhatsApp:</p>
+                <p style="margin-bottom: 15px; font-weight: 500; color: var(--text-main);">Digite este código no seu celular:</p>
                 <div id="whatsapp-pairing-code" class="whatsapp-pairing-code"></div>
-            </div>
-            <div id="whatsapp-instructions">
-                <p id="whatsapp-status-text">Conecte seu WhatsApp para enviar notificações automáticas.</p>
-                <div style="margin-top: 20px; display: flex; gap: 10px;">
-                    <button class="btn btn-primary btn-sm btn-block" onclick="NotificationService.startWhatsappConnection('QR_CODE')">QR Code</button>
-                    <button class="btn btn-secondary btn-sm btn-block" onclick="NotificationService.startWhatsappConnection('PAIRING_CODE')">Código</button>
+                <div class="pairing-guide" style="text-align: left; background: #f0f7f4; padding: 12px; border-radius: 8px; font-size: 13px;">
+                    <p style="margin-bottom: 8px; font-weight: 600; color: #128C7E;">Como usar o código:</p>
+                    <ol style="padding-left: 18px; color: #444; display: flex; flex-direction: column; gap: 4px;">
+                        <li>Abra o <b>WhatsApp</b> e vá em <b>Aparelhos conectados</b> (Menu ⋮ no Android ou Ajustes no iPhone).</li>
+                        <li>Toque em <b>Conectar um aparelho</b>.</li>
+                        <li>Toque em <b>"Conectar com número de telefone"</b> na parte inferior da tela.</li>
+                    </ol>
                 </div>
             </div>
+
+            <div id="whatsapp-instructions">
+                <p id="whatsapp-status-text" style="color: var(--text-muted); font-size: 14px; margin-bottom: 20px;">
+                    Escolha como deseja conectar seu WhatsApp para enviar notificações automáticas para suas clientes.
+                </p>
+                
+                <div class="connection-options" style="display: grid; gap: 12px;">
+                    <button class="btn btn-secondary btn-block method-btn" onclick="NotificationService.startWhatsappConnection('QR_CODE')" style="text-align: left; padding: 15px; display: block; height: auto;">
+                        <div style="font-weight: 600; margin-bottom: 4px;">📸 Via QR Code</div>
+                        <div style="font-weight: 400; font-size: 12px; color: var(--text-muted); line-height: 1.4;">
+                            Aponte a câmera do seu celular para o código que aparecerá na tela. É o método mais rápido.
+                        </div>
+                    </button>
+
+                    <button class="btn btn-secondary btn-block method-btn" onclick="NotificationService.startWhatsappConnection('PAIRING_CODE')" style="text-align: left; padding: 15px; display: block; height: auto;">
+                        <div style="font-weight: 600; margin-bottom: 4px;">🔢 Via Código de Pareamento</div>
+                        <div style="font-weight: 400; font-size: 12px; color: var(--text-muted); line-height: 1.4;">
+                            Recomendado se você estiver acessando pelo próprio celular ou tiver dificuldade com a câmera.
+                        </div>
+                    </button>
+                </div>
+            </div>
+
             <div id="whatsapp-retry" class="hidden" style="margin-top: 20px; text-align: center;">
                 <p style="font-size: 13px; color: var(--text-muted);">
-                    Problemas? <a href="#" onclick="NotificationService.retryConnection(); return false;" style="color: var(--primary); text-decoration: underline;">Tente novamente</a>
+                    Não funcionou? <a href="#" onclick="NotificationService.retryConnection(); return false;" style="color: var(--primary); text-decoration: underline; font-weight: 500;">Tente novamente</a>
                 </p>
             </div>
         </div>

@@ -49,20 +49,15 @@ public class ConnectionUpdatedUseCase implements WebhookStrategy {
                 log.info("Successfully converted LinkedHashMap to ConnectionData for instance: {}", response.instance());
                 SalonProfile salon = salonProfileService.findWithOwnerByTenantId(tenantId);
 
-                if (isUnderCooldown(salon)) {
-                    log.warn("Ignoring close for tenant: {} - Instance is in pairing", tenantId);
-                    return;
-                }
-
                 switch (state) {
-                    case OPEN -> {
-                        if (shouldIgnoreClose(salon)) {
-                            log.info("Ignoring inconsistent CLOSE event for tenant: {}", tenantId);
+                    case OPEN -> handleOpenConnection(salon);
+                    case CLOSE -> {
+                        if (isUnderCooldown(salon)) {
+                            log.warn("Ignoring CLOSE for tenant: {} - Instance is in pairing/reset cooldown and already CLOSED", tenantId);
                             return;
                         }
-                        handleOpenConnection(salon);
+                        handleDisconnection(salon);
                     }
-                    case CLOSE -> handleDisconnection(salon);
                     case CONNECTING -> {
                     }
                 }
@@ -70,18 +65,14 @@ public class ConnectionUpdatedUseCase implements WebhookStrategy {
         }
     }
 
-    private boolean shouldIgnoreClose(SalonProfile salon) {
-        if (salon.getWhatsappLastResetAt() == null) return false;
-
-        return salon.getWhatsappLastResetAt()
-                .isAfter(LocalDateTime.now().minusSeconds(45));
-    }
-
     private boolean isUnderCooldown(SalonProfile salon) {
         if (salon.getWhatsappLastResetAt() == null) return false;
 
-        return salon.getWhatsappLastResetAt()
+        boolean isRecentReset = salon.getWhatsappLastResetAt()
                 .isAfter(LocalDateTime.now().minusMinutes(2));
+
+        return isRecentReset &&
+                (salon.getEvolutionConnectionState() == null || salon.getEvolutionConnectionState() == CLOSE);
     }
 
     private void handleOpenConnection(SalonProfile salon) {
@@ -91,11 +82,14 @@ public class ConnectionUpdatedUseCase implements WebhookStrategy {
         salon.setEvolutionConnectionState(OPEN);
         salonProfileService.save(salon);
 
-        connectionNotificationService.notifyInstanceConnected(
-                ownerId,
-                "Whatsapp instance connected");
-
-        log.info("SSE notification sent to owner ID: {} regarding instance {} connection.", ownerId, tenantId);
+        try {
+            connectionNotificationService.notifyInstanceConnected(
+                    ownerId,
+                    OPEN.name());
+            log.info("SSE notification sent to owner ID: {} regarding instance {} connection.", ownerId, tenantId);
+        } catch (Exception e) {
+            log.error("Failed to send SSE notification for instance {}: {}", tenantId, e.getMessage());
+        }
     }
 
     private void handleDisconnection(SalonProfile salon) {
@@ -106,14 +100,21 @@ public class ConnectionUpdatedUseCase implements WebhookStrategy {
         salon.setWhatsappLastResetAt(LocalDateTime.now());
         salonProfileService.save(salon);
 
-        connectionNotificationService.notifyInstanceDisconnected(
-                ownerId,
-                "Whatsapp instance disconnected");
+        try {
+            connectionNotificationService.notifyInstanceDisconnected(
+                    ownerId,
+                    CLOSE.name());
+            log.info("SSE notification sent to owner ID: {} regarding instance {} disconnection.", ownerId, tenantId);
+        } catch (Exception e) {
+            log.error("Failed to send SSE notification for instance {}: {}", tenantId, e.getMessage());
+        }
 
-        log.info("SSE notification sent to owner ID: {} regarding instance {} disconnection.", ownerId, tenantId);
-
-        whatsappProvider.deleteInstance(tenantId);
-        log.info("Instance {} successfully deleted from Evolution API to prevent inconsistent connection states.", tenantId);
+        try {
+            whatsappProvider.deleteInstance(tenantId);
+            log.info("Instance {} successfully deleted from Evolution API.", tenantId);
+        } catch (Exception e) {
+            log.error("Critical: Failed to delete instance {} from provider: {}", tenantId, e.getMessage());
+        }
     }
 
     @Override

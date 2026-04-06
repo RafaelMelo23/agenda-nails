@@ -10,6 +10,7 @@ public record CreateInstanceRequestDTO(
         String instanceName,
         boolean qrcode,
         EvolutionIntegraton integration,
-        WebhookDTO webhook
+        WebhookDTO webhook,
+        String number
 ) {
 }
