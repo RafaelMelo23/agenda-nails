@@ -29,13 +29,11 @@ function initLogin() {
 
                     UI.showToast('Login realizado com sucesso!', 'success');
 
-                    const payload = JSON.parse(atob(token.split('.')[1]));
-
                     setTimeout(() => {
-                        if (payload.role === 'ADMIN' || payload.role === 'SUPER_ADMIN') {
-                            App.navigate('/admin/dashboard');
-                        } else if (payload.role === 'PROFESSIONAL') {
-                            App.navigate('/agenda-profissional');
+                        if (Auth.hasRole('ADMIN') || Auth.hasRole('SUPER_ADMIN')) {
+                            App.navigate('/admin/configuracoes');
+                        } else if (Auth.hasRole('PROFESSIONAL')) {
+                            App.navigate('/profissional/agenda');
                         } else {
                             App.navigate('/agendar');
                         }

@@ -79,6 +79,11 @@ const App = {
         const path = window.location.pathname;
         if (this.currentPath === path) return;
         this.currentPath = path;
+
+        if (this.salon) {
+            UI.renderGlobalHeader(this.salon);
+        }
+
         const appContent = document.getElementById('app-content');
         if (!appContent) return;
         if (path.startsWith('/admin') || path.startsWith('/perfil') || path.startsWith('/profissional')) {
