@@ -8,6 +8,7 @@ import com.rafael.agendanails.webapp.domain.model.Appointment;
 import com.rafael.agendanails.webapp.domain.repository.AppointmentRepository;
 import com.rafael.agendanails.webapp.domain.whatsapp.SentMessageResult;
 import com.rafael.agendanails.webapp.domain.whatsapp.WhatsappProvider;
+import com.rafael.agendanails.webapp.shared.tenant.IgnoreTenantFilter;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
 import org.springframework.stereotype.Service;
@@ -27,6 +28,7 @@ public class AppointmentMessagingUseCase {
     private final WhatsappMessageService whatsappMessageService;
     private final AppointmentRepository appointmentRepository;
 
+    @IgnoreTenantFilter
     public void processNotification(Long appointmentId, WhatsappMessageType type) {
         var message = whatsappMessageService.prepareAppointmentMessage(appointmentId, type);
 
@@ -57,10 +59,12 @@ public class AppointmentMessagingUseCase {
         }
     }
 
+    @IgnoreTenantFilter
     public void sendAppointmentConfirmationMessage(Long appointmentId) {
         processNotification(appointmentId, CONFIRMATION);
     }
 
+    @IgnoreTenantFilter
     @Transactional
     public void sendAppointmentReminderMessage(Long appointmentId) {
         processNotification(appointmentId, REMINDER);

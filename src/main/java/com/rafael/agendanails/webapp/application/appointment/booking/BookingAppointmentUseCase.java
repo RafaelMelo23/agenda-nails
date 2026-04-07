@@ -80,5 +80,11 @@ public class BookingAppointmentUseCase {
                 );
 
         repository.save(appointment);
+        repository.flush();
+
+        if (salonProfile.isAutoConfirmationAppointment()) {
+            appointment.confirm();
+            repository.save(appointment);
+        }
     }
 }

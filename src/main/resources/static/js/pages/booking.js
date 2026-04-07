@@ -17,15 +17,40 @@ const bookingApp = {
     currentMonth: new Date(),
 
     init: async function() {
+        this.resetState();
         await this.loadInitialData();
         this.renderProf();
 
         const savedBooking = localStorage.getItem('pending_booking');
         if (savedBooking) {
-            this.restoreState(JSON.parse(savedBooking));
+            try {
+                await this.restoreState(JSON.parse(savedBooking));
+            } catch (error) {
+                console.error('Error restoring booking state:', error);
+                localStorage.removeItem('pending_booking');
+                this.resetState();
+            }
         }
 
         this.updateUI();
+    },
+
+    resetState: function() {
+        this.step = 1;
+        this.booking = {
+            professional: null,
+            mainService: null,
+            addOns: [],
+            date: null,
+            time: null,
+            total: 0
+        };
+        this.data.availability = null;
+        this.currentMonth = new Date();
+
+        if (document.getElementById('footer-total')) {
+            this.updateTotal();
+        }
     },
 
     restoreState: async function(saved) {

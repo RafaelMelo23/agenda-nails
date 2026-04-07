@@ -101,7 +101,6 @@ public class Appointment extends BaseEntity {
         if (!hasEnded()) {
             throw new BusinessException("O agendamento ainda não terminou.");
         }
-
         this.setAppointmentStatus(AppointmentStatus.MISSED);
     }
 
@@ -134,7 +133,7 @@ public class Appointment extends BaseEntity {
         ensureAppointmentIsActive();
 
         this.appointmentStatus = AppointmentStatus.CONFIRMED;
-        registerEvent(new AppointmentConfirmedEvent(this.id));
+        registerEvent(new AppointmentConfirmedEvent(this));
     }
 
     public void ensureAppointmentIsActive() {
@@ -208,10 +207,6 @@ public class Appointment extends BaseEntity {
                 .build();
 
         appointment.setTotalValue(appointment.calculateTotalValue());
-
-        if (salonProfile.isAutoConfirmationAppointment()) {
-            appointment.confirm();
-        }
 
         return appointment;
     }

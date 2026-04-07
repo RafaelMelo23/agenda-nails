@@ -1,6 +1,7 @@
 package com.rafael.agendanails.webapp.application.appointment.message;
 
 import com.rafael.agendanails.webapp.infrastructure.dto.appointment.booking.event.AppointmentConfirmedEvent;
+import com.rafael.agendanails.webapp.shared.tenant.IgnoreTenantFilter;
 import lombok.RequiredArgsConstructor;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Component;
@@ -14,6 +15,7 @@ public class AppointmentEventListener {
     private final AppointmentMessagingUseCase messagingUseCase;
 
     @Async("messagingExecutor")
+    @IgnoreTenantFilter
     @TransactionalEventListener(phase = TransactionPhase.AFTER_COMMIT)
     public void handleConfirmedAppointment(AppointmentConfirmedEvent appointmentConfirmedEvent) {
 
