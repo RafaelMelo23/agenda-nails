@@ -1,17 +1,20 @@
 <!-- Profissionais Section -->
 <section id="tab-professionals" class="admin-section tab-content active">
     <div class="section-header">
-        <h2>Equipe & Profissionais</h2>
+        <div>
+            <h2>Equipe & Profissionais</h2>
+            <p class="field-hint">Gerencie quem atende no seu salão, seus horários e permissões.</p>
+        </div>
         <button class="btn btn-primary btn-sm" onclick="adminSettingsApp.openProfessionalModal()">+ Nova Profissional</button>
     </div>
-    <div class="card overflow-hidden">
+    <div class="admin-table-wrapper">
         <table class="admin-table">
             <thead>
             <tr>
                 <th>Profissional</th>
-                <th>E-mail</th>
+                <th>E-mail de Acesso</th>
                 <th>Serviços</th>
-                <th>Gestão</th>
+                <th>Escala & Folgas</th>
                 <th>Status</th>
                 <th>Ação</th>
             </tr>

@@ -1,77 +1,85 @@
 <!-- Clientes Section -->
 <section id="tab-clients" class="admin-section tab-content">
     <div class="section-header">
-        <h2>Gestão de Clientes</h2>
+        <div>
+            <h2>Gestão de Clientes</h2>
+            <p class="field-hint">Visualize o histórico e informações detalhadas das suas clientes.</p>
+        </div>
     </div>
 
-    <div class="card overflow-hidden" style="margin-bottom: 20px;">
-        <div style="padding: 15px 20px; border-bottom: 1px solid var(--border); background: #f9f9f9; display: flex; justify-content: flex-end;">
+    <div class="settings-group" style="padding: 0; overflow: hidden;">
+        <div style="padding: 20px; border-bottom: 1px solid var(--border); background: #f8fafc; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 15px;">
+            <h3 class="settings-subtitle" style="margin-bottom: 0;">Lista de Clientes</h3>
             <div class="search-box" style="width: 100%; max-width: 300px;">
-                <input type="text" class="form-input" id="client-search" placeholder="Buscar cliente..." oninput="adminSettingsApp.debounceSearchClients()">
+                <input type="text" class="form-input" id="client-search" placeholder="Buscar por nome ou telefone..." oninput="adminSettingsApp.debounceSearchClients()">
             </div>
         </div>
-        <table class="admin-table">
-            <thead>
-            <tr>
-                <th>Nome</th>
-                <th>Telefone</th>
-                <th>Histórico</th>
-                <th>Ação</th>
-            </tr>
-            </thead>
-            <tbody id="clients-list">
-            <tr>
-                <td colspan="4" class="empty-state">Carregando clientes...</td>
-            </tr>
-            </tbody>
-        </table>
+        <div class="admin-table-wrapper" style="border: none; border-radius: 0;">
+            <table class="admin-table">
+                <thead>
+                <tr>
+                    <th>Nome da Cliente</th>
+                    <th>Telefone / WhatsApp</th>
+                    <th>Resumo do Histórico</th>
+                    <th>Ações</th>
+                </tr>
+                </thead>
+                <tbody id="clients-list">
+                <tr>
+                    <td colspan="4" class="empty-state">Carregando clientes...</td>
+                </tr>
+                </tbody>
+            </table>
+        </div>
         <div id="clients-pagination" class="pagination"></div>
     </div>
 
     <!-- Client CRM -->
-    <div class="card settings-card">
-        <h3 class="settings-subtitle">Consultar Cliente (CRM)</h3>
+    <div class="settings-group">
+        <h3 class="settings-subtitle">Consultar Perfil Detalhado (CRM)</h3>
+        <p class="field-hint" style="margin-bottom: 20px;">Busque uma cliente específica para ver todo o histórico de gastos, faltas e agendamentos.</p>
+        
         <div class="form-grid">
             <div class="form-group full-width">
-                <label class="form-label">Selecione o Cliente</label>
+                <label class="form-label">Digite o nome ou telefone da cliente</label>
                 <div style="display: flex; gap: 10px;">
-                    <input type="text" id="crm-client-search" class="form-input" placeholder="Buscar pelo nome ou telefone..." oninput="adminSettingsApp.debounceSearchCrmClients()">      
+                    <input type="text" id="crm-client-search" class="form-input" placeholder="Ex: Maria Silva ou 1199999..." oninput="adminSettingsApp.debounceSearchCrmClients()">      
                 </div>
-                <div id="crm-client-results" style="margin-top: 10px; border: 1px solid var(--border); border-radius: var(--radius-sm); max-height: 200px; overflow-y: auto; display: none;">
+                <div id="crm-client-results" style="margin-top: 10px; border: 1px solid var(--border); border-radius: var(--radius-sm); max-height: 200px; overflow-y: auto; display: none; background: white; box-shadow: var(--shadow);">
                     <!-- Dropdown results -->
                 </div>
             </div>
         </div>
 
-        <div id="crm-client-details" style="display: none; margin-top: 20px;">
+        <div id="crm-client-details" style="display: none; margin-top: 30px; padding-top: 20px; border-top: 1px solid #f1f5f9;">
             <div class="form-grid">
                 <div class="form-group">
-                    <label class="form-label">Nome</label>
-                    <div class="form-input" id="crm-name" style="background: var(--bg-body);"></div>
+                    <label class="form-label">Nome Completo</label>
+                    <div class="form-input" id="crm-name" style="background: #f8fafc; font-weight: 500;"></div>
                 </div>
                 <div class="form-group">
                     <label class="form-label">Telefone</label>
-                    <div class="form-input" id="crm-phone" style="background: var(--bg-body);"></div>
+                    <div class="form-input" id="crm-phone" style="background: #f8fafc;"></div>
                 </div>
                 <div class="form-group">
-                    <label class="form-label">Total Gasto</label>
-                    <div class="form-input" id="crm-total-spent" style="background: var(--bg-body); font-weight: bold; color: var(--primary);"></div>
+                    <label class="form-label">Total Gasto (Histórico)</label>
+                    <div class="form-input" id="crm-total-spent" style="background: #fdf2f8; font-weight: bold; color: var(--primary);"></div>
                 </div>
                 <div class="form-group">
                     <label class="form-label">Última Visita</label>
-                    <div class="form-input" id="crm-last-visit" style="background: var(--bg-body);"></div>
+                    <div class="form-input" id="crm-last-visit" style="background: #f8fafc;"></div>
                 </div>
                 <div class="form-group">
                     <label class="form-label">Agendamentos Concluídos</label>
-                    <div class="form-input" id="crm-completed" style="background: var(--bg-body); color: var(--status-avail);"></div>
+                    <div class="form-input" id="crm-completed" style="background: #f0fdf4; color: #166534; font-weight: 600;"></div>
                 </div>
                 <div class="form-group">
                     <label class="form-label">Agendamentos Cancelados</label>
-                    <div class="form-input" id="crm-canceled" style="background: var(--bg-body); color: var(--status-part);"></div>
+                    <div class="form-input" id="crm-canceled" style="background: #fffbeb; color: #92400e; font-weight: 600;"></div>
                 </div>
                 <div class="form-group">
                     <label class="form-label">Faltas (No-Show)</label>
-                    <div class="form-input" id="crm-missed" style="background: var(--bg-body); color: var(--status-busy);"></div>
+                    <div class="form-input" id="crm-missed" style="background: #fef2f2; color: #991b1b; font-weight: 600;"></div>
                 </div>
             </div>
         </div>

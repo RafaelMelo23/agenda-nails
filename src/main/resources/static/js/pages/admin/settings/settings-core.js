@@ -7,9 +7,10 @@ export const CoreModule = {
             return;
         }
 
+        // Sequential loading to avoid race conditions and ensure DOM stability
         const fragments = ['modals', 'professionals', 'clients', 'salon', 'insights'];
         
-        await Promise.all(fragments.map(async (tabId) => {
+        for (const tabId of fragments) {
             try {
                 const response = await fetch(`/pages/admin/settings-fragments/${tabId}.html`);
                 if (response.ok) {
@@ -21,14 +22,12 @@ export const CoreModule = {
                     }
                 }
             } catch (e) {
+                console.error(`Error loading fragment ${tabId}:`, e);
             }
-        }));
+        }
 
-        await new Promise(resolve => {
-            requestAnimationFrame(() => {
-                requestAnimationFrame(() => resolve());
-            });
-        });
+        // Wait for next frame to ensure DOM is fully painted
+        await new Promise(resolve => requestAnimationFrame(() => requestAnimationFrame(resolve)));
 
         adminSettingsApp.setupColorPicker();
         

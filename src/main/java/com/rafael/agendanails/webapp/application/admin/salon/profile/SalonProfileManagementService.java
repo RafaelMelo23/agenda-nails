@@ -41,7 +41,7 @@ public class SalonProfileManagementService {
     }
 
     @Transactional
-    public void updateProfile(Long ownerId, SalonProfileDTO profile) throws IOException {
+    public void updateProfile(Long ownerId, SalonProfileDTO profile) {
 
         SalonProfile salonProfile = repository.findByOwner_Id(ownerId)
                 .orElseThrow(() -> new BusinessException("O perfil do salão não foi encontrado."));
@@ -59,6 +59,7 @@ public class SalonProfileManagementService {
         setIfNotNull(profile.isLoyalClientelePrioritized(), salonProfile::setLoyalClientelePrioritized);
         setIfNotNull(profile.loyalClientBookingWindowDays(), salonProfile::setLoyalClientBookingWindowDays);
         setIfNotNull(profile.standardBookingWindow(), salonProfile::setStandardBookingWindow);
+        setIfNotNull(profile.autoConfirmationAppointment(), salonProfile::setAutoConfirmationAppointment);
 
         validateLoyalClientFeature(profile);
 

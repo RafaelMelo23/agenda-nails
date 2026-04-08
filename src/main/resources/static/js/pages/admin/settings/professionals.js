@@ -32,12 +32,12 @@ export const ProfessionalsModule = {
                         </div>
                     </div>
                 </td>
-                <td data-label="Email">${prof.email}</td>
+                <td data-label="E-mail">${prof.email}</td>
                 <td data-label="Serviços"><span class="tag">Todos</span></td>
-                <td data-label="Gestão">
+                <td data-label="Escala & Folgas">
                     <div class="prof-btn-group">
                         <button class="btn btn-secondary btn-sm" onclick="adminSettingsApp.openSchedulesModal(${prof.id}, '${prof.name}')" title="Ver Horários">Horários</button>
-                        <button class="btn btn-secondary btn-sm" onclick="adminSettingsApp.openBlocksModal(${prof.id}, '${prof.name}')" title="Ver Bloqueios">Bloqueios</button>
+                        <button class="btn btn-secondary btn-sm" onclick="adminSettingsApp.openBlocksModal(${prof.id}, '${prof.name}')" title="Ver Bloqueios">Folgas/Bloqueios</button>
                     </div>
                 </td>
                 <td data-label="Status"><span class="badge ${prof.isActive ? 'badge-success' : 'badge-danger'}">${prof.isActive ? 'Ativo' : 'Inativo'}</span></td>

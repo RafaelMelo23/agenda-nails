@@ -66,5 +66,7 @@ public record SalonProfileDTO(
         @Max(value = 180, message = "Janela de agendamento padrão não pode exceder 180 dias")
         Integer standardBookingWindow,
 
-        EvolutionConnectionState connectionState) {
+        EvolutionConnectionState connectionState,
+
+        boolean autoConfirmationAppointment) {
 }

@@ -7,21 +7,25 @@
         <form id="salon-profile-form" onsubmit="adminSettingsApp.handleSaveProfile(event)">
             <div class="settings-group">
                 <h3 class="settings-subtitle">Identidade Visual</h3>
+                <p class="field-hint" style="margin-bottom: 20px;">Personalize como sua marca aparece para as clientes no momento do agendamento.</p>
                 <div class="form-grid">
                     <div class="form-group">
-                        <label class="form-label">Nome Fantasia <span class="required">*</span></label>
-                        <input type="text" name="tradeName" class="form-input" required>
+                        <label class="form-label">Nome do Salão <span class="required">*</span></label>
+                        <input type="text" name="tradeName" class="form-input" placeholder="Ex: Studio Nails Pro" required>
+                        <small class="field-hint">O nome que será exibido no topo da página de agendamento.</small>
                     </div>
                     <div class="form-group">
-                        <label class="form-label">Slogan</label>
-                        <input type="text" name="slogan" class="form-input">
+                        <label class="form-label">Slogan ou Frase Curta</label>
+                        <input type="text" name="slogan" class="form-input" placeholder="Ex: Realçando sua beleza natural">
+                        <small class="field-hint">Uma frase que descreve seu diferencial.</small>
                     </div>
                     <div class="form-group">
-                        <label class="form-label">Cor Primária <span class="required">*</span></label>
+                        <label class="form-label">Cor da Sua Marca <span class="required">*</span></label>
                         <div class="color-picker-wrapper">
                             <input type="color" name="primaryColor" class="color-picker" value="#E91E63">
-                            <input type="text" class="form-input color-text" value="#E91E63" readonly>
+                            <input type="text" class="form-input color-text" value="#E91E63" readonly style="width: 100px;">
                         </div>
+                        <small class="field-hint">Esta cor será usada nos botões e destaques do sistema.</small>
                     </div>
                 </div>
             </div>
@@ -30,21 +34,23 @@
                 <h3 class="settings-subtitle">Contato & Localização</h3>
                 <div class="form-grid">
                     <div class="form-group full-width">
-                        <label class="form-label">Número Comercial <span class="required">*</span></label>
-                        <div style="display: flex; align-items: center; gap: 15px;">
-                            <input type="text" name="comercialPhone" class="form-input" style="flex: 1;" placeholder="(00) 00000-0000" required>
+                        <label class="form-label">WhatsApp Comercial <span class="required">*</span></label>
+                        <div style="display: flex; align-items: center; gap: 15px; flex-wrap: wrap;">
+                            <input type="text" name="comercialPhone" class="form-input" style="flex: 1; min-width: 200px;" placeholder="(00) 00000-0000" required>
                             <div id="whatsapp-connection-status" class="connection-status">
-                                <span class="status-dot status-close"></span>
-                                <span class="status-text">Desconectado</span>
+                                <span class="status-dot status-offline"></span>
+                                <span class="status-text">Não conectado</span>
                             </div>
                             <button type="button" class="btn btn-secondary btn-sm" onclick="NotificationService.showWhatsappPopup()">
-                                Gerenciar Conexão
+                                Configurar Mensagens Automáticas
                             </button>
                         </div>
+                        <small class="field-hint">As notificações de agendamento serão enviadas por este número.</small>
                     </div>
                     <div class="form-group">
-                        <label class="form-label">Link Rede Social</label>
+                        <label class="form-label">Instagram ou Rede Social</label>
                         <input type="url" name="socialMediaLink" class="form-input" placeholder="https://instagram.com/seu-salao">
+                        <small class="field-hint">Link direto para seu perfil (ex: Instagram, Facebook).</small>
                     </div>
                     <div class="form-group">
                         <label class="form-label">Fuso Horário <span class="required">*</span></label>
@@ -55,55 +61,66 @@
                             <option value="America/Fortaleza">Fortaleza (GMT-3)</option>
                             <option value="America/Recife">Recife (GMT-3)</option>
                         </select>
+                        <small class="field-hint">Garante que os horários de agendamento estejam corretos.</small>
                     </div>
                     <div class="form-group full-width">
-                        <label class="form-label">Endereço Completo <span class="required">*</span></label>
-                        <input type="text" name="fullAddress" class="form-input" required>
+                        <label class="form-label">Endereço do Salão <span class="required">*</span></label>
+                        <input type="text" name="fullAddress" class="form-input" placeholder="Rua, Número, Bairro, Cidade - UF" required>
+                        <small class="field-hint">Informação visível para as clientes chegarem até você.</small>
                     </div>
                 </div>
             </div>
 
             <div class="settings-group">
-                <h3 class="settings-subtitle">Políticas & Status</h3>
+                <h3 class="settings-subtitle">Regras de Agendamento</h3>
                 <div class="form-grid">
                     <div class="form-group">
-                        <label class="form-label">Buffer entre Agendamentos (minutos) <span class="required">*</span></label>
+                        <label class="form-label">Intervalo entre Clientes <span class="required">*</span></label>
                         <input type="number" name="appointmentBufferMinutes" class="form-input" min="0" max="120" step="5" required>
-                        <small class="field-hint">Tempo de limpeza/preparação entre clientes.</small>
+                        <small class="field-hint">Tempo reservado para limpeza e preparação entre um atendimento e outro (em minutos).</small>
                     </div>
                     <div class="form-group">
-                        <label class="form-label">Janela de Agendamento (dias) <span class="required">*</span></label>
+                        <label class="form-label">Período de Antecedência (dias) <span class="required">*</span></label>
                         <input type="number" name="standardBookingWindow" class="form-input" min="1" max="180" required>
-                        <small class="field-hint">Com quanta antecedência o cliente pode agendar.</small>
+                        <small class="field-hint">Com quantos dias de antecedência uma cliente comum pode realizar o agendamento.</small>
                     </div>
                     <div class="form-group">
-                        <label class="form-label">Status Operacional <span class="required">*</span></label>
+                        <label class="form-label">Situação do Salão <span class="required">*</span></label>
                         <select name="status" class="form-input" required onchange="adminSettingsApp.handleStatusChange(this.value)">
-                            <option value="OPEN">Aberto / Recebendo Agendamentos</option>
-                            <option value="CLOSED_TEMPORARY">Fechado Temporariamente</option>
+                            <option value="OPEN">Aberto para Agendamentos</option>
+                            <option value="CLOSED_TEMPORARY">Fechado Temporariamente (Manutenção)</option>
                         </select>
+                        <small class="field-hint">Quando fechado, ninguém conseguirá agendar novos horários.</small>
                     </div>
                     <div id="warning-message-group" class="form-group hidden">
-                        <label class="form-label">Mensagem de Aviso (Banner)</label>
-                        <textarea name="warningMessage" class="form-input" rows="1" placeholder="Ex: Estaremos de férias do dia 10 ao dia 15..."></textarea>
-                        <small class="field-hint">Aparece na página de manutenção.</small>
+                        <label class="form-label">Mensagem de Aviso Temporário</label>
+                        <textarea name="warningMessage" class="form-input" rows="1" placeholder="Ex: Estaremos em reforma do dia 10 ao dia 15..."></textarea>
+                        <small class="field-hint">Mensagem que aparece para a cliente quando o salão está fechado.</small>
+                    </div>
+                    <div class="form-group full-width">
+                        <label class="checkbox-item">
+                            <input type="checkbox" name="autoConfirmationAppointment" id="autoConfirmationAppointment">
+                            <strong>Aprovação Automática de Agendamentos</strong>
+                        </label>
+                        <small class="field-hint block-hint">Se ativado, você não precisará confirmar manualmente cada agendamento recebido.</small>
                     </div>
                     <div class="form-group full-width">
                         <label class="checkbox-item" style="margin-top: 10px;">
                             <input type="checkbox" name="isLoyalClientelePrioritized" id="isLoyalClientelePrioritized" onchange="adminSettingsApp.toggleLoyalWindow(this.checked)">        
-                            <strong>Priorizar Clientes Fiéis</strong>
+                            <strong>Prioridade para Clientes Fiéis</strong>
                         </label>
-                        <small class="field-hint block-hint">Permite que clientes frequentes agendem com mais antecedência.</small>
+                        <small class="field-hint block-hint">Permite que suas clientes mais frequentes agendem horários com maior antecedência que as demais.</small>
                     </div>
                     <div id="loyal-window-group" class="form-group hidden">
-                        <label class="form-label">Janela para Clientes Fiéis (dias)</label>
+                        <label class="form-label">Antecedência para Clientes Fiéis (dias)</label>
                         <input type="number" name="loyalClientBookingWindowDays" class="form-input" min="1" max="365">
+                        <small class="field-hint">Período exclusivo para quem é cliente fiel.</small>
                     </div>
                 </div>
             </div>
 
             <div class="form-actions">
-                <button type="submit" class="btn btn-primary btn-block">Salvar Todas as Alterações</button>
+                <button type="submit" class="btn btn-primary btn-block">Salvar Configurações</button>
             </div>
         </form>
     </div>

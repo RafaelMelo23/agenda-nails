@@ -36,6 +36,11 @@ export const SalonModule = {
                     this.handleStatusChange(status);
                 }
 
+                const autoConfirmCheckbox = form.querySelector('[name="autoConfirmationAppointment"]');
+                if (autoConfirmCheckbox) {
+                    autoConfirmCheckbox.checked = !!salon.autoConfirmationAppointment;
+                }
+
                 const loyalCheckbox = form.querySelector('[name="isLoyalClientelePrioritized"]');
                 if (loyalCheckbox) {
                     loyalCheckbox.checked = !!salon.isLoyalClientelePrioritized;
@@ -79,6 +84,10 @@ export const SalonModule = {
 
         data.appointmentBufferMinutes = parseInt(data.appointmentBufferMinutes) || 0;
         data.standardBookingWindow = parseInt(data.standardBookingWindow) || 30;
+        
+        const autoConfirmCheckbox = form.querySelector('#autoConfirmationAppointment');
+        data.autoConfirmationAppointment = autoConfirmCheckbox ? autoConfirmCheckbox.checked : false;
+
         const loyalCheckbox = form.querySelector('#isLoyalClientelePrioritized');
         data.isLoyalClientelePrioritized = loyalCheckbox ? loyalCheckbox.checked : false;
         data.loyalClientBookingWindowDays = parseInt(data.loyalClientBookingWindowDays) || 60;
