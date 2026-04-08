@@ -19,11 +19,21 @@ public class SalonMaintenanceInterceptor implements HandlerInterceptor {
     @Override
     public boolean preHandle(HttpServletRequest request, HttpServletResponse response, Object handler) throws Exception {
         String path = request.getRequestURI();
-        boolean isWhiteListed = requestPolicyManager.isWhiteListed(path);
+        String tenantId = TenantContext.getTenant();
 
-        if (TenantContext.getTenant() != null && !isWhiteListed) {
-            if (!salonProfileService.isSalonOpenByTenantId(TenantContext.getTenant())) {
-                request.getRequestDispatcher("/offline").forward(request, response);
+        var isWhiteListed = requestPolicyManager.shouldIgnoreMaintenance(path);
+
+        if (tenantId != null && !isWhiteListed) {
+            if (!salonProfileService.isSalonOpenByTenantId(tenantId)) {
+                if (path.startsWith("/api/")) {
+                    response.setStatus(HttpServletResponse.SC_SERVICE_UNAVAILABLE);
+                    response.setHeader("X-Salon-State", "CLOSED");
+                    response.setContentType("application/json");
+                    response.setCharacterEncoding("UTF-8");
+                    response.getWriter().write("{\"message\": [\"O estabelecimento encontra-se fechado no momento.\"]}");
+                    return false;
+                }
+                response.sendRedirect("/offline");
                 return false;
             }
         }

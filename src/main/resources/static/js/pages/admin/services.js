@@ -69,7 +69,7 @@ const adminServicesApp = {
                             ${s.nailCount ? `<span>• 💅 ${s.nailCount} unhas</span>` : ''}
                             ${s.isAddOn ? '<span>• ➕ Adicional</span>' : ''}
                         </div>
-                        <div class="price-tag">R$ ${(s.value / 100).toFixed(2).replace('.', ',')}</div>
+                        <div class="price-tag">R$ ${s.value.toFixed(2).replace('.', ',')}</div>
                     </div>
                     <div class="actions">
                         <label class="switch">
@@ -139,7 +139,7 @@ const adminServicesApp = {
         document.getElementById('modal-title').innerText = 'Editar Serviço';
         document.getElementById('service-id').value = s.id;
         document.getElementById('service-name').value = s.name;
-        document.getElementById('service-value').value = (s.value / 100).toFixed(2);
+        document.getElementById('service-value').value = s.value.toFixed(2);
         document.getElementById('service-duration').value = Math.floor(s.durationInSeconds / 60);
         document.getElementById('service-description').value = s.description || '';
         document.getElementById('service-is-addon').checked = s.isAddOn || false;
@@ -168,7 +168,7 @@ const adminServicesApp = {
 
         const payload = {
             name: document.getElementById('service-name').value,
-            value: Math.round(parseFloat(document.getElementById('service-value').value) * 100),
+            value: Math.round(parseFloat(document.getElementById('service-value').value)),
             durationInSeconds: parseInt(document.getElementById('service-duration').value) * 60,
             description: document.getElementById('service-description').value,
             maintenanceIntervalDays: parseInt(document.getElementById('service-maintenance').value) || null,

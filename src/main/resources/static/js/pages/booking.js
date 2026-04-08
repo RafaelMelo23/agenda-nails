@@ -152,7 +152,7 @@ const bookingApp = {
                         <p>${Math.floor(s.durationInSeconds / 60)}min</p>
                     </div>
                 </div>
-                <div class="price-tag">R$ ${(s.value / 100).toFixed(2)}</div>
+                <div class="price-tag">R$ ${s.value.toFixed(2)}</div>
             </div>
         `).join('');
     },
@@ -175,7 +175,7 @@ const bookingApp = {
                     <div class="item-left">
                         <div class="item-info">
                             <h3>${a.name}</h3>
-                            <p class="price-tag" style="margin:0">+R$ ${(a.value / 100).toFixed(2)} ${unitLabel}</p>
+                            <p class="price-tag" style="margin:0">+R$ ${a.value.toFixed(2)} ${unitLabel}</p>
                         </div>
                     </div>
                     <div style="display:flex; align-items:center;">
@@ -405,7 +405,7 @@ const bookingApp = {
         this.booking.addOns.forEach(a => t += (a.value * a.qty));
 
         this.booking.total = t;
-        const totalStr = `R$ ${(t / 100).toFixed(2)}`;
+        const totalStr = `R$ ${t.toFixed(2)}`;
         document.getElementById('footer-total').innerText = totalStr;
 
         if (this.step === 5) this.renderReview();
@@ -471,13 +471,13 @@ const bookingApp = {
             day: '2-digit', month: '2-digit', year: 'numeric', hour: '2-digit', minute: '2-digit'
         });
 
-        document.getElementById('rev-total').innerText = `R$ ${(this.booking.total / 100).toFixed(2)}`;
+        document.getElementById('rev-total').innerText = `R$ ${this.booking.total.toFixed(2)}`;
 
         const addonsHTML = this.booking.addOns.map(a => {
             const qtyStr = a.nailCount > 0 ? ` <strong>(${a.qty}x)</strong>` : '';
             return `<div style="display:flex; justify-content:space-between; margin-bottom:4px">
                 <span>+ ${a.name}${qtyStr}</span>
-                <span>R$ ${((a.value * a.qty) / 100).toFixed(2)}</span>
+                <span>R$ ${(a.value * a.qty).toFixed(2)}</span>
               </div>`;
         }).join('');
 

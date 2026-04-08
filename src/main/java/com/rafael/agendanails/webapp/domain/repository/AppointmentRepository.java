@@ -60,7 +60,7 @@ public interface AppointmentRepository extends JpaRepository<Appointment, Long> 
     List<Appointment> findAppointmentsNeedingReminder(@Param("now") Instant now,
                                                       @Param("windowEnd") Instant windowEnd);
 
-    Optional<Appointment> findFirstByClientIdOrderByStartDateDesc(Long clientId);
+    Optional<Appointment> findFirstByClientIdAndAppointmentStatusOrderByStartDateDesc(Long clientId, AppointmentStatus status);
 
     double countByClientIdAndAppointmentStatus(Long clientId, AppointmentStatus attr0);
 

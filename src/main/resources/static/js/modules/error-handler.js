@@ -20,11 +20,13 @@ const ErrorHandler = {
 
     statusDefaults: {
         401: 'Sua sessão expirou ou você não está autenticado.',
+        402: 'Acesso do locatário suspenso',
         403: 'Você não tem permissão para acessar esta área.',
         404: 'O recurso solicitado não foi encontrado.',
         409: 'Houve um conflito ao processar sua solicitação.',
         422: 'Os dados informados são inválidos.',
-        500: 'Ocorreu um erro interno no servidor.'
+        500: 'Ocorreu um erro interno no servidor.',
+        503: 'O estabelecimento encontra-se fechado para manutenção.'
     },
 
     parseError: async function(response) {

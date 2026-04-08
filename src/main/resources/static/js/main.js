@@ -18,6 +18,11 @@ window.fetch = async (url, options = {}) => {
     }
     options.credentials = 'include';
     let response = await window._originalFetch(url, options);
+
+    if (response.headers.get('X-Salon-State') === 'CLOSED' && window.location.pathname !== '/offline') {
+        App.navigate('/offline');
+    }
+
     const isAuthPath = typeof url === 'string' && url.includes('/api/v1/auth/');
     if (response.status === 401 && !isAuthPath) {
         const refreshed = await Auth.refreshToken();
@@ -120,7 +125,8 @@ const App = {
             '/': { template: '/pages/booking/index.html', script: '/js/pages/booking.js', title: 'Agendar' },
             '/agendar': { template: '/pages/booking/index.html', script: '/js/pages/booking.js', title: 'Agendar' },
             '/perfil': { template: '/pages/public/profile.html', script: '/js/pages/profile.js', title: 'Meu Perfil' },
-            '/profissional/agenda': { template: '/pages/professional/schedule.html', script: '/js/pages/professional/schedule.js', title: 'Minha Agenda', isModule: true }
+            '/profissional/agenda': { template: '/pages/professional/schedule.html', script: '/js/pages/professional/schedule.js', title: 'Minha Agenda', isModule: true },
+            '/offline': { template: '/pages/public/offline.html', script: '/js/pages/offline.js', title: 'Indisponível' }
         };
 
         const route = routeMap[path] || (path.startsWith('/perfil') ? routeMap['/perfil'] : routeMap['/']);
@@ -201,6 +207,7 @@ const App = {
         if ((path === '/' || path === '/agendar') && typeof bookingApp !== 'undefined') bookingApp.init();
         if (path.startsWith('/perfil') && typeof initProfile === 'function') initProfile();
         if (path === '/profissional/agenda' && typeof professionalScheduleApp !== 'undefined') professionalScheduleApp.init();
+        if (path === '/offline' && typeof initOffline === 'function') initOffline();
     },
 
     loadScript: function(src, isModule = false) {

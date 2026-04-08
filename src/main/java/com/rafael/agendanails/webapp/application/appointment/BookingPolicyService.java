@@ -67,7 +67,7 @@ public class BookingPolicyService {
         SalonProfile profile =
                 salonProfileService.getByTenantId(tenantId);
 
-        boolean isLoyalClient = userId != null && isClientLoyal(userId);
+        boolean isLoyalClient = isClientLoyal(userId);
 
         int windowDays = bookingPolicy.resolveAllowedWindowDays(
                 profile.isLoyalClientelePrioritized(),
@@ -77,7 +77,8 @@ public class BookingPolicyService {
         );
 
         Appointment lastAppointment = userId != null ?
-                appointmentRepository.findFirstByClientIdOrderByStartDateDesc(userId)
+                appointmentRepository
+                        .findFirstByClientIdAndAppointmentStatusOrderByStartDateDesc(userId, AppointmentStatus.FINISHED)
                         .orElse(null) : null;
 
         LocalDate startDate =
@@ -93,7 +94,7 @@ public class BookingPolicyService {
         if (clientId == null) return null;
 
         Appointment appointment = appointmentRepository
-                .findFirstByClientIdOrderByStartDateDesc(clientId)
+                .findFirstByClientIdAndAppointmentStatusOrderByStartDateDesc(clientId, AppointmentStatus.FINISHED)
                 .orElse(null);
 
         return bookingPolicy.calculateEarliestRecommendedDate(appointment);

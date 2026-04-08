@@ -17,28 +17,33 @@ public class TenantStatusInterceptor implements HandlerInterceptor {
     private final SalonProfileService salonProfileService;
     private final RequestPolicyManager requestPolicyManager;
 
-    //todo: create according front-end page to react to this filter
-
     @Override
     public boolean preHandle(HttpServletRequest request, HttpServletResponse response, Object handler) throws Exception {
         String tenantId = TenantContext.getTenant();
         String path = request.getRequestURI();
-        boolean isWhiteListed = requestPolicyManager.isWhiteListed(path);
 
-        if (isWhiteListed) {
+        if (isWhiteListed(path)) {
             return true;
         }
-
         if (tenantId != null) {
             TenantStatus tenantStatus = salonProfileService.getStatusByTenantId(tenantId);
 
             if (tenantStatus == TenantStatus.SUSPENDED) {
-                response.setStatus(HttpServletResponse.SC_PAYMENT_REQUIRED);
-                response.setContentType("application/json");
-                response.getWriter().write("{\"error\": \"Subscription suspended\"}");
-                return false;
+                if (path.startsWith("/api/")) {
+                    response.setStatus(HttpServletResponse.SC_PAYMENT_REQUIRED);
+                    response.setContentType("application/json");
+                    response.setCharacterEncoding("UTF-8");
+                    response.getWriter().write("{\"message\": [\"Acesso do locatário suspenso.\"]}");
+                    return false;
+                }
+                return true;
             }
         }
         return true;
+    }
+
+    private boolean isWhiteListed(String path) {
+        return requestPolicyManager.isInfrastructure(path) ||
+                requestPolicyManager.isPublicAccess(path);
     }
 }

@@ -26,11 +26,11 @@ public class WebConfig implements WebMvcConfigurer {
     @Override
     public void addInterceptors(InterceptorRegistry registry) {
         registry.addInterceptor(salonMaintenanceInterceptor)
-                .addPathPatterns("/api/v1/**")
+                .addPathPatterns("/**")
                 .excludePathPatterns("/api/v1/auth/**", "/api/v1/webhook/**", "/api/v1/admin/**", "/api/internal/**");
 
         registry.addInterceptor(tenantStatusInterceptor)
-                .addPathPatterns("/api/v1/**")
+                .addPathPatterns("/**")
                 .excludePathPatterns("/api/v1/auth/**", "/api/v1/webhook/**", "/api/v1/admin/**", "/api/internal/**");
 
         registry.addInterceptor(userStatusInterceptor)
