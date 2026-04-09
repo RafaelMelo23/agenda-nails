@@ -305,20 +305,24 @@ const App = {
             btn.disabled = true;
             btn.innerText = 'Processando...';
             try {
-                const res = await fetch('/api/v1/user/change-password', {
-                    method: 'POST',
+                const payload = Auth.getPayload();
+                const res = await fetch('/api/v1/user/password', {
+                    method: 'PATCH',
                     headers: { 
-                        'Content-Type': 'text/plain',
+                        'Content-Type': 'application/json',
                         'Authorization': `Bearer ${Auth.getToken()}`
                     },
-                    body: newPassword
+                    body: JSON.stringify({
+                        email: payload.email,
+                        newPassword: newPassword
+                    })
                 });
                 if (res.ok) {
                     Toast.success('Senha alterada com sucesso! Faça login novamente.');
                     setTimeout(() => Auth.logout(), 2000);
                 } else {
                     const err = await res.json();
-                    Toast.error(err.messages?.[0] || 'Erro ao alterar senha.');
+                    Toast.error(err.message || err.messages?.[0] || 'Erro ao alterar senha.');
                 }
             } catch (err) {
                 Toast.error('Erro de conexão ao alterar senha.');

@@ -8,12 +8,10 @@ const Auth = {
 
     setToken: function(token) {
         localStorage.setItem(this.tokenKey, token);
-        document.cookie = `access_token=${token}; path=/; max-age=600; SameSite=Lax; Secure`;
     },
 
     clearToken: function() {
         localStorage.removeItem(this.tokenKey);
-        document.cookie = "access_token=; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT";
     },
 
     getPayload: function() {
@@ -31,10 +29,14 @@ const Auth = {
         return payload ? payload.sub : null;
     },
 
-    hasRole: function(role) {
+    getUserRoles: function() {
         const payload = this.getPayload();
-        if (!payload || !payload.roles) return false;
-        return payload.roles.includes(role);
+        if (!payload || !payload.roles) return [];
+        return payload.roles;
+    },
+
+    hasRole: function(role) {
+        return this.getUserRoles().includes(role);
     },
 
     refreshToken: async function() {

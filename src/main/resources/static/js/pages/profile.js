@@ -82,6 +82,14 @@ const profileApp = {
         document.getElementById('set-email').innerText = this.user.email;
         document.getElementById('set-phone').innerText = this.user.phoneNumber || 'Não informado';
 
+        if (this.user.needsPasswordChange) {
+            UI.showToast('Você está usando uma senha temporária. Por favor, defina uma nova senha agora.', 'info');
+            this.showEdit('password');
+            // Hide cancel button to "force" change
+            const cancelBtn = document.querySelector('#modal-overlay .btn-outline');
+            if (cancelBtn) cancelBtn.style.display = 'none';
+        }
+
         if (Auth.hasRole('PROFESSIONAL')) {
             const picContainer = document.getElementById('prof-pic-container');
             const picEl = document.getElementById('prof-pic');
@@ -295,7 +303,7 @@ const profileApp = {
             title.innerText = 'Alterar Senha';
             document.getElementById('password-fields').classList.remove('hidden');
             document.getElementById('password-confirm-field').classList.add('hidden');
-            document.getElementById('btn-save').innerText = 'Enviar Link de Recuperação';
+            document.getElementById('btn-save').innerText = 'Alterar Senha';
         }
     },
 
@@ -316,11 +324,33 @@ const profileApp = {
             return;
         }
 
+        if (type === 'password') {
+            const email = document.getElementById('confirm-email').value;
+            const newPass = document.getElementById('new-password').value;
+            const repeatPass = document.getElementById('repeat-password').value;
+
+            if (!email || !newPass || !repeatPass) {
+                Toast.error('Por favor, preencha todos os campos.');
+                return;
+            }
+
+            if (newPass !== repeatPass) {
+                Toast.error('As senhas não coincidem.');
+                return;
+            }
+
+            if (newPass.length < 6) {
+                Toast.error('A senha deve ter pelo menos 6 caracteres.');
+                return;
+            }
+        }
+
         btn.disabled = true;
         btn.innerText = 'Processando...';
 
         try {
             let url = '';
+            let method = 'PATCH';
             let body = {};
 
             if (type === 'email') {
@@ -330,32 +360,31 @@ const profileApp = {
                 url = '/api/v1/user/phone';
                 body = { newPhone: document.getElementById('new-phone').value, password };
             } else if (type === 'password') {
-                url = `/api/v1/user/password/forgot?userEmail=${encodeURIComponent(this.user.email)}`;
-                const res = await fetch(url, {
-                    method: 'POST'
-                });
-                if (res.ok) {
-                    Toast.success('Link de recuperação enviado para seu e-mail.');
-                    this.closeModal();
-                } else {
-                    Toast.error('Erro ao solicitar recuperação de senha.');
-                }
-                return;
+                url = '/api/v1/user/password';
+                body = { 
+                    email: document.getElementById('confirm-email').value,
+                    newPassword: document.getElementById('new-password').value 
+                };
             }
 
             const res = await fetch(url, {
-                method: 'PATCH',
+                method: method,
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify(body)
             });
 
             if (res.ok) {
                 Toast.success('Dados atualizados com sucesso.');
-                this.closeModal();
-                await this.loadProfile();
+                if (type === 'password') {
+                    Toast.success('Sua senha foi alterada. Por favor, faça login novamente.');
+                    setTimeout(() => Auth.logout(), 2000);
+                } else {
+                    this.closeModal();
+                    await this.loadProfile();
+                }
             } else {
                 const err = await res.json();
-                Toast.error(err.message || 'Erro ao atualizar dados.');
+                Toast.error(err.message || err.messages?.[0] || 'Erro ao atualizar dados.');
             }
         } catch (error) {
             Toast.error('Erro de conexão.');

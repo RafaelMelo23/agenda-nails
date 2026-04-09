@@ -9,6 +9,7 @@ import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -21,6 +22,9 @@ import org.springframework.web.bind.annotation.RestController;
 public class SalonProfileController {
 
     private final SalonProfileService salonProfileService;
+
+    @Value("${support.whatsapp.number}")
+    private String supportPhoneNumber;
 
     @Operation(summary = "Get public salon profile", description = "Returns the public salon profile information for the current tenant.")
     @ApiResponses({
@@ -40,7 +44,8 @@ public class SalonProfileController {
                         .primaryColor(salon.getPrimaryColor())
                         .comercialPhone(salon.getComercialPhone())
                         .fullAddress(salon.getFullAddress())
-                        .socialMediaLink(salon.getSocialMediaLink());
+                        .socialMediaLink(salon.getSocialMediaLink())
+                        .supportPhoneNumber(supportPhoneNumber);
 
         if (salon.getWarningMessage() != null) {
             builder.warningMessage(salon.getWarningMessage());

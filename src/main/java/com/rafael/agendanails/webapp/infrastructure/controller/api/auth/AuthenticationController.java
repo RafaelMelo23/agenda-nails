@@ -3,10 +3,7 @@ package com.rafael.agendanails.webapp.infrastructure.controller.api.auth;
 import com.rafael.agendanails.webapp.application.auth.AuthenticationService;
 import com.rafael.agendanails.webapp.domain.model.UserPrincipal;
 import com.rafael.agendanails.webapp.infrastructure.config.SwaggerExamples;
-import com.rafael.agendanails.webapp.infrastructure.dto.auth.AuthResultDTO;
-import com.rafael.agendanails.webapp.infrastructure.dto.auth.LoginDTO;
-import com.rafael.agendanails.webapp.infrastructure.dto.auth.RegisterDTO;
-import com.rafael.agendanails.webapp.infrastructure.dto.auth.TokenRefreshResponseDTO;
+import com.rafael.agendanails.webapp.infrastructure.dto.auth.*;
 import com.rafael.agendanails.webapp.infrastructure.security.token.CookieService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
@@ -46,9 +43,8 @@ public class AuthenticationController {
             description = "Authenticates a user and returns a JWT. Also sets the refresh_token cookie."
     )
     @ApiResponses({
-            @ApiResponse(responseCode = "200", description = "JWT token returned",
-                    content = @Content(schema = @Schema(implementation = String.class),
-                            examples = @ExampleObject(value = "jwt-token"))),
+            @ApiResponse(responseCode = "200", description = "Login successful",
+                    content = @Content(schema = @Schema(implementation = LoginResponseDTO.class))),
             @ApiResponse(responseCode = "400", description = "Invalid credentials"),
             @ApiResponse(responseCode = "401", description = "Unauthorized")
     })
@@ -59,7 +55,7 @@ public class AuthenticationController {
                     examples = @ExampleObject(name = "LoginRequest", value = SwaggerExamples.LOGIN_REQUEST))
     )
     @PostMapping("/login")
-    public ResponseEntity<String> login(@Valid @RequestBody LoginDTO loginDTO,
+    public ResponseEntity<LoginResponseDTO> login(@Valid @RequestBody LoginDTO loginDTO,
                                         HttpServletResponse response) {
 
         AuthResultDTO authResultDTO = authenticationService.login(loginDTO);
@@ -67,7 +63,7 @@ public class AuthenticationController {
         cookieService.addAccessTokenCookie(response, authResultDTO.jwtToken());
         cookieService.addRefreshTokenCookie(response, authResultDTO.refreshToken());
 
-        return ResponseEntity.ok().body(authResultDTO.jwtToken());
+        return ResponseEntity.ok(new LoginResponseDTO(authResultDTO.jwtToken()));
     }
 
     @Operation(

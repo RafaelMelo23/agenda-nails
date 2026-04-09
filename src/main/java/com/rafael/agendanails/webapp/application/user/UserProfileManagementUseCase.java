@@ -11,6 +11,7 @@ import com.rafael.agendanails.webapp.infrastructure.dto.user.profile.ClientProfi
 import com.rafael.agendanails.webapp.infrastructure.dto.user.profile.ProfessionalProfileDto;
 import com.rafael.agendanails.webapp.infrastructure.dto.user.profile.UserProfileDto;
 import com.rafael.agendanails.webapp.infrastructure.exception.BusinessException;
+import com.rafael.agendanails.webapp.infrastructure.exception.LoginException;
 import com.rafael.agendanails.webapp.infrastructure.files.FileUploadService;
 import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
@@ -34,24 +35,35 @@ public class UserProfileManagementUseCase {
         if (user instanceof Client client) {
             return ClientProfileDto.builder()
                     .fullName(client.getFullName())
-                    .email(client.getEmail())
+                    .email(maskEmail(client.getEmail()))
                     .phoneNumber(client.getPhoneNumber())
                     .missedAppointments(client.getMissedAppointments())
                     .canceledAppointments(client.getCanceledAppointments())
+                    .role(client.getUserRole().name())
                     .build();
         }
 
         if (user instanceof Professional professional) {
             return ProfessionalProfileDto.builder()
                     .fullName(professional.getFullName())
-                    .email(professional.getEmail())
+                    .email(maskEmail(professional.getEmail()))
                     .professionalPicture(fileUploadService.getFileUrl(professional.getProfessionalPicture()))
                     .externalId(professional.getExternalId())
                     .isActive(professional.getIsActive())
+                    .role(professional.getUserRole().name())
                     .build();
         }
 
         throw new BusinessException("Tipo de usuário não encontrado.");
+    }
+
+    private String maskEmail(String email) {
+        if (email == null || !email.contains("@")) return email;
+        int atIndex = email.indexOf("@");
+        String namePart = email.substring(0, atIndex);
+        String domainPart = email.substring(atIndex);
+        if (namePart.length() <= 3) return email;
+        return namePart.substring(0, 2) + "***" + namePart.substring(namePart.length() - 1) + domainPart;
     }
 
     @Transactional
@@ -96,9 +108,13 @@ public class UserProfileManagementUseCase {
     }
 
     @Transactional
-    public void changePassword(Long userId, String newPassword) {
+    public void changePassword(Long userId, String email, String newPassword) {
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new BusinessException("Usuário não encontrado."));
+
+        if (!user.getEmail().equalsIgnoreCase(email)) {
+            throw new LoginException("O e-mail informado não é igual ao do cadastro do usuário");
+        }
 
         user.setPassword(passwordEncoder.encode(newPassword));
         

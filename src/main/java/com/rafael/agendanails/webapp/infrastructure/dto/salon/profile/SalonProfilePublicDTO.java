@@ -12,6 +12,7 @@ public record SalonProfilePublicDTO(
         String comercialPhone,
         String fullAddress,
         String socialMediaLink,
-        String warningMessage
+        String warningMessage,
+        String supportPhoneNumber
 ) {
 }

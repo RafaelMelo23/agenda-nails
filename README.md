@@ -1,4 +1,4 @@
-﻿# Agenda Nails SaaS
+﻿# Nail Space SaaS
 
 [![Java 21](https://img.shields.io/badge/Java-21-orange?logo=java)](https://jdk.java.net/21/)
 [![Spring Boot 3.5](https://img.shields.io/badge/Spring%20Boot-3.5-brightgreen?logo=springboot)](https://spring.io/projects/spring-boot)
@@ -26,7 +26,7 @@ SaaS de agendamento e retenção para salões de beleza e estúdios de unhas. A 
 
 ## Visão de Produto
 
-O Scheduling Nails Pro foi pensado como uma plataforma que faz o salão operar no piloto automático:
+O Nail Space foi pensado como uma plataforma que faz o salão operar no piloto automático:
 
 - **Agenda inteligente**: disponibilidade por profissional, intervalos de serviço, buffers e bloqueios manuais.
 - **Retenção automatizada**: previsão de retorno por manutenção e disparo de convites personalizados.
@@ -35,7 +35,7 @@ O Scheduling Nails Pro foi pensado como uma plataforma que faz o salão operar n
 
 ---
 
-## Funcionalidades (v2)
+## Funcionalidades
 
 - **Agendamento do cliente**: disponibilidade por profissional, múltiplos serviços (add-ons), cancelamento e janela preferencial.
 - **Gestão de profissionais**: agenda semanal, pausas, bloqueios rápidos e perfil com foto.

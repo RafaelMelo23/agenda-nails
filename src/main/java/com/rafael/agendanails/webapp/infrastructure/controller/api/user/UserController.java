@@ -7,6 +7,7 @@ import com.rafael.agendanails.webapp.infrastructure.config.SwaggerExamples;
 import com.rafael.agendanails.webapp.infrastructure.dto.auth.ChangeEmailRequestDTO;
 import com.rafael.agendanails.webapp.infrastructure.dto.auth.ChangePhoneRequestDTO;
 import com.rafael.agendanails.webapp.infrastructure.dto.auth.ResetPasswordDTO;
+import com.rafael.agendanails.webapp.infrastructure.dto.user.profile.ChangePasswordRequestDTO;
 import com.rafael.agendanails.webapp.infrastructure.dto.user.profile.UserProfileDto;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
@@ -86,49 +87,15 @@ public class UserController {
         return ResponseEntity.noContent().build();
     }
 
-    //todo: test
-    @Operation(summary = "Forgot password", description = "Triggers a password reset email.")
-    @ApiResponses({
-            @ApiResponse(responseCode = "204", description = "Reset email triggered"),
-            @ApiResponse(responseCode = "400", description = "Validation error")
-    })
-    @PostMapping("/password/forgot")
-    public ResponseEntity<Void> forgotPassword(@RequestParam @NotBlank(message = "O e-mail é obrigatório")
-                                               @Email(message = "O e-mail deve ser válido")
-                                               @Parameter(example = "cliente@exemplo.com")
-                                               String userEmail) {
-
-        passwordResetUseCase.forgotPasswordRequest(userEmail);
-        return ResponseEntity.noContent().build();
-    }
-
-    @Operation(summary = "Reset password", description = "Resets the user's password using a reset token.")
-    @ApiResponses({
-            @ApiResponse(responseCode = "204", description = "Password reset"),
-            @ApiResponse(responseCode = "400", description = "Validation error or invalid token")
-    })
-    @io.swagger.v3.oas.annotations.parameters.RequestBody(
-            required = true,
-            content = @Content(mediaType = "application/json",
-                    schema = @Schema(implementation = ResetPasswordDTO.class),
-                    examples = @ExampleObject(name = "ResetPasswordRequest", value = SwaggerExamples.RESET_PASSWORD_REQUEST))
-    )
-    @PatchMapping("/password")
-    public ResponseEntity<Void> updatePassword(@Valid @RequestBody ResetPasswordDTO dto) {
-
-        passwordResetUseCase.resetPassword(dto);
-        return ResponseEntity.noContent().build();
-    }
-
-    @Operation(summary = "Change password", description = "Changes the authenticated user's password (used for first login).")
+    @Operation(summary = "Change password", description = "Changes the authenticated user's password")
     @ApiResponses({
             @ApiResponse(responseCode = "204", description = "Password changed"),
             @ApiResponse(responseCode = "401", description = "Unauthorized")
     })
-    @PostMapping("/change-password")
+    @PatchMapping("/password")
     public ResponseEntity<Void> changePassword(@AuthenticationPrincipal UserPrincipal userPrincipal,
-                                               @RequestBody @NotBlank String newPassword) {
-        userService.changePassword(userPrincipal.getUserId(), newPassword);
+                                               @RequestBody ChangePasswordRequestDTO dto) {
+        userService.changePassword(userPrincipal.getUserId(), dto.email(), dto.newPassword());
         return ResponseEntity.noContent().build();
     }
 }

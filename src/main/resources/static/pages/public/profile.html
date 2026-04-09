@@ -91,7 +91,18 @@
                 </div>
 
                 <div id="password-fields" class="hidden">
-                    <p style="font-size: 13px; color: var(--text-muted); margin-bottom: 15px;">Para sua segurança, um link de redefinição será enviado para seu e-mail.</p>
+                    <div class="form-group">
+                        <label>Confirmar seu E-mail</label>
+                        <input type="email" id="confirm-email" class="form-input" placeholder="seu-email@exemplo.com">
+                    </div>
+                    <div class="form-group">
+                        <label>Nova Senha</label>
+                        <input type="password" id="new-password" class="form-input" placeholder="Mínimo 6 caracteres">
+                    </div>
+                    <div class="form-group">
+                        <label>Repita a Nova Senha</label>
+                        <input type="password" id="repeat-password" class="form-input" placeholder="Mínimo 6 caracteres">
+                    </div>
                 </div>
 
                 <div id="password-confirm-field" class="form-group">
