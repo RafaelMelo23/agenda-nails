@@ -18,6 +18,7 @@ import org.springframework.test.context.ActiveProfiles;
 import java.time.DayOfWeek;
 import java.time.LocalTime;
 import java.util.List;
+import java.util.Set;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertThrows;
@@ -138,5 +139,14 @@ class ProfessionalWorkScheduleUseCaseIT extends BaseIntegrationTest {
         assertThrows(BusinessException.class, () ->
                 professionalWorkScheduleUseCase.createSchedules(List.of(invalidLunch), p.getId())
         );
+    }
+
+    @Test
+    void getWorkSchedules_returnsEmptySet_whenNoSchedulesExist() {
+        Professional p = createValidProfessional();
+
+        Set<WorkScheduleRecordDTO> schedules = professionalWorkScheduleUseCase.getWorkSchedules(p.getId());
+
+        assertThat(schedules).isEmpty();
     }
 }

@@ -75,10 +75,6 @@ public class ProfessionalWorkScheduleUseCase {
     public Set<WorkScheduleRecordDTO> getWorkSchedules(Long userId) {
         List<WorkSchedule> schedules = repository.findByProfessional_Id(userId);
 
-        if (schedules.isEmpty()) {
-            throw new BusinessException("Nenhum cronograma de trabalho encontrado para este profissional.");
-        }
-
         return schedules.stream()
                 .map(wsc ->
                         new WorkScheduleRecordDTO(
