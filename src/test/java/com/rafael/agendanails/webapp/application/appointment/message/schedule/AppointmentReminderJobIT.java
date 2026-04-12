@@ -75,7 +75,7 @@ class AppointmentReminderJobIT extends BaseIntegrationTest {
                 start, start.plus(1, ChronoUnit.HOURS), client, professional, service, AppointmentStatus.PENDING));
 
         // Pretend a reminder was already sent
-        var message = whatsappMessageRepository.save(WhatsappMessage.builder()
+        whatsappMessageRepository.save(WhatsappMessage.builder()
                 .appointment(appointment)
                 .messageType(WhatsappMessageType.REMINDER)
                 .messageStatus(WhatsappMessageStatus.SENT)
@@ -99,7 +99,7 @@ class AppointmentReminderJobIT extends BaseIntegrationTest {
         
         Instant startA = Instant.now().plus(2, ChronoUnit.HOURS).truncatedTo(ChronoUnit.SECONDS);
         var apA = TestAppointmentFactory.atSpecificTimeForIt(
-                startA, startA.plus(1, ChronoUnit.HOURS), clientA, profA, serviceA, AppointmentStatus.PENDING);
+                startA, startA.plus(1, ChronoUnit.HOURS), clientA, profA, serviceA, AppointmentStatus.CONFIRMED);
         apA.setTenantId("tenant-a");
         appointmentRepository.save(apA);
 
@@ -112,7 +112,7 @@ class AppointmentReminderJobIT extends BaseIntegrationTest {
         
         Instant startB = Instant.now().plus(3, ChronoUnit.HOURS).truncatedTo(ChronoUnit.SECONDS);
         var apB = TestAppointmentFactory.atSpecificTimeForIt(
-                startB, startB.plus(1, ChronoUnit.HOURS), clientB, profB, serviceB, AppointmentStatus.PENDING);
+                startB, startB.plus(1, ChronoUnit.HOURS), clientB, profB, serviceB, AppointmentStatus.CONFIRMED);
         apB.setTenantId("tenant-b");
         appointmentRepository.save(apB);
 

@@ -45,7 +45,7 @@ public interface AppointmentRepository extends JpaRepository<Appointment, Long>,
     @IgnoreTenantFilter
     @Query("""
             SELECT ap FROM Appointment ap
-            WHERE ap.appointmentStatus = com.rafael.agendanails.webapp.domain.enums.appointment.AppointmentStatus.PENDING
+            WHERE ap.appointmentStatus = com.rafael.agendanails.webapp.domain.enums.appointment.AppointmentStatus.CONFIRMED
             AND ap.startDate > :now
             AND ap.startDate <= :windowEnd
             AND NOT EXISTS (
