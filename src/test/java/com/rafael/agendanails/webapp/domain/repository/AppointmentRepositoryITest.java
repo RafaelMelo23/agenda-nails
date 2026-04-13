@@ -105,7 +105,7 @@ class AppointmentRepositoryITest extends BaseIntegrationTest {
         Appointment appA = TestAppointmentFactory.atSpecificTimeForIt(
                 now.plus(1, ChronoUnit.HOURS),
                 now.plus(2, ChronoUnit.HOURS),
-                clientA, proA, serviceA, AppointmentStatus.PENDING);
+                clientA, proA, serviceA, AppointmentStatus.CONFIRMED);
         appA.setTenantId("tenant-a");
         appointmentRepository.save(appA);
 
@@ -117,7 +117,7 @@ class AppointmentRepositoryITest extends BaseIntegrationTest {
         Appointment appB = TestAppointmentFactory.atSpecificTimeForIt(
                 now.plus(1, ChronoUnit.HOURS),
                 now.plus(2, ChronoUnit.HOURS),
-                clientB, proB, serviceB, AppointmentStatus.PENDING);
+                clientB, proB, serviceB, AppointmentStatus.CONFIRMED);
         appB.setTenantId("tenant-b");
         appointmentRepository.save(appB);
 

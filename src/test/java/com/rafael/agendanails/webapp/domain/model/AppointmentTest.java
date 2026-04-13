@@ -211,29 +211,6 @@ class AppointmentTest {
     }
 
     @Test
-    void create_whenSalonProfileHasAutoConfirmation_shouldReturnConfirmedAppointment() {
-        AppointmentCreateDTO dto = AppointmentCreateDTO.builder()
-                .zonedAppointmentDateTime(ZonedDateTime.now())
-                .build();
-        Client client = TestClientFactory.standard();
-        Professional professional = TestProfessionalFactory.standard();
-        SalonService mainService = TestSalonServiceFactory.standard();
-        SalonProfile salonProfile = TestSalonProfileFactory.standard();
-        salonProfile.setAutoConfirmationAppointment(true);
-
-        TimeInterval interval = TimeInterval.builder()
-                .realTimeStart(Instant.now())
-                .realTimeEnd(Instant.now().plusSeconds(3600))
-                .endTimeWithBuffer(Instant.now().plusSeconds(4500))
-                .salonZoneId(ZoneId.of("America/Sao_Paulo"))
-                .build();
-
-        Appointment appointment = Appointment.create(dto, client, professional, mainService, List.of(), salonProfile, interval);
-
-        assertEquals(AppointmentStatus.CONFIRMED, appointment.getAppointmentStatus());
-    }
-
-    @Test
     void create_whenArgumentsAreNull_shouldThrowIllegalArgumentException() {
         assertThrows(IllegalArgumentException.class, () ->
                 Appointment.create(null, null, null, null, null, null, null));

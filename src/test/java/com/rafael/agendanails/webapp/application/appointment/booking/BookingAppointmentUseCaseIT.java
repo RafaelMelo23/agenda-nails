@@ -13,6 +13,7 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.ActiveProfiles;
+import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.ZoneId;
@@ -100,7 +101,7 @@ class BookingAppointmentUseCaseIT extends BaseIntegrationTest {
         PreparationData data = prepareData(15, 3600, List.of(900));
 
         ZonedDateTime appointmentTime = ZonedDateTime.of(
-                2026, 4, 6, 10, 0, 0, 0,
+                2026, 5, 6, 10, 0, 0, 0,
                 ZoneId.of("America/Sao_Paulo")
         );
 
@@ -128,7 +129,7 @@ class BookingAppointmentUseCaseIT extends BaseIntegrationTest {
         PreparationData data = prepareData(15, 3600, List.of(900));
 
         ZonedDateTime appointmentTime = ZonedDateTime.of(
-                2026, 4, 6, 10, 0, 0, 0,
+                2026, 5, 6, 10, 0, 0, 0,
                 ZoneId.of("America/Sao_Paulo")
         );
 
@@ -165,7 +166,7 @@ class BookingAppointmentUseCaseIT extends BaseIntegrationTest {
     }
 
     @Test
-    @Transactional(propagation = org.springframework.transaction.annotation.Propagation.NOT_SUPPORTED)
+    @Transactional(propagation = Propagation.NOT_SUPPORTED)
     void bookAppointment_shouldSucceedForBoth_whenConcurrentBookingOnDifferentSlots() throws InterruptedException {
         PreparationData data = prepareData(15, 3600, List.of());
 
@@ -246,5 +247,31 @@ class BookingAppointmentUseCaseIT extends BaseIntegrationTest {
                 .filter(a -> a.getProfessional().getId().equals(data.professional().getId()))
                 .count();
         assertThat(count).isEqualTo(2);
+    }
+
+    @Test
+    void bookAppointment_shouldAutoConfirm_whenSalonProfileHasAutoConfirmationEnabled() {
+        PreparationData data = prepareData(15, 3600, List.of());
+        data.salonProfile().setAutoConfirmationAppointment(true);
+        salonProfileRepository.save(data.salonProfile());
+
+        ZonedDateTime appointmentTime = ZonedDateTime.of(
+                2026, 5, 6, 10, 0, 0, 0,
+                ZoneId.of("America/Sao_Paulo")
+        );
+
+        AppointmentCreateDTO dto = AppointmentCreateDTO.builder()
+                .professionalExternalId(data.professional().getExternalId().toString())
+                .mainServiceId(data.mainService().getId())
+                .addOnsIds(List.of())
+                .zonedAppointmentDateTime(appointmentTime)
+                .observation("Testing auto confirmation")
+                .build();
+
+        bookingAppointmentUseCase.bookAppointment(dto, principal);
+
+        List<Appointment> appointments = appointmentRepository.findAll();
+        assertThat(appointments).hasSize(1);
+        assertThat(appointments.getFirst().getAppointmentStatus()).isEqualTo(AppointmentStatus.CONFIRMED);
     }
 }

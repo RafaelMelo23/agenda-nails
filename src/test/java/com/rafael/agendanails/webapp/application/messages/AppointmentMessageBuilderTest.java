@@ -50,9 +50,9 @@ class AppointmentMessageBuilderTest {
         assertTrue(result.contains("📅 Data: 10/04 às 10:00"));
         assertTrue(result.contains("👤 Profissional: John Professional"));
         assertTrue(result.contains("💅 Serviços: Manicure, Pedicure"));
-        assertTrue(result.contains("- Principal: 50"));
-        assertTrue(result.contains("- Extras: 50"));
-        assertTrue(result.contains("- Total: 100"));
+        assertTrue(result.contains("- Principal: R$ 50"));
+        assertTrue(result.contains("- Extras: R$ 50"));
+        assertTrue(result.contains("- Total: R$ 100"));
         assertTrue(result.contains("https://cancel.com/123"));
     }
 
@@ -73,9 +73,9 @@ class AppointmentMessageBuilderTest {
 
         assertTrue(result.contains("Olá, Maria! ✨"));
         assertTrue(result.contains("💅 Serviços: Manicure"));
-        assertTrue(result.contains("- Principal: 50"));
-        assertTrue(result.contains("- Extras: 0"));
-        assertTrue(result.contains("- Total: 50"));
+        assertTrue(result.contains("- Principal: R$ 50"));
+        assertTrue(result.contains("- Extras: R$ 0"));
+        assertTrue(result.contains("- Total: R$ 50"));
     }
 
     @Test

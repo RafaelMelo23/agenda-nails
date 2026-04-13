@@ -29,9 +29,6 @@ class AppointmentReminderJobIT extends BaseIntegrationTest {
     @Autowired
     private AppointmentReminderJob job;
 
-    @Autowired
-    private EntityManager entityManager;
-
     @MockitoBean(name = "whatsappProvider")
     private WhatsappProvider whatsappProvider;
 
@@ -43,13 +40,11 @@ class AppointmentReminderJobIT extends BaseIntegrationTest {
         
         salonProfileRepository.save(TestSalonProfileFactory.standardForIT(professional, "tenant-test"));
 
-        // Appointment within 5 hours
         Instant start = Instant.now().plus(2, ChronoUnit.HOURS).truncatedTo(ChronoUnit.SECONDS);
         var appointment = TestAppointmentFactory.atSpecificTimeForIt(
-                start, start.plus(1, ChronoUnit.HOURS), client, professional, service, AppointmentStatus.PENDING);
+                start, start.plus(1, ChronoUnit.HOURS), client, professional, service, AppointmentStatus.CONFIRMED);
         appointmentRepository.save(appointment);
 
-        // Success result for mock
         when(whatsappProvider.sendText(anyString(), anyString(), anyString()))
                 .thenReturn(new SentMessageResult("msg-123", EvolutionMessageStatus.SERVER_ACK));
 
@@ -72,9 +67,8 @@ class AppointmentReminderJobIT extends BaseIntegrationTest {
 
         Instant start = Instant.now().plus(2, ChronoUnit.HOURS);
         var appointment = appointmentRepository.save(TestAppointmentFactory.atSpecificTimeForIt(
-                start, start.plus(1, ChronoUnit.HOURS), client, professional, service, AppointmentStatus.PENDING));
+                start, start.plus(1, ChronoUnit.HOURS), client, professional, service, AppointmentStatus.CONFIRMED));
 
-        // Pretend a reminder was already sent
         whatsappMessageRepository.save(WhatsappMessage.builder()
                 .appointment(appointment)
                 .messageType(WhatsappMessageType.REMINDER)
@@ -90,7 +84,6 @@ class AppointmentReminderJobIT extends BaseIntegrationTest {
 
     @Test
     void shouldHandleDifferentTenants() {
-        // Tenant A
         TenantContext.setTenant("tenant-a");
         var profA = professionalRepository.save(TestProfessionalFactory.standardForIt("tenant-a"));
         var clientA = clientRepository.save(TestClientFactory.standardForIt("tenant-a"));
@@ -103,7 +96,6 @@ class AppointmentReminderJobIT extends BaseIntegrationTest {
         apA.setTenantId("tenant-a");
         appointmentRepository.save(apA);
 
-        // Tenant B
         TenantContext.setTenant("tenant-b");
         var profB = professionalRepository.save(TestProfessionalFactory.standardForIt("tenant-b"));
         var clientB = clientRepository.save(TestClientFactory.standardForIt("tenant-b"));

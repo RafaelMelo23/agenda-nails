@@ -13,6 +13,7 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
+import java.util.List;
 import java.util.Map;
 
 import static org.mockito.Mockito.verify;
@@ -43,7 +44,7 @@ class QrCodeUpdatedUseCaseTest {
                 .build();
 
         Professional owner = Professional.builder().id(10L).build();
-        when(professionalQueryService.findByTenantId(tenantId)).thenReturn(owner);
+        when(professionalQueryService.findAllAdminsByTenant(tenantId)).thenReturn(List.of(owner));
 
         qrCodeUpdatedUseCase.process(response);
 
@@ -65,7 +66,7 @@ class QrCodeUpdatedUseCaseTest {
         when(objectMapper.convertValue(dataMap, QrCodeDataDTO.class)).thenReturn(dataDto);
         
         Professional owner = Professional.builder().id(10L).build();
-        when(professionalQueryService.findByTenantId(tenantId)).thenReturn(owner);
+        when(professionalQueryService.findAllAdminsByTenant(tenantId)).thenReturn(List.of(owner));
 
         qrCodeUpdatedUseCase.process(response);
 
