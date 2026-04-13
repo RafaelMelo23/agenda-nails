@@ -99,7 +99,7 @@ const loginApp = {
             return;
         }
 
-        const message = `Olá, meu e-mail/nome é ${id} e gostaria de solicitar uma senha temporária para o Agenda Nails.`;
+        const message = `Olá, meu e-mail/nome é ${id} e gostaria de solicitar uma senha temporária para o Nail Space.`;
         const url = `https://wa.me/${supportNumber.replace(/\D/g, '')}?text=${encodeURIComponent(message)}`;
         
         window.open(url, '_blank');
