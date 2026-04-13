@@ -51,9 +51,25 @@ const Auth = {
 
         this.refreshPromise = (async () => {
             const originalFetch = window._originalFetch || window.fetch;
+            
+            const getTenantId = () => {
+                const pathParts = window.location.pathname.split('/');
+                return pathParts[1] || null;
+            };
+
+            const headers = {
+                'Content-Type': 'application/json'
+            };
+
+            const tenantId = getTenantId();
+            if (tenantId) {
+                headers['X-Tenant-Id'] = tenantId;
+            }
+
             try {
                 const res = await originalFetch('/api/v1/auth/refresh', {
                     method: 'POST',
+                    headers: headers,
                     credentials: 'include'
                 });
 

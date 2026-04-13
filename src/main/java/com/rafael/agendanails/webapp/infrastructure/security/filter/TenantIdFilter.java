@@ -34,6 +34,7 @@ public class TenantIdFilter implements Filter {
             String path = request.getRequestURI();
 
             if (path.startsWith("/api/v1/webhook")
+                    || path.startsWith("/api/v1/auth")
                     || path.startsWith("/api/v1/notifications/subscribe")
                     || path.startsWith("/api/internal")
                     || path.startsWith("/public")
