@@ -48,6 +48,7 @@ public class TenantIdFilter implements Filter {
                     || path.startsWith("/js")
                     || path.startsWith("/assets")
                     || path.startsWith("/favicon.svg")
+                    || path.startsWith("/favicon.ico")
                     || path.startsWith("/error")
                     || path.startsWith("/uploads");
 

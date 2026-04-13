@@ -26,11 +26,11 @@ public class WebConfig implements WebMvcConfigurer {
     public void addInterceptors(InterceptorRegistry registry) {
         registry.addInterceptor(salonMaintenanceInterceptor)
                 .addPathPatterns("/**")
-                .excludePathPatterns("/api/v1/auth/**", "/api/v1/webhook/**", "/api/v1/admin/**", "/api/internal/**");
+                .excludePathPatterns("/api/v1/auth/**", "/api/v1/webhook/**", "/api/v1/admin/**", "/api/internal/**", "/favicon.ico", "/favicon.svg", "/assets/**");
 
         registry.addInterceptor(tenantStatusInterceptor)
                 .addPathPatterns("/**")
-                .excludePathPatterns("/api/v1/auth/**", "/api/v1/webhook/**", "/api/v1/admin/**", "/api/internal/**");
+                .excludePathPatterns("/api/v1/auth/**", "/api/v1/webhook/**", "/api/v1/admin/**", "/api/internal/**", "/favicon.ico", "/favicon.svg", "/assets/**");
 
         registry.addInterceptor(userStatusInterceptor)
                 .addPathPatterns("/api/v1/**")
@@ -48,6 +48,9 @@ public class WebConfig implements WebMvcConfigurer {
     public void addResourceHandlers(ResourceHandlerRegistry registry) {
         registry.addResourceHandler("/uploads/**")
                 .addResourceLocations("file:" + uploadDir + "/");
+
+        registry.addResourceHandler("/favicon.svg", "/favicon.ico")
+                .addResourceLocations("classpath:/static/assets/favicon.svg");
 
         registry.addResourceHandler("/**")
                 .addResourceLocations("classpath:/static/")

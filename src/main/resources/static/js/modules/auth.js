@@ -45,11 +45,27 @@ const Auth = {
     },
 
     isTokenExpired: function() {
+        const token = this.getToken();
+        if (!token) return false;
+        
         const payload = this.getPayload();
         if (!payload || !payload.exp) return true;
-        // Check if token expires in the next 30 seconds to be safe
+        
         const now = Math.floor(Date.now() / 1000);
         return payload.exp < (now + 30);
+    },
+
+    getTenantId: function() {
+        const RESERVED = new Set([
+            'api', 'js', 'css', 'assets', 'pages', 'favicon.svg', 'error', 'uploads', 'public', 'swagger-ui', 'v3', 'agendar', 'entrar', 'cadastro', 'perfil', 'offline', 'redefinir-senha', 'admin', 'profissional'
+        ]);
+        const pathParts = window.location.pathname.split('/');
+        const firstPart = pathParts[1];
+        if (firstPart && !RESERVED.has(firstPart.toLowerCase())) {
+            return firstPart;
+        }
+        const payload = this.getPayload();
+        return payload ? payload.tenantId : null;
     },
 
     refreshToken: async function() {
@@ -61,23 +77,15 @@ const Auth = {
         if (!token) return false;
 
         this.refreshPromise = (async () => {
-            const originalFetch = window._originalFetch || window.fetch;
-            
-            const getTenantId = () => {
-                const pathParts = window.location.pathname.split('/');
-                return pathParts[1] || null;
-            };
-
-            const headers = {
-                'Content-Type': 'application/json'
-            };
-
-            const tenantId = getTenantId();
-            if (tenantId) {
-                headers['X-Tenant-Id'] = tenantId;
-            }
-
             try {
+                const originalFetch = window._originalFetch || window.fetch;
+                const tenantId = this.getTenantId();
+                const headers = { 'Content-Type': 'application/json' };
+
+                if (tenantId) {
+                    headers['X-Tenant-Id'] = tenantId;
+                }
+
                 const res = await originalFetch('/api/v1/auth/refresh', {
                     method: 'POST',
                     headers: headers,
@@ -95,7 +103,6 @@ const Auth = {
                 this.refreshPromise = null;
             }
 
-            // If refresh fails and we are on a protected page, logout
             const path = window.location.pathname;
             const isProtected = path.includes('/admin') || path.includes('/perfil') || path.includes('/profissional');
             if (isProtected) {
@@ -108,8 +115,7 @@ const Auth = {
     },
 
     logout: async function() {
-        const pathParts = window.location.pathname.split('/');
-        const tenantId = pathParts[1] || '';
+        const tenantId = this.getTenantId();
         const publicPages = ['entrar', 'cadastro', 'redefinir-senha', 'agendar', 'perfil', 'offline'];
 
         try {

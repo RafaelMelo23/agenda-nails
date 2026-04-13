@@ -117,6 +117,8 @@ public class SecurityConfiguration {
                         .requestMatchers(HttpMethod.GET,
                                 "/",
                                 "/index.html",
+                                "/favicon.svg",
+                                "/favicon.ico",
                                 "/assets/**",
                                 "/css/**",
                                 "/js/**",

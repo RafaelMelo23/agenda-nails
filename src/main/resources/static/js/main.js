@@ -15,17 +15,19 @@ window._originalFetch = window.fetch;
 window.fetch = async (url, options = {}) => {
     options.headers = options.headers || {};
     
-    const tenantId = App.getTenantId();
-    if (tenantId && !options.headers['X-Tenant-Id']) {
-        options.headers['X-Tenant-Id'] = tenantId;
-    }
-
     let token = Auth.getToken();
     const isAuthPath = typeof url === 'string' && (url.includes('/api/v1/auth/') || url.includes('/api/v1/webhook'));
     
+    // 1. Proactive refresh BEFORE doing anything else
     if (token && Auth.isTokenExpired() && !isAuthPath) {
         await Auth.refreshToken();
         token = Auth.getToken();
+    }
+
+    // 2. Now set headers with potentially NEW token
+    const tenantId = App.getTenantId();
+    if (tenantId && !options.headers['X-Tenant-Id']) {
+        options.headers['X-Tenant-Id'] = tenantId;
     }
 
     if (token && !options.headers['Authorization']) {
@@ -100,6 +102,11 @@ const App = {
         
         this.activeTenant = getTenantIdFromUrl();
 
+        // Proactive token refresh on app start if token exists
+        if (Auth.getToken() && Auth.isTokenExpired()) {
+            await Auth.refreshToken();
+        }
+
         const themePromise = this.initTheme();
         const routingPromise = this.handleRouting(true);
         
@@ -121,20 +128,8 @@ const App = {
 
     getTenantId: function() {
         if (this.activeTenant) return this.activeTenant;
-        
-        const fromUrl = getTenantIdFromUrl();
-        if (fromUrl) {
-            this.activeTenant = fromUrl;
-            return fromUrl;
-        }
-
-        const payload = Auth.getPayload();
-        if (payload && payload.tenantId) {
-            this.activeTenant = payload.tenantId;
-            return payload.tenantId;
-        }
-
-        return null;
+        this.activeTenant = Auth.getTenantId();
+        return this.activeTenant;
     },
 
     navigate: function(path) {

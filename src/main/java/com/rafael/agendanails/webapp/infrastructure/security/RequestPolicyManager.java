@@ -10,7 +10,7 @@ public class RequestPolicyManager {
     private final AntPathMatcher pathMatcher = new AntPathMatcher();
 
     private static final List<String> INFRASTRUCTURE_PATHS = List.of(
-            "/css/**", "/js/**", "/assets/**", "/images/**", "/webjars/**", "/offline", "/favicon.ico", "/pages/**", "/api/v1/salon/profile", "/index.html"
+            "/css/**", "/js/**", "/assets/**", "/images/**", "/webjars/**", "/offline", "/favicon.ico", "/favicon.svg", "/pages/**", "/api/v1/salon/profile", "/index.html"
     );
 
     private static final List<String> PUBLIC_ACCESS_PATHS = List.of(
