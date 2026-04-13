@@ -33,11 +33,17 @@ public class TenantIdFilter implements Filter {
         try {
             String path = request.getRequestURI();
 
-            if (path.startsWith("/api/v1/webhook")
+            if (path.equals("/")
+                    || path.equals("/index.html")
+                    || path.startsWith("/actuator")
+                    || path.startsWith("/swagger-ui")
+                    || path.startsWith("/v3/api-docs")
+                    || path.startsWith("/api/v1/webhook")
                     || path.startsWith("/api/v1/auth")
                     || path.startsWith("/api/v1/notifications/subscribe")
                     || path.startsWith("/api/internal")
                     || path.startsWith("/public")
+                    || path.startsWith("/pages")
                     || path.startsWith("/css")
                     || path.startsWith("/js")
                     || path.startsWith("/assets")
