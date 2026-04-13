@@ -18,13 +18,20 @@ window.NotificationService = {
         }
     },
 
-    subscribe: function() {
+    subscribe: async function() {
         if (this.eventSource) {
             console.log("Closing existing EventSource");
             this.eventSource.close();
         }
 
+        // Proactive token refresh for SSE
+        if (Auth.isTokenExpired()) {
+            await Auth.refreshToken();
+        }
+
         const token = Auth.getToken();
+        if (!token) return;
+
         const url = `/api/v1/notifications/subscribe?token=${token}`;
         console.log("Connecting to SSE at:", url);
         this.eventSource = new EventSource(url);

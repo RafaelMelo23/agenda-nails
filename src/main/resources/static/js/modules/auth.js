@@ -44,10 +44,21 @@ const Auth = {
         return payload && payload.tenantId === 'demo-salon-2026';
     },
 
+    isTokenExpired: function() {
+        const payload = this.getPayload();
+        if (!payload || !payload.exp) return true;
+        // Check if token expires in the next 30 seconds to be safe
+        const now = Math.floor(Date.now() / 1000);
+        return payload.exp < (now + 30);
+    },
+
     refreshToken: async function() {
         if (this.refreshPromise) {
             return this.refreshPromise;
         }
+
+        const token = this.getToken();
+        if (!token) return false;
 
         this.refreshPromise = (async () => {
             const originalFetch = window._originalFetch || window.fetch;
@@ -74,8 +85,8 @@ const Auth = {
                 });
 
                 if (res.ok) {
-                    const token = await res.text();
-                    this.setToken(token);
+                    const newToken = await res.text();
+                    this.setToken(newToken);
                     return true;
                 }
             } catch (e) {
@@ -84,7 +95,12 @@ const Auth = {
                 this.refreshPromise = null;
             }
 
-            this.logout();
+            // If refresh fails and we are on a protected page, logout
+            const path = window.location.pathname;
+            const isProtected = path.includes('/admin') || path.includes('/perfil') || path.includes('/profissional');
+            if (isProtected) {
+                this.logout();
+            }
             return false;
         })();
 

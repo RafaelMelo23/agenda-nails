@@ -20,7 +20,14 @@ window.fetch = async (url, options = {}) => {
         options.headers['X-Tenant-Id'] = tenantId;
     }
 
-    const token = Auth.getToken();
+    let token = Auth.getToken();
+    const isAuthPath = typeof url === 'string' && (url.includes('/api/v1/auth/') || url.includes('/api/v1/webhook'));
+    
+    if (token && Auth.isTokenExpired() && !isAuthPath) {
+        await Auth.refreshToken();
+        token = Auth.getToken();
+    }
+
     if (token && !options.headers['Authorization']) {
         options.headers['Authorization'] = `Bearer ${token}`;
     }
@@ -51,7 +58,6 @@ window.fetch = async (url, options = {}) => {
         App.navigate('/offline');
     }
 
-    const isAuthPath = typeof url === 'string' && url.includes('/api/v1/auth/');
     if (response.status === 401 && !isAuthPath) {
         const refreshed = await Auth.refreshToken();
         if (refreshed) {
@@ -169,6 +175,10 @@ const App = {
             if (!Auth.getToken()) {
                 this.navigate('/entrar');
                 return;
+            }
+            if (Auth.isTokenExpired()) {
+                const refreshed = await Auth.refreshToken();
+                if (!refreshed) return;
             }
             if (path.startsWith('/admin') && !Auth.hasRole('ADMIN')) {
                 this.navigate('/agendar');
