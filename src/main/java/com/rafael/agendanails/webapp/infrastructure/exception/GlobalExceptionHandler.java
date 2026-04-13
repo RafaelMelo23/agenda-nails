@@ -107,12 +107,23 @@ public class GlobalExceptionHandler {
 
     @ExceptionHandler(org.springframework.security.authorization.AuthorizationDeniedException.class)
     public Object authorizationDenied(org.springframework.security.authorization.AuthorizationDeniedException e, HttpServletRequest request) {
+        if (isUnauthenticated()) {
+            return buildResponse(e, request, HttpStatus.UNAUTHORIZED, "Não autorizado", List.of("Sua sessão expirou ou você não está autenticado."));
+        }
         return buildResponse(e, request, HttpStatus.FORBIDDEN, "Acesso negado", List.of("Você não tem permissão para acessar este recurso."));
     }
 
     @ExceptionHandler(org.springframework.security.access.AccessDeniedException.class)
     public Object accessDenied(org.springframework.security.access.AccessDeniedException e, HttpServletRequest request) {
+        if (isUnauthenticated()) {
+            return buildResponse(e, request, HttpStatus.UNAUTHORIZED, "Não autorizado", List.of("Sua sessão expirou ou você não está autenticado."));
+        }
         return buildResponse(e, request, HttpStatus.FORBIDDEN, "Acesso negado", List.of("Você não tem permissão para acessar este recurso."));
+    }
+
+    private boolean isUnauthenticated() {
+        org.springframework.security.core.Authentication auth = org.springframework.security.core.context.SecurityContextHolder.getContext().getAuthentication();
+        return auth == null || auth instanceof org.springframework.security.authentication.AnonymousAuthenticationToken;
     }
 
     @ExceptionHandler(org.springframework.web.bind.MissingServletRequestParameterException.class)

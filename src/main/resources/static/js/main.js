@@ -18,12 +18,9 @@ window.fetch = async (url, options = {}) => {
     let token = Auth.getToken();
     const isAuthPath = typeof url === 'string' && (url.includes('/api/v1/auth/') || url.includes('/api/v1/webhook'));
     
-    // 1. Proactive refresh BEFORE doing anything else
+
     if (token && Auth.isTokenExpired() && !isAuthPath) {
-        const refreshed = await Auth.refreshToken();
-        if (!refreshed) {
-            return new Response(null, { status: 401 });
-        }
+        await Auth.refreshToken();
         token = Auth.getToken();
     }
 
@@ -68,6 +65,8 @@ window.fetch = async (url, options = {}) => {
         if (refreshed) {
             const newToken = Auth.getToken();
             options.headers['Authorization'] = `Bearer ${newToken}`;
+            
+            // Re-fetch CSRF if it was a 403 (might be CSRF expiration too)
             if (method !== 'GET') {
                 const getCookie = (name) => {
                     const match = document.cookie.match(new RegExp('(^| )' + name + '=([^;]+)'));
@@ -76,9 +75,8 @@ window.fetch = async (url, options = {}) => {
                 const csrfToken = getCookie('XSRF-TOKEN');
                 if (csrfToken) options.headers['X-XSRF-TOKEN'] = csrfToken;
             }
+            
             response = await window._originalFetch(url, options);
-        } else {
-            return response;
         }
     }
     if (!response.ok) {
