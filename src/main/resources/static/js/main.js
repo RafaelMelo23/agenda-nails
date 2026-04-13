@@ -20,7 +20,10 @@ window.fetch = async (url, options = {}) => {
     
     // 1. Proactive refresh BEFORE doing anything else
     if (token && Auth.isTokenExpired() && !isAuthPath) {
-        await Auth.refreshToken();
+        const refreshed = await Auth.refreshToken();
+        if (!refreshed) {
+            return new Response(null, { status: 401 });
+        }
         token = Auth.getToken();
     }
 
@@ -60,7 +63,7 @@ window.fetch = async (url, options = {}) => {
         App.navigate('/offline');
     }
 
-    if (response.status === 401 && !isAuthPath) {
+    if ((response.status === 401 || response.status === 403) && !isAuthPath) {
         const refreshed = await Auth.refreshToken();
         if (refreshed) {
             const newToken = Auth.getToken();

@@ -23,6 +23,7 @@ import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.CorsConfigurationSource;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 
+import java.util.Arrays;
 import java.util.List;
 
 @Configuration
@@ -53,26 +54,37 @@ public class SecurityConfiguration {
         return authenticationConfiguration.getAuthenticationManager();
     }
 
+    @org.springframework.beans.factory.annotation.Value("${domain.url:}")
+    private String domainUrl;
+
     @Bean
     public CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration config = new CorsConfiguration();
 
+        List<String> origins = new java.util.ArrayList<>();
+        
         String allowedOrigins = System.getenv("ALLOWED_ORIGINS");
         if (allowedOrigins != null && !allowedOrigins.isEmpty()) {
-            config.setAllowedOriginPatterns(List.of(allowedOrigins.split(",")));
+            origins.addAll(Arrays.asList(allowedOrigins.split(",")));
         } else {
-            config.setAllowedOriginPatterns(List.of(
-                    "http://*.localhost:8080",
-                    "http://localhost:8080"
-            )); // todo: alter for prod
+            origins.add("http://localhost:8080");
+            origins.add("http://127.0.0.1:8080");
+            
+            if (domainUrl != null && !domainUrl.isEmpty()) {
+                origins.add(domainUrl);
+
+                if (domainUrl.endsWith("/")) {
+                    origins.add(domainUrl.substring(0, domainUrl.length() - 1));
+                }
+            }
         }
 
-        config.setAllowedMethods(List.of(
-                "GET", "POST", "PUT", "DELETE", "OPTIONS", "PATCH"
-        ));
-
-        config.setAllowedHeaders(List.of("*"));
+        config.setAllowedOriginPatterns(origins);
+        config.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "OPTIONS", "PATCH"));
+        config.setAllowedHeaders(List.of("Authorization", "Content-Type", "X-Tenant-Id", "X-XSRF-TOKEN", "Accept", "Origin"));
+        config.setExposedHeaders(List.of("X-Salon-State"));
         config.setAllowCredentials(true);
+        config.setMaxAge(3600L);
 
         UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
         source.registerCorsConfiguration("/**", config);
