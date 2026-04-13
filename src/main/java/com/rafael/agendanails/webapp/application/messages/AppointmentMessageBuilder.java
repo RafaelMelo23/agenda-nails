@@ -55,9 +55,9 @@ public class AppointmentMessageBuilder {
                 💅 Serviços: %s
                 
                 💰 Resumo de Valores:
-                - Principal: %s
-                - Extras: %s
-                - Total: %s
+                - Principal: R$ %s
+                - Extras: R$ %s
+                - Total: R$ %s
                 
                 Estamos ansiosos para te receber! Caso precise cancelar/reagendar, acesse: %s
                 """.formatted(
