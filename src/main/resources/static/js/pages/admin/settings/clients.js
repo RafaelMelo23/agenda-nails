@@ -36,7 +36,7 @@ export const ClientsModule = {
 
         list.innerHTML = clients.map(client => `
             <tr>
-                <td>
+                <td data-label="Nome">
                     <strong style="${client.userStatus === 'BANNED' ? 'text-decoration: line-through; opacity: 0.6;' : ''}">${client.fullName}</strong>
                 </td>
                 <td data-label="Telefone">${client.phoneNumber || 'N/A'}</td>

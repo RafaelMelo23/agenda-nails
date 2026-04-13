@@ -23,7 +23,7 @@ export const ProfessionalsModule = {
 
         list.innerHTML = professionals.map(prof => `
             <tr>
-                <td>
+                <td data-label="Nome">
                     <div class="prof-cell">
                         <div class="prof-initials">${this.getInitials(prof.name)}</div>
                         <div>
