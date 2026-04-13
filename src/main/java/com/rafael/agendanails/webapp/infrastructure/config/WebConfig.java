@@ -49,7 +49,7 @@ public class WebConfig implements WebMvcConfigurer {
         registry.addResourceHandler("/uploads/**")
                 .addResourceLocations("file:" + uploadDir + "/");
 
-        registry.addResourceHandler("/css/**", "/js/**", "/assets/**", "/pages/admin/settings-fragments/**", "/pages/professional/schedule-fragments/**")
+        registry.addResourceHandler("/**")
                 .addResourceLocations("classpath:/static/")
                 .setCacheControl(CacheControl.maxAge(1, java.util.concurrent.TimeUnit.DAYS).cachePublic());
     }

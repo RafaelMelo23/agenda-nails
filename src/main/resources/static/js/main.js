@@ -1,13 +1,21 @@
+const RESERVED_PATHS = new Set([
+    'api', 'js', 'css', 'assets', 'pages', 'favicon.svg', 'error', 'uploads', 'public', 'swagger-ui', 'v3', 'agendar', 'entrar', 'cadastro', 'perfil', 'offline', 'redefinir-senha', 'admin', 'profissional'
+]);
+
 const getTenantIdFromUrl = () => {
     const pathParts = window.location.pathname.split('/');
-    return pathParts[1] || null;
+    const firstPart = pathParts[1];
+    if (!firstPart || RESERVED_PATHS.has(firstPart.toLowerCase())) {
+        return null;
+    }
+    return firstPart;
 };
 
 window._originalFetch = window.fetch;
 window.fetch = async (url, options = {}) => {
     options.headers = options.headers || {};
     
-    const tenantId = getTenantIdFromUrl();
+    const tenantId = App.getTenantId();
     if (tenantId && !options.headers['X-Tenant-Id']) {
         options.headers['X-Tenant-Id'] = tenantId;
     }
@@ -75,6 +83,7 @@ window.navigate = (path) => App.navigate(path);
 const App = {
     initialized: false,
     tenantError: false,
+    activeTenant: null,
     salon: null,
     currentPath: null,
     templateCache: new Map(),
@@ -83,7 +92,8 @@ const App = {
         if (this.initialized) return;
         this.initialized = true;
         
-        // Start theme initialization and routing in parallel
+        this.activeTenant = getTenantIdFromUrl();
+
         const themePromise = this.initTheme();
         const routingPromise = this.handleRouting(true);
         
@@ -103,8 +113,26 @@ const App = {
         window.addEventListener('popstate', () => this.handleRouting());
     },
 
+    getTenantId: function() {
+        if (this.activeTenant) return this.activeTenant;
+        
+        const fromUrl = getTenantIdFromUrl();
+        if (fromUrl) {
+            this.activeTenant = fromUrl;
+            return fromUrl;
+        }
+
+        const payload = Auth.getPayload();
+        if (payload && payload.tenantId) {
+            this.activeTenant = payload.tenantId;
+            return payload.tenantId;
+        }
+
+        return null;
+    },
+
     navigate: function(path) {
-        const tenantId = getTenantIdFromUrl();
+        const tenantId = this.getTenantId();
         const fullPath = tenantId ? `/${tenantId}${path}` : path;
         window.history.pushState({}, '', fullPath);
         this.handleRouting();
@@ -112,7 +140,7 @@ const App = {
 
     handleRouting: async function(isInitial = false) {
         if (this.tenantError) return;
-        const tenantId = getTenantIdFromUrl();
+        const tenantId = this.getTenantId();
         let path = window.location.pathname;
 
         if (tenantId && path.startsWith(`/${tenantId}`)) {
@@ -124,7 +152,9 @@ const App = {
         this.currentPath = fullPath;
 
         if (path === '/') {
-            this.navigate('/agendar');
+            const redirectPath = tenantId ? `/${tenantId}/agendar` : '/agendar';
+            window.history.replaceState({}, '', redirectPath);
+            this.handleRouting();
             return;
         }
 
@@ -177,7 +207,6 @@ const App = {
         if (templatePath) {
             document.title = this.salon ? `${this.salon.tradeName} - ${pageTitle}` : pageTitle;
 
-            // Only show loader if we don't have the template yet
             if (!this.templateCache.has(templatePath) && !isInitial) {
                  appContent.innerHTML = '<div class="container" style="text-align: center; padding: 50px;"><div class="skeleton-title skeleton"></div><div class="skeleton" style="height: 200px;"></div></div>';
             }
@@ -203,7 +232,6 @@ const App = {
                     const doc = parser.parseFromString(html, 'text/html');
                     const snippetContent = doc.querySelector('main') || doc.body;
 
-                    // Load styles BEFORE showing content to prevent FOUC
                     const styles = doc.querySelectorAll('link[rel="stylesheet"]');
                     const stylePromises = Array.from(styles).map(s => {
                         const href = s.getAttribute('href');
@@ -214,7 +242,7 @@ const App = {
                                 newLink.href = href;
                                 newLink.setAttribute('data-page-style', 'true');
                                 newLink.onload = resolve;
-                                newLink.onerror = resolve; // Don't block forever if CSS fails
+                                newLink.onerror = resolve;
                                 document.head.appendChild(newLink);
                             });
                         }
@@ -225,7 +253,6 @@ const App = {
 
                     await new Promise(resolve => {
                         requestAnimationFrame(() => {
-                            // Cleanup old styles that are not part of the new page
                             const currentHrefs = Array.from(styles).map(s => s.getAttribute('href'));
                             document.querySelectorAll('link[data-page-style="true"]').forEach(el => {
                                 if (!currentHrefs.includes(el.getAttribute('href'))) el.remove();
