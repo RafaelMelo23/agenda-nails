@@ -91,8 +91,28 @@ const Auth = {
         return this.refreshPromise;
     },
 
-    logout: function() {
+    logout: async function() {
+        const pathParts = window.location.pathname.split('/');
+        const tenantId = pathParts[1] || '';
+        const publicPages = ['entrar', 'cadastro', 'redefinir-senha', 'agendar', 'perfil', 'offline'];
+
+        try {
+            await fetch('/api/v1/auth/logout', { 
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                }
+            });
+        } catch (e) {
+            console.error('Logout error:', e);
+        }
+        
         this.clearToken();
-        window.location.href = '/entrar';
+        
+        if (tenantId && !publicPages.includes(tenantId)) {
+            window.location.href = `/${tenantId}/entrar`;
+        } else {
+            window.location.href = '/entrar';
+        }
     }
 };

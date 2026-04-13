@@ -82,7 +82,12 @@ const App = {
     init: async function() {
         if (this.initialized) return;
         this.initialized = true;
-        await this.initTheme();
+
+        const themePromise = this.initTheme();
+        const routingPromise = this.handleRouting(true);
+        
+        await Promise.all([themePromise, routingPromise]);
+
         if (this.tenantError) {
              const appContent = document.getElementById('app-content');
              if (appContent) {
@@ -94,7 +99,6 @@ const App = {
         if (typeof NotificationService !== 'undefined') {
             NotificationService.init();
         }
-        await this.handleRouting(true);
         window.addEventListener('popstate', () => this.handleRouting());
     },
 

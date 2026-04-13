@@ -78,13 +78,14 @@ public class AuthenticationController {
     public ResponseEntity<Void> logout(@AuthenticationPrincipal UserPrincipal userPrincipal,
                                        HttpServletRequest request, HttpServletResponse response) {
 
-        if (Arrays.stream(request.getCookies()).findAny().isPresent()) {
+        if (request.getCookies() != null) {
             Optional<Cookie> refreshToken = Arrays.stream(request.getCookies())
                     .filter(c -> "refresh_token".equalsIgnoreCase(c.getName()))
                     .findFirst();
 
             if (refreshToken.isPresent()) {
-                authenticationService.logout(refreshToken.get().getValue(), userPrincipal.getUserId());
+                Long userId = userPrincipal != null ? userPrincipal.getUserId() : null;
+                authenticationService.logout(refreshToken.get().getValue(), userId);
                 cookieService.deleteRefreshTokenCookie(response);
             }
 

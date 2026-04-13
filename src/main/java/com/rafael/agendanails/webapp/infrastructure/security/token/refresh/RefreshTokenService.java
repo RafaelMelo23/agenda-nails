@@ -74,7 +74,13 @@ public class RefreshTokenService {
 
     @Transactional
     public void revokeUserToken(String token, Long userId) {
-
-        repository.revokeToken(token, userId);
+        if (userId != null) {
+            repository.revokeToken(token, userId);
+        } else {
+            repository.findByToken(token).ifPresent(rt -> {
+                rt.setRevoked(true);
+                repository.save(rt);
+            });
+        }
     }
 }
