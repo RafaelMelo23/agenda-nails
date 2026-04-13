@@ -12,16 +12,12 @@ import io.swagger.v3.oas.annotations.servers.Server;
         info = @Info(
                 title = "Scheduling API",
                 version = "v1",
-                description = "Tenant-aware scheduling API. Tenant is resolved from JWT claim `tenantId` or subdomain.",
+                description = "Tenant-aware scheduling API. Tenant is resolved from JWT claim `tenantId`, `X-Tenant-Id` header, or URL path.",
                 contact = @Contact(name = "Nails Scheduling"),
                 license = @License(name = "Proprietary")
         ),
         servers = {
-                @Server(url = "http://localhost:8080", description = "Local"),
-                @Server(
-                        url = "http://tenant-test.localhost:8080",
-                        description = "Tenant subdomain"
-                )
+                @Server(url = "http://localhost:8080", description = "Local")
         }
 )
 @SecurityScheme(

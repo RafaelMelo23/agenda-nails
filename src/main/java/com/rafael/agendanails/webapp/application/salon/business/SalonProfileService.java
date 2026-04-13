@@ -60,8 +60,8 @@ public class SalonProfileService {
     }
 
     public TenantStatus getStatusByTenantId(String tenantId) {
-
-        return repository.findStatusByTenantId(tenantId);
+        return repository.findStatusByTenantId(tenantId)
+                .orElse(TenantStatus.ACTIVE);
     }
 
     public void save(SalonProfile salonProfile) {

@@ -1,6 +1,17 @@
+const getTenantIdFromUrl = () => {
+    const pathParts = window.location.pathname.split('/');
+    return pathParts[1] || null;
+};
+
 window._originalFetch = window.fetch;
 window.fetch = async (url, options = {}) => {
     options.headers = options.headers || {};
+    
+    const tenantId = getTenantIdFromUrl();
+    if (tenantId && !options.headers['X-Tenant-Id']) {
+        options.headers['X-Tenant-Id'] = tenantId;
+    }
+
     const token = Auth.getToken();
     if (token && !options.headers['Authorization']) {
         options.headers['Authorization'] = `Bearer ${token}`;
@@ -88,14 +99,22 @@ const App = {
     },
 
     navigate: function(path) {
-        window.history.pushState({}, '', path);
+        const tenantId = getTenantIdFromUrl();
+        const fullPath = tenantId ? `/${tenantId}${path}` : path;
+        window.history.pushState({}, '', fullPath);
         this.handleRouting();
     },
 
     handleRouting: async function(isInitial = false) {
         if (this.tenantError) return;
-        const path = window.location.pathname;
-        const fullPath = path + window.location.search;
+        const tenantId = getTenantIdFromUrl();
+        let path = window.location.pathname;
+
+        if (tenantId && path.startsWith(`/${tenantId}`)) {
+            path = path.substring(tenantId.length + 1) || '/';
+        }
+
+        const fullPath = window.location.pathname + window.location.search;
         if (this.currentPath === fullPath) return;
         this.currentPath = fullPath;
 
@@ -175,7 +194,6 @@ const App = {
 
                     await new Promise(resolve => {
                         requestAnimationFrame(() => {
-                            // Remove previous page-specific styles to avoid pollution
                             document.querySelectorAll('link[data-page-style="true"]').forEach(el => el.remove());
 
                             appContent.innerHTML = snippetContent.innerHTML;
@@ -195,8 +213,7 @@ const App = {
                             });
                             
                             this.applyBranding();
-                            
-                            // Double rAF to ensure browser has processed the innerHTML change
+
                             requestAnimationFrame(() => resolve());
                         });
                     });

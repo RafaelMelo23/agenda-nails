@@ -4,8 +4,10 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.rafael.agendanails.webapp.domain.enums.user.UserRole;
 import com.rafael.agendanails.webapp.domain.enums.user.UserStatus;
 import com.rafael.agendanails.webapp.domain.model.Client;
+import com.rafael.agendanails.webapp.domain.model.Professional;
 import com.rafael.agendanails.webapp.domain.model.RefreshToken;
 import com.rafael.agendanails.webapp.domain.model.User;
+import com.rafael.agendanails.webapp.domain.repository.ProfessionalRepository;
 import com.rafael.agendanails.webapp.infrastructure.dto.auth.AuthResultDTO;
 import com.rafael.agendanails.webapp.infrastructure.dto.auth.LoginDTO;
 import com.rafael.agendanails.webapp.infrastructure.dto.auth.RegisterDTO;
@@ -17,6 +19,7 @@ import com.rafael.agendanails.webapp.shared.tenant.TenantContext;
 import com.rafael.agendanails.webapp.support.BaseIntegrationTest;
 import com.rafael.agendanails.webapp.support.factory.TestClientFactory;
 import com.rafael.agendanails.webapp.support.factory.TestProfessionalFactory;
+import com.rafael.agendanails.webapp.support.factory.TestSalonProfileFactory;
 import jakarta.persistence.EntityManager;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -138,6 +141,8 @@ class AuthenticationServiceIT extends BaseIntegrationTest {
 
     @Test
     void shouldReturn401WhenUserIsBanned() throws Exception {
+        var professional = professionalRepository.save(TestProfessionalFactory.standardForIt());
+        salonProfileRepository.save(TestSalonProfileFactory.standardForIT(professional, "tenant-test"));
         Client client = TestClientFactory.standardForIt();
         client.setPassword(passwordEncoder.encode("whatever"));
         client.setStatus(UserStatus.BANNED);
@@ -145,6 +150,7 @@ class AuthenticationServiceIT extends BaseIntegrationTest {
 
         mockMvc.perform(post("/api/v1/auth/login")
                         .contentType(MediaType.APPLICATION_JSON)
+                        .header("X-Tenant-Id", "tenant-test")
                         .content(mapper.writeValueAsBytes(new LoginDTO(client.getEmail(), "whatever"))))
                 .andExpect(status().isUnauthorized());
     }

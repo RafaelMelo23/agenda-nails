@@ -1,7 +1,7 @@
 services:
   app:
     build: .
-    container_name: nailspro_app
+    container_name: nailspace_app
     networks:
       - app-network
     env_file:
@@ -51,7 +51,7 @@ services:
       # --- EVO ---
       - EVO_URL=http://evolution:8080
       - EVO_API_KEY=${EVO_API_KEY}
-      - EVO_WEBHOOK_URL=http://app:8080/api/v1/webhook
+      - EVO_WEBHOOK_URL=${EVO_WEBHOOK_URL}
     depends_on:
       db:
         condition: service_healthy
@@ -62,7 +62,7 @@ services:
 
   db:
     image: postgres:15-alpine
-    container_name: postgres_nailspro
+    container_name: postgres_nailspace
     networks:
       - app-network
     environment:

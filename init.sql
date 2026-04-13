@@ -1,1 +1,1 @@
-CREATE DATABASE evolution;
+CREATE DATABASE evolution_db;

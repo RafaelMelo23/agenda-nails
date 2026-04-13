@@ -38,51 +38,67 @@ public class SecurityFilter extends OncePerRequestFilter {
                                     HttpServletResponse response,
                                     FilterChain filterChain) throws ServletException, IOException {
 
-        var token = tokenService.recoverAndValidate(request);
+        try {
+            var token = tokenService.recoverAndValidate(request);
 
-        if (token != null) {
-            String tokenPurposeClaim = token.getClaim("purpose").asString();
+            if (token != null) {
+                String tokenPurposeClaim = token.getClaim("purpose").asString();
 
-            if (AUTHENTICATION.getValue().equalsIgnoreCase(tokenPurposeClaim)) {
+                if (AUTHENTICATION.getValue().equalsIgnoreCase(tokenPurposeClaim)) {
 
-                List<UserRole> userRoles = token.getClaim(TokenClaim.ROLE.getValue()).asList(String.class).stream()
-                        .map(UserRole::fromString)
-                        .toList();
+                    List<UserRole> userRoles = token.getClaim(TokenClaim.ROLE.getValue()).asList(String.class).stream()
+                            .map(UserRole::fromString)
+                            .toList();
 
-                Long userId = Long.parseLong(token.getSubject());
-                String userEmail = token.getClaim(TokenClaim.EMAIL.getValue()).asString();
-                String tokenTenantId = token.getClaim(TokenClaim.TENANT_ID.getValue()).asString();
-                Boolean isFirstLogin = token.getClaim(TokenClaim.FIRST_LOGIN.getValue()).asBoolean();
+                    Long userId = Long.parseLong(token.getSubject());
+                    String userEmail = token.getClaim(TokenClaim.EMAIL.getValue()).asString();
+                    String tokenTenantId = token.getClaim(TokenClaim.TENANT_ID.getValue()).asString();
+                    Boolean isFirstLogin = token.getClaim(TokenClaim.FIRST_LOGIN.getValue()).asBoolean();
 
-                String currentTenant = tenantResolver.resolve(request);
+                    String currentTenant = tenantResolver.resolve(request);
 
-                if (currentTenant != null && tokenTenantId != null &&
-                        !tokenTenantId.equalsIgnoreCase(currentTenant) &&
-                        !userRoles.contains(UserRole.SUPER_ADMIN)) {
-                    log.warn("Security mismatch: token for tenant [{}], but request for [{}]. User [{}] is not a SUPER_ADMIN. Authentication skipped.",
-                            tokenTenantId, currentTenant, userEmail);
-                    filterChain.doFilter(request, response);
-                    return;
+                    if (currentTenant != null && tokenTenantId != null &&
+                            !tokenTenantId.equalsIgnoreCase(currentTenant) &&
+                            !userRoles.contains(UserRole.SUPER_ADMIN)) {
+                        log.warn("Security mismatch: token for tenant [{}], but request for [{}]. User [{}] is not a SUPER_ADMIN. Authentication skipped.",
+                                tokenTenantId, currentTenant, userEmail);
+                        filterChain.doFilter(request, response);
+                        return;
+                    }
+
+                    UserPrincipal userPrincipal = UserPrincipal.builder()
+                            .userId(userId)
+                            .email(userEmail)
+                            .userRole(userRoles)
+                            .tenantId(tokenTenantId)
+                            .isFirstLogin(Boolean.TRUE.equals(isFirstLogin))
+                            .build();
+
+                    log.info("Authorities: {}", userPrincipal.getAuthorities());
+
+                    var authentication = new UsernamePasswordAuthenticationToken(
+                            userPrincipal,
+                            null,
+                            userPrincipal.getAuthorities());
+
+                    SecurityContextHolder.getContext().setAuthentication(authentication);
+
+                    // Ensure TenantContext is set if it was missed by the previous filter (common for SSE query-param tokens)
+                    if (com.rafael.agendanails.webapp.shared.tenant.TenantContext.getTenant() == null && tokenTenantId != null) {
+                        com.rafael.agendanails.webapp.shared.tenant.TenantContext.setTenant(tokenTenantId);
+                        org.slf4j.MDC.put("tenant", tokenTenantId);
+                    }
                 }
-
-                UserPrincipal userPrincipal = UserPrincipal.builder()
-                        .userId(userId)
-                        .email(userEmail)
-                        .userRole(userRoles)
-                        .tenantId(tokenTenantId)
-                        .isFirstLogin(Boolean.TRUE.equals(isFirstLogin))
-                        .build();
-
-                log.info("Authorities: {}", userPrincipal.getAuthorities());
-
-                var authentication = new UsernamePasswordAuthenticationToken(
-                        userPrincipal,
-                        null,
-                        userPrincipal.getAuthorities());
-
-                SecurityContextHolder.getContext().setAuthentication(authentication);
+            }
+            filterChain.doFilter(request, response);
+        } finally {
+            // Only clear if we were the ones responsible for setting it in this filter context
+            // Actually, it's safer to clear anyway as SecurityContextHolder is also cleared by Spring's Filter
+            // But for TenantContext, we follow the pattern of the TenantIdFilter
+            if (request.getRequestURI().startsWith("/api/v1/notifications/subscribe")) {
+                com.rafael.agendanails.webapp.shared.tenant.TenantContext.clear();
+                org.slf4j.MDC.remove("tenant");
             }
         }
-        filterChain.doFilter(request, response);
     }
 }

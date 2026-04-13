@@ -8,15 +8,16 @@ public class PagesController {
 
     @RequestMapping({
             "/",
-            "/agendar",
-            "/entrar",
-            "/cadastro",
-            "/perfil",
-            "/admin/servicos",
-            "/admin/configuracoes",
-            "/profissional/agenda",
-            "/redefinir-senha",
-            "/offline"
+            "/{tenantId:^(?!index\\.html$)[^.]+$}",
+            "/{tenantId}/agendar",
+            "/{tenantId}/entrar",
+            "/{tenantId}/cadastro",
+            "/{tenantId}/perfil",
+            "/{tenantId}/admin/servicos",
+            "/{tenantId}/admin/configuracoes",
+            "/{tenantId}/profissional/agenda",
+            "/{tenantId}/redefinir-senha",
+            "/{tenantId}/offline"
     })
     public String index() {
         return "forward:/index.html";

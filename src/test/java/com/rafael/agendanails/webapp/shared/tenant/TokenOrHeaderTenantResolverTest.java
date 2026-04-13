@@ -5,25 +5,26 @@ import com.auth0.jwt.interfaces.DecodedJWT;
 import com.rafael.agendanails.webapp.infrastructure.security.token.TokenService;
 import jakarta.servlet.ServletRequest;
 import jakarta.servlet.http.HttpServletRequest;
-import org.hibernate.context.TenantIdentifierMismatchException;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
+import java.util.List;
+
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
-class HeaderOrSubdomainTenantResolverTest {
+class TokenOrHeaderTenantResolverTest {
 
     @Mock
     private TokenService tokenService;
 
     @InjectMocks
-    private HeaderOrSubdomainTenantResolver resolver;
+    private TokenOrHeaderTenantResolver resolver;
 
     private DecodedJWT mockToken(String tenant) {
         DecodedJWT jwt = mock(DecodedJWT.class);
@@ -36,11 +37,11 @@ class HeaderOrSubdomainTenantResolverTest {
     }
 
     @Test
-    void shouldResolveTenantFromSubdomainWhenTokenIsNull() {
+    void shouldResolveTenantFromHeaderWhenTokenIsNull() {
         HttpServletRequest request = mock(HttpServletRequest.class);
 
         when(tokenService.recoverAndValidate(request)).thenReturn(null);
-        when(request.getHeader("X-Forwarded-Host")).thenReturn("tenantA.example.com");
+        when(request.getHeader("X-Tenant-Id")).thenReturn("tenantA");
 
         String tenant = resolver.resolve(request);
 
@@ -48,40 +49,12 @@ class HeaderOrSubdomainTenantResolverTest {
     }
 
     @Test
-    void shouldResolveTenantFromHostHeaderWhenForwardedHostIsNull() {
+    void shouldResolveTenantFromTokenWhenHeaderMatches() {
         HttpServletRequest request = mock(HttpServletRequest.class);
-
-        when(tokenService.recoverAndValidate(request)).thenReturn(null);
-        when(request.getHeader("X-Forwarded-Host")).thenReturn(null);
-        when(request.getHeader("Host")).thenReturn("tenantB.example.com");
-
-        String tenant = resolver.resolve(request);
-
-        assertEquals("tenantB", tenant);
-    }
-
-    @Test
-    void shouldResolveTenantFromServerNameWhenHeadersAreNull() {
-        HttpServletRequest request = mock(HttpServletRequest.class);
-
-        when(tokenService.recoverAndValidate(request)).thenReturn(null);
-        when(request.getHeader("X-Forwarded-Host")).thenReturn(null);
-        when(request.getHeader("Host")).thenReturn(null);
-        when(request.getServerName()).thenReturn("tenantC.example.com");
-
-        String tenant = resolver.resolve(request);
-
-        assertEquals("tenantC", tenant);
-    }
-
-    @Test
-    void shouldResolveTenantFromTokenWhenSubdomainMatches() {
-        HttpServletRequest request = mock(HttpServletRequest.class);
-
         DecodedJWT jwt = mockToken("tenantA");
 
         when(tokenService.recoverAndValidate(request)).thenReturn(jwt);
-        when(request.getHeader("X-Forwarded-Host")).thenReturn("tenantA.example.com");
+        when(request.getHeader("X-Tenant-Id")).thenReturn("tenantA");
 
         String tenant = resolver.resolve(request);
 
@@ -89,14 +62,12 @@ class HeaderOrSubdomainTenantResolverTest {
     }
 
     @Test
-    void shouldResolveTenantFromTokenWhenSubdomainIsTrulyNull() {
+    void shouldResolveTenantFromTokenWhenHeaderIsNull() {
         HttpServletRequest request = mock(HttpServletRequest.class);
         DecodedJWT jwt = mockToken("tenantA");
 
         when(tokenService.recoverAndValidate(request)).thenReturn(jwt);
-        when(request.getHeader("X-Forwarded-Host")).thenReturn(null);
-        when(request.getHeader("Host")).thenReturn(null);
-        when(request.getServerName()).thenReturn(null);
+        when(request.getHeader("X-Tenant-Id")).thenReturn(null);
 
         String tenant = resolver.resolve(request);
 
@@ -116,12 +87,12 @@ class HeaderOrSubdomainTenantResolverTest {
     }
 
     @Test
-    void shouldNotThrowExceptionWhenTokenAndSubdomainMatchWithDifferentCasing() {
+    void shouldNotThrowExceptionWhenTokenAndHeaderMatchWithDifferentCasing() {
         HttpServletRequest request = mock(HttpServletRequest.class);
         DecodedJWT jwt = mockToken("tenantA");
 
         when(tokenService.recoverAndValidate(request)).thenReturn(jwt);
-        when(request.getHeader("X-Forwarded-Host")).thenReturn("TENANTA.example.com");
+        when(request.getHeader("X-Tenant-Id")).thenReturn("TENANTA");
 
         String tenant = resolver.resolve(request);
 
@@ -129,13 +100,12 @@ class HeaderOrSubdomainTenantResolverTest {
     }
 
     @Test
-    void shouldNotThrowExceptionWhenTokenTenantAndSubdomainMismatch() {
+    void shouldPreferHeaderTenantWhenMismatchOccurs() {
         HttpServletRequest request = mock(HttpServletRequest.class);
-
         DecodedJWT jwt = mockToken("tenantA");
 
         when(tokenService.recoverAndValidate(request)).thenReturn(jwt);
-        when(request.getHeader("X-Forwarded-Host")).thenReturn("tenantB.example.com");
+        when(request.getHeader("X-Tenant-Id")).thenReturn("tenantB");
 
         String tenant = resolver.resolve(request);
 
@@ -153,10 +123,10 @@ class HeaderOrSubdomainTenantResolverTest {
         when(jwt.getClaim("tenantId")).thenReturn(tenantClaim);
         when(tenantClaim.asString()).thenReturn("system");
         when(jwt.getClaim("roles")).thenReturn(rolesClaim);
-        when(rolesClaim.asList(String.class)).thenReturn(java.util.List.of("SUPER_ADMIN"));
+        when(rolesClaim.asList(String.class)).thenReturn(List.of("SUPER_ADMIN"));
 
         when(tokenService.recoverAndValidate(request)).thenReturn(jwt);
-        when(request.getHeader("X-Forwarded-Host")).thenReturn("tenantA.example.com");
+        when(request.getHeader("X-Tenant-Id")).thenReturn("tenantA");
 
         String tenant = resolver.resolve(request);
 
@@ -164,27 +134,11 @@ class HeaderOrSubdomainTenantResolverTest {
     }
 
     @Test
-    void shouldResolveTenantFromSubdomainWhenTokenTenantIsNull() {
-        HttpServletRequest request = mock(HttpServletRequest.class);
-
-        DecodedJWT jwt = mockToken(null);
-
-        when(tokenService.recoverAndValidate(request)).thenReturn(jwt);
-        when(request.getHeader("X-Forwarded-Host")).thenReturn("tenantD.example.com");
-
-        String tenant = resolver.resolve(request);
-
-        assertEquals("tenantD", tenant);
-    }
-
-    @Test
-    void shouldReturnNullWhenTokenAndSubdomainAreNull() {
+    void shouldReturnNullWhenTokenAndHeaderAreNull() {
         HttpServletRequest request = mock(HttpServletRequest.class);
 
         when(tokenService.recoverAndValidate(request)).thenReturn(null);
-        when(request.getHeader("X-Forwarded-Host")).thenReturn(null);
-        when(request.getHeader("Host")).thenReturn(null);
-        when(request.getServerName()).thenReturn(null);
+        when(request.getHeader("X-Tenant-Id")).thenReturn(null);
 
         String tenant = resolver.resolve(request);
 

@@ -129,7 +129,9 @@ public class SecurityConfiguration {
                                 "/redefinir-senha",
                                 "/admin/servicos",
                                 "/admin/configuracoes",
-                                "/profissional/agenda").permitAll()
+                                "/profissional/agenda",
+                                "/{tenantId}",
+                                "/{tenantId}/**").permitAll()
                         
                         // ===== SWAGGER (RESTRICTED TO SUPER_ADMIN) =====
                         .requestMatchers(

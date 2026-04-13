@@ -25,7 +25,7 @@ import java.io.IOException;
 @Tag(name = "Notifications", description = "Server-Sent Events notifications")
 public class SseController {
 
-    private final SseService sseService; // todo: restrict to admin only
+    private final SseService sseService;
 
     @Operation(summary = "Subscribe to notifications", description = "Opens an SSE stream for notifications.")
     @ApiResponses({

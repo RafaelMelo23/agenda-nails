@@ -39,7 +39,7 @@ public interface SalonProfileRepository extends JpaRepository<SalonProfile, Long
 
     @IgnoreTenantFilter
     @Query("SELECT sp.tenantStatus FROM SalonProfile sp WHERE sp.tenantId = :id")
-    TenantStatus findStatusByTenantId(@Param("id") String tenantId);
+    Optional<TenantStatus> findStatusByTenantId(@Param("id") String tenantId);
 
     @IgnoreTenantFilter
     @Query("SELECT sp.autoConfirmationAppointment FROM SalonProfile sp WHERE sp.tenantId = :tenantId")
