@@ -22,7 +22,7 @@ ENV SENTRY_AUTO_INIT=false \
     OTEL_TRACES_EXPORTER=none \
     OTEL_METRICS_EXPORTER=none \
     OTEL_LOGS_EXPORTER=none \
-    JAVA_TOOL_OPTIONS="-javaagent:sentry-agent.jar -XX:+UseParallelGC -XX:MaxRAMPercentage=75.0"
+    JAVA_TOOL_OPTIONS="-javaagent:/app/sentry-agent.jar -XX:+UseParallelGC -XX:MaxRAMPercentage=75.0"
 
 EXPOSE 8080
 CMD ["java", "-jar", "app.jar"]
