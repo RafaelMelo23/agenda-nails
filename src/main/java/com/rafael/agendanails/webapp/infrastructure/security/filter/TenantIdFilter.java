@@ -31,47 +31,49 @@ public class TenantIdFilter implements Filter {
         HttpServletResponse response = (HttpServletResponse) servletResponse;
 
         try {
-            String path = request.getRequestURI();
-
-            boolean isPublicPath = path.equals("/")
-                    || path.equals("/index.html")
-                    || path.startsWith("/actuator")
-                    || path.startsWith("/swagger-ui")
-                    || path.startsWith("/v3/api-docs")
-                    || path.startsWith("/api/v1/webhook")
-                    || path.startsWith("/api/v1/auth")
-                    || path.startsWith("/api/v1/notifications/subscribe")
-                    || path.startsWith("/api/internal")
-                    || path.startsWith("/public")
-                    || path.startsWith("/pages")
-                    || path.startsWith("/css")
-                    || path.startsWith("/js")
-                    || path.startsWith("/assets")
-                    || path.startsWith("/favicon.svg")
-                    || path.startsWith("/favicon.ico")
-                    || path.startsWith("/error")
-                    || path.startsWith("/uploads");
-
-            if (isPublicPath) {
-                filterChain.doFilter(request, response);
-                return;
-            }
-
+            boolean isPublicPath = isPublicPath(request);
             String tenantId = tenantResolver.resolve(request);
 
             if (tenantId != null) {
                 MDC.put("tenant", tenantId);
                 TenantContext.setTenant(tenantId);
-            } else {
-                response.sendError(HttpServletResponse.SC_BAD_REQUEST, "Tenant cannot be null");
-                return;
             }
 
-            filterChain.doFilter(request, response);
-
+            if (isPublicPath) {
+                filterChain.doFilter(request, response);
+            } else {
+                if (tenantId != null) {
+                    filterChain.doFilter(request, response);
+                } else {
+                    response.sendError(HttpServletResponse.SC_BAD_REQUEST, "Tenant cannot be null");
+                }
+            }
         } finally {
             TenantContext.clear();
             MDC.remove("tenant");
         }
+    }
+
+    private static boolean isPublicPath(HttpServletRequest request) {
+        String path = request.getRequestURI();
+
+        return path.equals("/")
+                || path.equals("/index.html")
+                || path.startsWith("/actuator")
+                || path.startsWith("/swagger-ui")
+                || path.startsWith("/v3/api-docs")
+                || path.startsWith("/api/v1/webhook")
+                || path.startsWith("/api/v1/auth")
+                || path.startsWith("/api/v1/notifications/subscribe")
+                || path.startsWith("/api/internal")
+                || path.startsWith("/public")
+                || path.startsWith("/pages")
+                || path.startsWith("/css")
+                || path.startsWith("/js")
+                || path.startsWith("/assets")
+                || path.startsWith("/favicon.svg")
+                || path.startsWith("/favicon.ico")
+                || path.startsWith("/error")
+                || path.startsWith("/uploads");
     }
 }

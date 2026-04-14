@@ -30,10 +30,8 @@ public class TokenOrHeaderTenantResolver implements TenantResolver {
         String tenantFromRequest = null;
 
         if (servletRequest instanceof HttpServletRequest request) {
-            // 1. Try Header (API calls)
             tenantFromRequest = request.getHeader("X-Tenant-Id");
 
-            // 2. Try Path fallback (Initial page loads: /tenantId/...)
             if (tenantFromRequest == null) {
                 String path = request.getRequestURI();
                 if (path != null && path.length() > 1) {
