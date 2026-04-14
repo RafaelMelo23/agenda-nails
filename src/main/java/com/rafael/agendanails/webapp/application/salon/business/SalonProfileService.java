@@ -6,9 +6,12 @@ import com.rafael.agendanails.webapp.domain.enums.evolution.EvolutionConnectionS
 import com.rafael.agendanails.webapp.domain.model.BaseEntity;
 import com.rafael.agendanails.webapp.domain.model.SalonProfile;
 import com.rafael.agendanails.webapp.domain.repository.SalonProfileRepository;
+import com.rafael.agendanails.webapp.infrastructure.config.CacheConfig;
 import com.rafael.agendanails.webapp.infrastructure.exception.BusinessException;
 import com.rafael.agendanails.webapp.shared.tenant.TenantContext;
 import lombok.RequiredArgsConstructor;
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
@@ -22,6 +25,7 @@ public class SalonProfileService {
 
     private final SalonProfileRepository repository;
 
+    @CacheEvict(value = CacheConfig.SALON_PROFILE_CACHE, key = "#tenantId")
     @Transactional(propagation = Propagation.REQUIRES_NEW)
     public void resetWhatsappConnectionState(String tenantId) {
         SalonProfile salon = repository.findByTenantId(tenantId)
@@ -32,38 +36,45 @@ public class SalonProfileService {
         repository.save(salon);
     }
 
+    @Cacheable(value = CacheConfig.SALON_PROFILE_CACHE, key = "#tenantId")
     public SalonProfile getByTenantId(String tenantId) {
 
         return repository.findByTenantId(tenantId)
                 .orElseThrow(() -> new BusinessException("Salão não encontrado"));
     }
 
+    @Cacheable(value = CacheConfig.SALON_PROFILE_CACHE, key = "#tenantId")
     public SalonProfile getByTenantIdElseNull(String tenantId) {
         return repository.findByTenantId(tenantId)
                 .orElse(null);
     }
 
+    @Cacheable(value = CacheConfig.SALON_PROFILE_CACHE, key = "#tenantId")
     public String getCustomColor(String tenantId) {
         return repository.findPrimaryColorByTenantId(tenantId)
                 .orElse(null);
     }
 
+    @Cacheable(value = CacheConfig.SALON_PROFILE_CACHE, key = "#tenantId")
     public String getTradeNameByTenantId(String tenantId) {
 
         return repository.findSalonTradeName(tenantId)
                 .orElseThrow(() -> new BusinessException("Salão não encontrado"));
     }
 
+    @Cacheable(value = CacheConfig.SALON_PROFILE_CACHE, key = "#tenantId")
     public boolean isAutoConfirmationEnabled(String tenantId) {
 
         return repository.isAutoConfirmationEnabledForTenant(tenantId);
     }
 
+    @Cacheable(value = CacheConfig.SALON_PROFILE_CACHE, key = "#tenantId")
     public TenantStatus getStatusByTenantId(String tenantId) {
         return repository.findStatusByTenantId(tenantId)
                 .orElse(TenantStatus.ACTIVE);
     }
 
+    @CacheEvict(value = CacheConfig.SALON_PROFILE_CACHE, key = "#salonProfile.tenantId")
     public void save(SalonProfile salonProfile) {
 
         repository.save(salonProfile);
@@ -74,17 +85,20 @@ public class SalonProfileService {
         return baseEntity.getTenantId();
     }
 
+    @Cacheable(value = CacheConfig.SALON_PROFILE_CACHE, key = "#tenantId")
     public boolean isSalonOpenByTenantId(String tenantId) {
 
         return repository.existsSalonProfileByTenantIdAndOperationalStatus(tenantId, OperationalStatus.OPEN);
     }
 
+    @Cacheable(value = CacheConfig.SALON_PROFILE_CACHE, key = "#tenantId")
     public String getSalonOperationalMessageByTenantId(String tenantId) {
 
         return repository.findWarningMessageByTenantId(tenantId)
                 .orElse(null);
     }
 
+    @Cacheable(value = CacheConfig.SALON_PROFILE_CACHE, key = "#tenantId")
     public Integer getSalonBufferTimeInMinutes(String tenantId) {
 
         return repository.findSalonProfileAppointmentBufferMinutesByTenantId(tenantId)
@@ -98,6 +112,7 @@ public class SalonProfileService {
                 .orElseThrow(() -> new BusinessException("Fuso horário não encontrado."));
     }
 
+    @Cacheable(value = CacheConfig.SALON_PROFILE_CACHE, key = "#tenantId")
     public ZoneId getSalonZoneId(String tenantId) {
 
         return repository.fetchZoneIdByTenantId(tenantId)
@@ -105,6 +120,7 @@ public class SalonProfileService {
                 .orElseThrow(() -> new BusinessException("Fuso horário não encontrado."));
     }
 
+    @Cacheable(value = CacheConfig.SALON_PROFILE_CACHE, key = "#tenantId")
     public SalonProfile findWithOwnerByTenantId(String tenantId) {
 
         return repository.findByTenantIdWithOwner(tenantId)

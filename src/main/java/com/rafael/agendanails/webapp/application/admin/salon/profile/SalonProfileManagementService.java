@@ -2,9 +2,11 @@ package com.rafael.agendanails.webapp.application.admin.salon.profile;
 
 import com.rafael.agendanails.webapp.domain.model.SalonProfile;
 import com.rafael.agendanails.webapp.domain.repository.SalonProfileRepository;
+import com.rafael.agendanails.webapp.infrastructure.config.CacheConfig;
 import com.rafael.agendanails.webapp.infrastructure.dto.admin.salon.profile.SalonProfileDTO;
 import com.rafael.agendanails.webapp.infrastructure.exception.BusinessException;
 import lombok.RequiredArgsConstructor;
+import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -41,6 +43,7 @@ public class SalonProfileManagementService {
                 .build();
     }
 
+    @CacheEvict(value = CacheConfig.SALON_PROFILE_CACHE, key = "#tenantId")
     @Transactional
     public void updateProfile(String tenantId, SalonProfileDTO profile) {
         SalonProfile salonProfile = repository.findByTenantId(tenantId)
