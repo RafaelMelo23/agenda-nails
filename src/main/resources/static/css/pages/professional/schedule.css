@@ -9,6 +9,35 @@
     gap: 16px 32px;
 }
 
+.tab-btn {
+    padding: 10px 16px;
+    border: 1px solid transparent;
+    background: transparent;
+    border-radius: 999px;
+    font-size: 16px;
+    font-weight: 500;
+    color: var(--text-muted);
+    cursor: pointer;
+    position: relative;
+    transition: all 0.2s;
+    line-height: 1.2;
+}
+
+.tab-btn:hover {
+    color: var(--text-main);
+    background: var(--bg-body);
+}
+
+.tab-btn.active {
+    color: white;
+    background: var(--primary);
+    border-color: var(--primary);
+}
+
+.tab-btn.active::after {
+    display: none;
+}
+
 @media (max-width: 480px) {
     .tabs-container {
         padding: 4px;
@@ -18,58 +47,44 @@
     }
 
     .professional-tabs {
-        gap: 6px;
+        display: grid;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 8px;
+        padding: 0;
     }
     
     .tab-btn {
-        flex: 1 1 calc(50% - 6px);
-        background: white;
-        border: 1px solid var(--border);
-        border-radius: 10px;
-        padding: 10px 4px;
-        font-size: 13px;
-        text-align: center;
+        width: 100% !important;
+        background: white !important;
+        border: 1px solid var(--border) !important;
+        border-radius: 12px !important;
+        padding: 12px 5px !important;
+        font-size: 12px !important;
+        text-align: center !important;
+        min-height: 54px !important;
+        line-height: 1.2 !important;
+        white-space: normal !important;
+        display: flex !important;
+        align-items: center !important;
+        justify-content: center !important;
+        color: var(--text-main) !important;
+        position: relative !important;
+        z-index: 1 !important;
+        overflow: visible !important;
     }
 
     .tab-btn.active {
-        background: var(--primary);
-        color: white;
-        border-color: var(--primary);
+        background: var(--primary) !important;
+        color: white !important;
+        border-color: var(--primary) !important;
+        box-shadow: 0 4px 12px rgba(233, 30, 99, 0.2) !important;
+        font-weight: 700 !important;
     }
 
-    .tab-btn.active::after {
-        display: none;
+    .tab-btn::before, .tab-btn::after {
+        display: none !important;
+        content: none !important;
     }
-}
-
-.tab-btn {
-    padding: 12px 0;
-    border: none;
-    background: none;
-    font-size: 16px;
-    font-weight: 500;
-    color: var(--text-muted);
-    cursor: pointer;
-    position: relative;
-    transition: color 0.2s;
-}
-
-.tab-btn:hover {
-    color: var(--text-main);
-}
-
-.tab-btn.active {
-    color: var(--primary);
-}
-
-.tab-btn.active::after {
-    content: '';
-    position: absolute;
-    bottom: -1px;
-    left: 0;
-    width: 100%;
-    height: 2px;
-    background: var(--primary);
 }
 
 .tab-content {
@@ -754,21 +769,27 @@
 .table-responsive {
     border: none !important;
     margin: 0 -10px !important; /* Slight overflow for better spacing */
+    overflow-x: auto !important;
+    -webkit-overflow-scrolling: touch;
 }
 
 .app-table {
     width: 100% !important;
     border-collapse: separate !important;
-    border-spacing: 0 12px !important; /* Rows as separate blocks */
-    min-width: 900px !important;
+    border-spacing: 0 24px !important; /* Increased spacing between rows */
+    min-width: 880px !important;
+    table-layout: auto !important;
 }
 
 .app-table th {
     background: transparent !important;
-    padding: 15px 25px !important;
+    padding: 16px 26px !important;
     color: var(--text-muted) !important;
     font-size: 0.8rem !important;
     border: none !important;
+    white-space: nowrap !important;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
 }
 
 .app-table tr {
@@ -777,15 +798,38 @@
 
 .app-table tbody tr {
     background: white !important;
-    box-shadow: 0 2px 8px rgba(0,0,0,0.04) !important;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.05) !important;
     border: 1px solid var(--border) !important;
 }
 
 .app-table td {
-    padding: 22px 25px !important;
+    padding: 24px 26px !important; /* Increased padding */
     border-top: 1px solid var(--border) !important;
     border-bottom: 1px solid var(--border) !important;
     background: white !important;
+    line-height: 1.6 !important;
+    white-space: normal !important;
+    word-break: break-word !important;
+    overflow-wrap: anywhere !important;
+    vertical-align: middle !important;
+}
+
+/* Vertical info groups inside table cells */
+.ov-info-group {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+}
+
+.ov-main-text {
+    font-weight: 600;
+    color: var(--text-main);
+    font-size: 15px;
+}
+
+.ov-sub-text {
+    font-size: 13px;
+    color: var(--text-muted);
 }
 
 .app-table td:first-child {
@@ -815,12 +859,20 @@
         padding: 25px !important;
     }
 
+    .table-responsive {
+        margin: 0 !important;
+        width: 100% !important;
+        overflow-x: hidden !important;
+    }
+
     .app-table, .app-table thead, .app-table tbody, .app-table th, .app-table td, .app-table tr { 
         display: block !important; 
     }
 
     .app-table {
-        min-width: 100% !important;
+        min-width: 0 !important;
+        width: 100% !important;
+        max-width: 100% !important;
         border-spacing: 0 !important;
     }
 
@@ -838,13 +890,15 @@
 
     .app-table td {
         display: flex !important;
-        justify-content: space-between !important;
-        align-items: center !important;
+        flex-direction: column !important;
+        align-items: flex-start !important;
+        gap: 6px !important;
         padding: 12px 0 !important;
         border: none !important;
         border-bottom: 1px solid #f8fafc !important;
-        text-align: right !important;
+        text-align: left !important;
         font-size: 0.95rem !important;
+        width: 100% !important;
     }
 
     .app-table td:last-child {
@@ -859,7 +913,7 @@
         text-transform: uppercase !important;
         font-size: 0.7rem !important;
         text-align: left !important;
-        flex: 1 !important;
+        flex: none !important;
     }
 
     .app-table td:first-child {
@@ -881,5 +935,19 @@
     
     .btn-filter {
         width: 100% !important;
+    }
+
+    .table-responsive {
+        overflow-x: hidden !important;
+        margin: 0 !important;
+        padding: 0 !important;
+        width: 100% !important;
+        max-width: 100vw !important;
+    }
+
+    .app-table {
+        min-width: 0 !important;
+        width: 100% !important;
+        max-width: 100% !important;
     }
 }

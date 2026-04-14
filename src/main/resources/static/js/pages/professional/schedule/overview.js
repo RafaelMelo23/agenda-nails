@@ -41,27 +41,52 @@ export const OverviewModule = {
         }
 
         const statusMap = {
-            'PENDING': { label: 'Pendente', class: 'badge-pending' },
-            'CONFIRMED': { label: 'Confirmado', class: 'badge-success' },
-            'FINISHED': { label: 'Finalizado', class: 'badge-success' },
-            'CANCELLED': { label: 'Cancelado', class: 'badge-danger' },
-            'MISSED': { label: 'Faltou', class: 'badge-danger' }
+            'PENDING': { label: 'Pendente', class: 'status-pending' },
+            'CONFIRMED': { label: 'Confirmado', class: 'status-confirmed' },
+            'FINISHED': { label: 'Finalizado', class: 'status-finished' },
+            'CANCELLED': { label: 'Cancelado', class: 'status-cancelled' },
+            'MISSED': { label: 'Faltou', class: 'status-missed' }
         };
 
         const formatDate = (dateStr) => {
             const date = new Date(dateStr);
-            return date.toLocaleDateString('pt-BR', { day: '2-digit', month: '2-digit', year: 'numeric', hour: '2-digit', minute: '2-digit' });
+            const d = date.toLocaleDateString('pt-BR', { day: '2-digit', month: '2-digit', year: 'numeric' });
+            const t = date.toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' });
+            return { date: d, time: t };
         };
 
         list.innerHTML = appointments.map(a => {
             const s = statusMap[a.status] || { label: a.status, class: '' };
+            const dateTime = formatDate(a.startDateAndTime);
             return `
                 <tr>
-                    <td data-label="Data/Hora">${formatDate(a.startDateAndTime)}</td>
-                    <td data-label="Cliente">${a.clientName}</td>
-                    <td data-label="Serviço">${a.mainServiceName}</td>
-                    <td data-label="Valor">R$ ${a.totalValue.toFixed(2).replace('.', ',')}</td>
-                    <td data-label="Status"><span class="badge ${s.class}">${s.label}</span></td>
+                    <td data-label="Data/Hora">
+                        <div class="ov-info-group">
+                            <span class="ov-main-text">${dateTime.date}</span>
+                            <span class="ov-sub-text">${dateTime.time}</span>
+                        </div>
+                    </td>
+                    <td data-label="Cliente">
+                        <div class="ov-info-group">
+                            <span class="ov-main-text">${a.clientName}</span>
+                            <span class="ov-sub-text">${a.clientPhoneNumber || 'Sem telefone'}</span>
+                        </div>
+                    </td>
+                    <td data-label="Serviço">
+                        <div class="ov-info-group">
+                            <span class="ov-main-text">${a.mainServiceName}</span>
+                            <span class="ov-sub-text">Duração: ${Math.floor(a.mainServiceDurationInSeconds / 60)} min</span>
+                        </div>
+                    </td>
+                    <td data-label="Valor">
+                        <div class="ov-info-group">
+                            <span class="ov-main-text">R$ ${a.totalValue.toFixed(2).replace('.', ',')}</span>
+                            ${a.addOns && a.addOns.length > 0 ? `<span class="ov-sub-text">+ ${a.addOns.length} adicionais</span>` : ''}
+                        </div>
+                    </td>
+                    <td data-label="Status">
+                        <span class="status-badge ${s.class}">${s.label}</span>
+                    </td>
                 </tr>
             `;
         }).join('');
