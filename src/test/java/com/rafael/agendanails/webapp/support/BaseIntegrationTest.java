@@ -5,15 +5,19 @@ import com.rafael.agendanails.webapp.domain.repository.*;
 import com.rafael.agendanails.webapp.shared.tenant.TenantContext;
 import jakarta.persistence.EntityManager;
 import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.cache.CacheManager;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.DynamicPropertyRegistry;
 import org.springframework.test.context.DynamicPropertySource;
 import org.springframework.transaction.annotation.Transactional;
 import org.testcontainers.containers.PostgreSQLContainer;
+
+import java.util.Objects;
 
 @Transactional
 @ActiveProfiles("it")
@@ -50,6 +54,8 @@ public abstract class BaseIntegrationTest {
     protected SalonDailyRevenueRepository salonDailyRevenueRepository;
     @Autowired
     protected EntityManager entityManager;
+    @Autowired
+    protected CacheManager cacheManager;
 
     protected static final PostgreSQLContainer<?> POSTGRES =
             new PostgreSQLContainer<>("postgres:15-alpine")
@@ -69,7 +75,7 @@ public abstract class BaseIntegrationTest {
         registry.add("spring.jpa.hibernate.ddl-auto", () -> "update");
     }
 
-    @org.junit.jupiter.api.BeforeEach
+    @BeforeEach
     void globalSetUp() {
         TenantContext.setTenant("tenant-test");
     }
@@ -91,6 +97,10 @@ public abstract class BaseIntegrationTest {
             clientRepository.deleteAllInBatch();
             professionalRepository.deleteAllInBatch();
             userRepository.deleteAllInBatch();
+
+            cacheManager.getCacheNames().forEach(cacheName -> 
+                    Objects.requireNonNull(cacheManager.getCache(cacheName)).clear());
+            
         } finally {
             TenantContext.clear();
         }
