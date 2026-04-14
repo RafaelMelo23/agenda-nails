@@ -57,11 +57,11 @@ export const OverviewModule = {
             const s = statusMap[a.status] || { label: a.status, class: '' };
             return `
                 <tr>
-                    <td>${formatDate(a.startDateAndTime)}</td>
-                    <td>${a.clientName}</td>
-                    <td>${a.mainServiceName}</td>
-                    <td>R$ ${a.totalValue.toFixed(2).replace('.', ',')}</td>
-                    <td><span class="badge ${s.class}">${s.label}</span></td>
+                    <td data-label="Data/Hora">${formatDate(a.startDateAndTime)}</td>
+                    <td data-label="Cliente">${a.clientName}</td>
+                    <td data-label="Serviço">${a.mainServiceName}</td>
+                    <td data-label="Valor">R$ ${a.totalValue.toFixed(2).replace('.', ',')}</td>
+                    <td data-label="Status"><span class="badge ${s.class}">${s.label}</span></td>
                 </tr>
             `;
         }).join('');

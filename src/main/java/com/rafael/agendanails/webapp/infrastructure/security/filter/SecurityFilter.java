@@ -4,6 +4,7 @@ import com.rafael.agendanails.webapp.domain.enums.security.TokenClaim;
 import com.rafael.agendanails.webapp.domain.enums.user.UserRole;
 import com.rafael.agendanails.webapp.domain.model.UserPrincipal;
 import com.rafael.agendanails.webapp.infrastructure.security.token.TokenService;
+import com.rafael.agendanails.webapp.shared.tenant.TenantContext;
 import com.rafael.agendanails.webapp.shared.tenant.TenantResolver;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
@@ -11,6 +12,7 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.slf4j.MDC;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.filter.OncePerRequestFilter;
@@ -37,6 +39,8 @@ public class SecurityFilter extends OncePerRequestFilter {
     protected void doFilterInternal(HttpServletRequest request,
                                     HttpServletResponse response,
                                     FilterChain filterChain) throws ServletException, IOException {
+
+        boolean isTenantContextSetByThisFilter = false;
 
         try {
             var token = tokenService.recoverAndValidate(request);
@@ -74,8 +78,6 @@ public class SecurityFilter extends OncePerRequestFilter {
                             .isFirstLogin(Boolean.TRUE.equals(isFirstLogin))
                             .build();
 
-                    log.info("Authorities: {}", userPrincipal.getAuthorities());
-
                     var authentication = new UsernamePasswordAuthenticationToken(
                             userPrincipal,
                             null,
@@ -83,21 +85,18 @@ public class SecurityFilter extends OncePerRequestFilter {
 
                     SecurityContextHolder.getContext().setAuthentication(authentication);
 
-                    // Ensure TenantContext is set if it was missed by the previous filter (common for SSE query-param tokens)
-                    if (com.rafael.agendanails.webapp.shared.tenant.TenantContext.getTenant() == null && tokenTenantId != null) {
-                        com.rafael.agendanails.webapp.shared.tenant.TenantContext.setTenant(tokenTenantId);
-                        org.slf4j.MDC.put("tenant", tokenTenantId);
+                    if (TenantContext.getTenant() == null && tokenTenantId != null) {
+                        TenantContext.setTenant(tokenTenantId);
+                        MDC.put("tenant", tokenTenantId);
+                        isTenantContextSetByThisFilter = true;
                     }
                 }
             }
             filterChain.doFilter(request, response);
         } finally {
-            // Only clear if we were the ones responsible for setting it in this filter context
-            // Actually, it's safer to clear anyway as SecurityContextHolder is also cleared by Spring's Filter
-            // But for TenantContext, we follow the pattern of the TenantIdFilter
-            if (request.getRequestURI().startsWith("/api/v1/notifications/subscribe")) {
-                com.rafael.agendanails.webapp.shared.tenant.TenantContext.clear();
-                org.slf4j.MDC.remove("tenant");
+            if (isTenantContextSetByThisFilter) {
+                TenantContext.clear();
+                MDC.remove("tenant");
             }
         }
     }

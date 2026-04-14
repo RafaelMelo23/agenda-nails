@@ -23,9 +23,8 @@ public class UserStatusInterceptor implements HandlerInterceptor {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
 
         if (authentication != null && authentication.isAuthenticated() &&
-                (!(authentication instanceof AnonymousAuthenticationToken))) {
+                authentication.getPrincipal() instanceof UserPrincipal userPrincipal) {
 
-            UserPrincipal userPrincipal = (UserPrincipal) authentication.getPrincipal();
             boolean isUserBanned = userRepository.existsByIdAndStatus(userPrincipal.getUserId(), UserStatus.BANNED);
 
             if (isUserBanned) {

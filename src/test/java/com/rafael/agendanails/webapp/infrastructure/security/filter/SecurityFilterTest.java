@@ -24,6 +24,9 @@ import java.util.List;
 import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
 import static org.mockito.Mockito.*;
 
+import com.rafael.agendanails.webapp.shared.tenant.TenantContext;
+import org.slf4j.MDC;
+
 @ExtendWith(MockitoExtension.class)
 class SecurityFilterTest {
 
@@ -45,11 +48,15 @@ class SecurityFilterTest {
     @BeforeEach
     void setUp() {
         SecurityContextHolder.clearContext();
+        TenantContext.clear();
+        MDC.clear();
     }
 
     @AfterEach
     void tearDown() {
         SecurityContextHolder.clearContext();
+        TenantContext.clear();
+        MDC.clear();
     }
 
     @Test
@@ -94,6 +101,48 @@ class SecurityFilterTest {
         assertThat(authentication).isNotNull();
         assertThat(authentication.getPrincipal()).isNotNull();
         verify(filterChain).doFilter(request, response);
+
+        assertThat(TenantContext.getTenant()).isNull();
+        assertThat(MDC.get("tenant")).isNull();
+    }
+
+    @Test
+    void shouldSetTenantContextIfMissing() throws ServletException, IOException {
+        String userId = "123";
+        String email = "test@example.com";
+        String role = "ADMIN";
+        String tenantId = "tenant-001";
+
+        when(tokenService.recoverAndValidate(request)).thenReturn(decodedJWT);
+        when(tenantResolver.resolve(request)).thenReturn(tenantId);
+
+        Claim purposeClaim = mock(Claim.class);
+        when(purposeClaim.asString()).thenReturn("AUTHENTICATION");
+        when(decodedJWT.getClaim("purpose")).thenReturn(purposeClaim);
+
+        when(decodedJWT.getSubject()).thenReturn(userId);
+
+        Claim roleClaim = mock(Claim.class);
+        when(roleClaim.asList(String.class)).thenReturn(List.of(role));
+        when(decodedJWT.getClaim(TokenClaim.ROLE.getValue())).thenReturn(roleClaim);
+
+        setupClaimMock(TokenClaim.EMAIL.getValue(), email);
+        setupClaimMock(TokenClaim.TENANT_ID.getValue(), tenantId);
+
+        Claim firstLoginClaim = mock(Claim.class);
+        when(firstLoginClaim.asBoolean()).thenReturn(false);
+        when(decodedJWT.getClaim(TokenClaim.FIRST_LOGIN.getValue())).thenReturn(firstLoginClaim);
+
+        doAnswer(invocation -> {
+            assertThat(TenantContext.getTenant()).isEqualTo(tenantId);
+            assertThat(MDC.get("tenant")).isEqualTo(tenantId);
+            return null;
+        }).when(filterChain).doFilter(request, response);
+
+        securityFilter.doFilterInternal(request, response, filterChain);
+
+        assertThat(TenantContext.getTenant()).isNull();
+        assertThat(MDC.get("tenant")).isNull();
     }
 
     @Test

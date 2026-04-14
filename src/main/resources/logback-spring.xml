@@ -28,7 +28,7 @@
         </root>
     </springProfile>
 
-    <springProfile name="dev,default">
+    <springProfile name="dev,default,it">
         <root level="INFO">
             <appender-ref ref="CONSOLE" />
             <appender-ref ref="SENTRY" />

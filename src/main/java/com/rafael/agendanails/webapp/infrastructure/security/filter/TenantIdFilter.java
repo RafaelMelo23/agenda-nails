@@ -52,12 +52,17 @@ public class TenantIdFilter implements Filter {
                     || path.startsWith("/error")
                     || path.startsWith("/uploads");
 
+            if (isPublicPath) {
+                filterChain.doFilter(request, response);
+                return;
+            }
+
             String tenantId = tenantResolver.resolve(request);
 
             if (tenantId != null) {
                 MDC.put("tenant", tenantId);
                 TenantContext.setTenant(tenantId);
-            } else if (!isPublicPath) {
+            } else {
                 response.sendError(HttpServletResponse.SC_BAD_REQUEST, "Tenant cannot be null");
                 return;
             }

@@ -36,45 +36,45 @@ public class SalonProfileService {
         repository.save(salon);
     }
 
-    @Cacheable(value = CacheConfig.SALON_PROFILE_CACHE, key = "#tenantId")
+    @Cacheable(value = CacheConfig.SALON_PROFILE_CACHE, key = "'profile-' + #tenantId")
     public SalonProfile getByTenantId(String tenantId) {
 
         return repository.findByTenantId(tenantId)
                 .orElseThrow(() -> new BusinessException("Salão não encontrado"));
     }
 
-    @Cacheable(value = CacheConfig.SALON_PROFILE_CACHE, key = "#tenantId")
+    @Cacheable(value = CacheConfig.SALON_PROFILE_CACHE, key = "'profile-' + #tenantId")
     public SalonProfile getByTenantIdElseNull(String tenantId) {
         return repository.findByTenantId(tenantId)
                 .orElse(null);
     }
 
-    @Cacheable(value = CacheConfig.SALON_PROFILE_CACHE, key = "#tenantId")
+    @Cacheable(value = CacheConfig.SALON_PROFILE_CACHE, key = "'color-' + #tenantId")
     public String getCustomColor(String tenantId) {
         return repository.findPrimaryColorByTenantId(tenantId)
                 .orElse(null);
     }
 
-    @Cacheable(value = CacheConfig.SALON_PROFILE_CACHE, key = "#tenantId")
+    @Cacheable(value = CacheConfig.SALON_PROFILE_CACHE, key = "'trade-name-' + #tenantId")
     public String getTradeNameByTenantId(String tenantId) {
 
         return repository.findSalonTradeName(tenantId)
                 .orElseThrow(() -> new BusinessException("Salão não encontrado"));
     }
 
-    @Cacheable(value = CacheConfig.SALON_PROFILE_CACHE, key = "#tenantId")
+    @Cacheable(value = CacheConfig.SALON_PROFILE_CACHE, key = "'auto-confirm-' + #tenantId")
     public boolean isAutoConfirmationEnabled(String tenantId) {
 
         return repository.isAutoConfirmationEnabledForTenant(tenantId);
     }
 
-    @Cacheable(value = CacheConfig.SALON_PROFILE_CACHE, key = "#tenantId")
+    @Cacheable(value = CacheConfig.SALON_PROFILE_CACHE, key = "'status-' + #tenantId")
     public TenantStatus getStatusByTenantId(String tenantId) {
         return repository.findStatusByTenantId(tenantId)
                 .orElse(TenantStatus.ACTIVE);
     }
 
-    @CacheEvict(value = CacheConfig.SALON_PROFILE_CACHE, key = "#salonProfile.tenantId")
+    @CacheEvict(value = CacheConfig.SALON_PROFILE_CACHE, allEntries = true)
     public void save(SalonProfile salonProfile) {
 
         repository.save(salonProfile);
@@ -85,20 +85,20 @@ public class SalonProfileService {
         return baseEntity.getTenantId();
     }
 
-    @Cacheable(value = CacheConfig.SALON_PROFILE_CACHE, key = "#tenantId")
+    @Cacheable(value = CacheConfig.SALON_PROFILE_CACHE, key = "'is-open-' + #tenantId")
     public boolean isSalonOpenByTenantId(String tenantId) {
 
         return repository.existsSalonProfileByTenantIdAndOperationalStatus(tenantId, OperationalStatus.OPEN);
     }
 
-    @Cacheable(value = CacheConfig.SALON_PROFILE_CACHE, key = "#tenantId")
+    @Cacheable(value = CacheConfig.SALON_PROFILE_CACHE, key = "'operational-msg-' + #tenantId")
     public String getSalonOperationalMessageByTenantId(String tenantId) {
 
         return repository.findWarningMessageByTenantId(tenantId)
                 .orElse(null);
     }
 
-    @Cacheable(value = CacheConfig.SALON_PROFILE_CACHE, key = "#tenantId")
+    @Cacheable(value = CacheConfig.SALON_PROFILE_CACHE, key = "'buffer-' + #tenantId")
     public Integer getSalonBufferTimeInMinutes(String tenantId) {
 
         return repository.findSalonProfileAppointmentBufferMinutesByTenantId(tenantId)
@@ -112,7 +112,7 @@ public class SalonProfileService {
                 .orElseThrow(() -> new BusinessException("Fuso horário não encontrado."));
     }
 
-    @Cacheable(value = CacheConfig.SALON_PROFILE_CACHE, key = "#tenantId")
+    @Cacheable(value = CacheConfig.SALON_PROFILE_CACHE, key = "'zone-' + #tenantId")
     public ZoneId getSalonZoneId(String tenantId) {
 
         return repository.fetchZoneIdByTenantId(tenantId)
@@ -120,7 +120,7 @@ public class SalonProfileService {
                 .orElseThrow(() -> new BusinessException("Fuso horário não encontrado."));
     }
 
-    @Cacheable(value = CacheConfig.SALON_PROFILE_CACHE, key = "#tenantId")
+    @Cacheable(value = CacheConfig.SALON_PROFILE_CACHE, key = "'with-owner-' + #tenantId")
     public SalonProfile findWithOwnerByTenantId(String tenantId) {
 
         return repository.findByTenantIdWithOwner(tenantId)

@@ -106,6 +106,6 @@ class TenantIdFilterWebMvcTest {
         filter.doFilter(request, response, filterChain);
 
         assertNull(TenantContext.getTenant());
-        assertNull(MDC.get("tenantId"));
+        assertNull(MDC.get("tenant"));
     }
 }

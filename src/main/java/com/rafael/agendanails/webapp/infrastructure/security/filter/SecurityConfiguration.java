@@ -6,6 +6,7 @@ import com.rafael.agendanails.webapp.infrastructure.security.logging.JsonAuthent
 import com.rafael.agendanails.webapp.infrastructure.security.token.TokenService;
 import com.rafael.agendanails.webapp.shared.tenant.TenantResolver;
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpMethod;
@@ -23,6 +24,7 @@ import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.CorsConfigurationSource;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
@@ -54,14 +56,14 @@ public class SecurityConfiguration {
         return authenticationConfiguration.getAuthenticationManager();
     }
 
-    @org.springframework.beans.factory.annotation.Value("${domain.url:}")
+    @Value("${domain.url:}")
     private String domainUrl;
 
     @Bean
     public CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration config = new CorsConfiguration();
 
-        List<String> origins = new java.util.ArrayList<>();
+        List<String> origins = new ArrayList<>();
         
         String allowedOrigins = System.getenv("ALLOWED_ORIGINS");
         if (allowedOrigins != null && !allowedOrigins.isEmpty()) {
@@ -143,10 +145,8 @@ public class SecurityConfiguration {
                                 "/redefinir-senha",
                                 "/admin/servicos",
                                 "/admin/configuracoes",
-                                "/profissional/agenda",
-                                "/{tenantId}",
-                                "/{tenantId}/**").permitAll()
-                        
+                                "/profissional/agenda").permitAll()
+
                         // ===== SWAGGER (RESTRICTED TO SUPER_ADMIN) =====
                         .requestMatchers(
                                 "/swagger-ui/**",
@@ -182,6 +182,10 @@ public class SecurityConfiguration {
                                 "/api/v1/user/**",
                                 "/api/v1/booking/**"
                         ).authenticated()
+
+                        .requestMatchers(HttpMethod.GET,
+                                "/{tenantId}",
+                                "/{tenantId}/**").permitAll()
 
                         .anyRequest().authenticated()
                 )
