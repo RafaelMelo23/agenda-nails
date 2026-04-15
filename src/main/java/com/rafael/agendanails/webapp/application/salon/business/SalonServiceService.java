@@ -1,9 +1,7 @@
 package com.rafael.agendanails.webapp.application.salon.business;
 
-import com.rafael.agendanails.webapp.domain.model.AppointmentAddOn;
 import com.rafael.agendanails.webapp.domain.model.Professional;
 import com.rafael.agendanails.webapp.domain.model.SalonService;
-import com.rafael.agendanails.webapp.domain.repository.AddOnRepository;
 import com.rafael.agendanails.webapp.domain.repository.ProfessionalRepository;
 import com.rafael.agendanails.webapp.domain.repository.SalonServiceRepository;
 import com.rafael.agendanails.webapp.infrastructure.dto.salon.service.SalonServiceDTO;
@@ -13,9 +11,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 
 @Service
 @RequiredArgsConstructor
@@ -24,7 +20,14 @@ public class SalonServiceService {
     private final SalonServiceRepository salonServiceRepository;
     private final ProfessionalRepository professionalRepository;
     private final SalonServiceMapper salonServiceMapper;
-    private final AddOnRepository addOnRepository;
+
+    public SalonService save(SalonService service) {
+        return salonServiceRepository.save(service);
+    }
+
+    public Set<SalonService> saveAll(Set<SalonService> services) {
+        return new HashSet<>(salonServiceRepository.saveAll(new ArrayList<>(services)));
+    }
 
     public SalonService findById(Long id) {
 
@@ -32,15 +35,17 @@ public class SalonServiceService {
                 .orElseThrow(() -> new RuntimeException("SalonService not found"));
     }
 
-    public Set<SalonService> findByIdIn(List<Long> ids) {
-
-        return salonServiceRepository.findByIdIn(ids)
-                .orElseThrow(() -> new RuntimeException("SalonService not found"));
+    public Set<SalonService> findAll() {
+        return salonServiceRepository.findAllServices();
     }
 
-    public List<AppointmentAddOn> findAddOns(List<Long> addOnIds) {
+    public Set<SalonService> findAddOnsByIds(List<Long> addOnIds) {
+        if (addOnIds == null || addOnIds.isEmpty()) return new HashSet<>();
+        return salonServiceRepository.findByIdIn(addOnIds);
+    }
 
-        return addOnRepository.findAllById(addOnIds);
+    public Set<SalonService> findByIdIn(List<Long> ids) {
+        return salonServiceRepository.findByIdIn(ids);
     }
 
     @Transactional
@@ -60,7 +65,12 @@ public class SalonServiceService {
     }
 
     public List<SalonServiceOutDTO> getServices() {
-        List<SalonService> services = salonServiceRepository.findAll();
+        List<SalonService> services = new ArrayList<>(salonServiceRepository.findAllServices());
+        return salonServiceMapper.mapToOutDTOList(services);
+    }
+
+    public List<SalonServiceOutDTO> getAllServicesForAdmin() {
+        List<SalonService> services = salonServiceRepository.findAllWithInactive();
         return salonServiceMapper.mapToOutDTOList(services);
     }
 

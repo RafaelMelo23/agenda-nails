@@ -1,6 +1,7 @@
 package com.rafael.agendanails.webapp.domain.model;
 
 import com.rafael.agendanails.webapp.domain.enums.user.UserRole;
+import com.rafael.agendanails.webapp.domain.enums.user.UserStatus;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.OneToMany;
@@ -53,5 +54,18 @@ public class Client extends User {
 
     public void incrementCancelledAppointmentCount() {
         this.canceledAppointments++;
+    }
+
+    public static Client createDefault(String fullName, String email, String password) {
+        return Client.builder()
+                .fullName(fullName)
+                .email(email)
+                .password(password)
+                .userRole(UserRole.CLIENT)
+                .status(UserStatus.ACTIVE)
+                .missedAppointments(0)
+                .canceledAppointments(0)
+                .phoneNumber(null)
+                .build();
     }
 }

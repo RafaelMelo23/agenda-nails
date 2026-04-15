@@ -220,7 +220,7 @@ export const ProfessionalsModule = {
         const list = document.getElementById('services-checkbox-list');
         if (!list) return;
         try {
-            const response = await fetch('/api/v1/salon/service');
+            const response = await fetch('/api/v1/admin/salon/service');
             if (response.ok) {
                 const services = await response.json();
                 if (services.length === 0) {
@@ -228,9 +228,9 @@ export const ProfessionalsModule = {
                     return;
                 }
                 list.innerHTML = services.map(s => `
-                    <label class="checkbox-item">
+                    <label class="checkbox-item ${s.isActive ? '' : 'inactive-service'}">
                         <input type="checkbox" name="services" value="${s.id}">
-                        <span>${s.name}</span>
+                        <span>${s.name} ${s.isActive ? '' : '(Inativo)'}</span>
                     </label>
                 `).join('');
             }

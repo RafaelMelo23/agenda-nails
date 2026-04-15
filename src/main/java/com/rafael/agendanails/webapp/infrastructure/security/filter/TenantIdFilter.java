@@ -14,8 +14,8 @@ import org.springframework.stereotype.Component;
 import java.io.IOException;
 
 @Component
-@Order(Ordered.HIGHEST_PRECEDENCE)
 @RequiredArgsConstructor
+@Order(Ordered.HIGHEST_PRECEDENCE)
 public class TenantIdFilter implements Filter {
 
     private final TenantResolver tenantResolver;
@@ -59,6 +59,10 @@ public class TenantIdFilter implements Filter {
 
         return path.equals("/")
                 || path.equals("/index.html")
+                || path.equals("/entrar")
+                || path.equals("/cadastro")
+                || path.equals("/offline")
+                || path.equals("/redefinir-senha")
                 || path.startsWith("/actuator")
                 || path.startsWith("/swagger-ui")
                 || path.startsWith("/v3/api-docs")

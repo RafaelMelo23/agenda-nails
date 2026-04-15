@@ -17,7 +17,9 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
+import java.util.Set;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -45,8 +47,14 @@ public class BookingAppointmentUseCase {
         SalonService mainService =
                 salonService.findById(dto.mainServiceId());
 
-        List<AppointmentAddOn> addOns =
-                salonService.findAddOns(dto.addOnsIds());
+        if (!mainService.getProfessionals().contains(professional)) {
+            throw new BusinessException("O profissional selecionado não realiza este serviço.");
+        }
+
+        Set<SalonService> addOnServices =
+                salonService.findAddOnsByIds(dto.addOnsIds());
+
+        List<AppointmentAddOn> addOns = getAppointmentAddOns(addOnServices, professional);
 
         Client client = clientRepository.findById(principal.getUserId())
                 .orElseThrow(() -> new BusinessException("Cliente não encontrado"));
@@ -91,5 +99,20 @@ public class BookingAppointmentUseCase {
             appointment.confirm();
             repository.save(appointment);
         }
+    }
+
+    private static List<AppointmentAddOn> getAppointmentAddOns(Set<SalonService> addOnServices, Professional professional) {
+        return addOnServices.stream()
+                .map(s -> {
+                    if (!s.getProfessionals().contains(professional)) {
+                        throw new BusinessException("O profissional selecionado não realiza o adicional: " + s.getName());
+                    }
+                    return AppointmentAddOn.builder()
+                            .service(s)
+                            .quantity(1)
+                            .unitPriceSnapshot(s.getValue())
+                            .build();
+                })
+                .collect(Collectors.toList());
     }
 }

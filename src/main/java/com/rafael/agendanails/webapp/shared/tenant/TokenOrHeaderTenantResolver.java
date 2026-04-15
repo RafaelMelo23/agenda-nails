@@ -8,6 +8,8 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 
+import java.util.Set;
+
 @Slf4j
 @Component
 @RequiredArgsConstructor
@@ -15,8 +17,10 @@ public class TokenOrHeaderTenantResolver implements TenantResolver {
 
     private final TokenService tokenService;
 
-    private static final java.util.Set<String> RESERVED_PATHS = java.util.Set.of(
-            "api", "js", "css", "assets", "pages", "favicon.svg", "error", "uploads", "public", "swagger-ui", "v3", "agendar"
+    private static final Set<String> RESERVED_PATHS = java.util.Set.of(
+            "api", "js", "css", "assets", "pages", "favicon.svg", "favicon.ico",
+            "error", "uploads", "public", "swagger-ui", "v3", "agendar", "entrar",
+            "cadastro", "perfil", "offline", "redefinir-senha", "admin", "profissional"
     );
 
     @Override

@@ -17,7 +17,7 @@ public class CacheConfig {
     public CacheManager cacheManager() {
         CaffeineCacheManager cacheManager = new CaffeineCacheManager(SALON_PROFILE_CACHE);
         cacheManager.setCaffeine(Caffeine.newBuilder()
-                .expireAfterWrite(24, TimeUnit.HOURS)
+                .expireAfterWrite(10, TimeUnit.MINUTES)
                 .maximumSize(1000));
         return cacheManager;
     }

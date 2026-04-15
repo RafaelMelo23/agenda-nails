@@ -2,19 +2,31 @@ const loginApp = {
     init: function() {
         const loginForm = document.getElementById('login-form');
         this.btnLogin = document.getElementById('btn-login');
-        this.btnDemo = document.getElementById('btn-demo');
+        
+        const tenantId = App.getTenantId();
+        if (tenantId === 'demo-salon-2026') {
+            const demoSection = document.getElementById('demo-section');
+            if (demoSection) {
+                demoSection.classList.remove('hidden');
+            }
+        }
 
         if (loginForm) {
             loginForm.addEventListener('submit', (e) => this.handleLogin(e));
         }
     },
 
-    handleDemoLogin: async function() {
-        UI.setLoading(this.btnDemo, true, 'Iniciando Demo...');
+    handleDemoLogin: async function(userType) {
+        const btnId = userType === 'CLIENT' ? 'btn-demo-client' : 'btn-demo-admin';
+        const btn = document.getElementById(btnId);
+        const originalText = btn.innerText;
+        UI.setLoading(btn, true, 'Iniciando...');
 
         try {
             const response = await fetch('/api/v1/auth/demo', {
-                method: 'POST'
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(userType)
             });
 
             if (response.ok) {
@@ -24,7 +36,19 @@ const loginApp = {
                 UI.showToast('Bem-vindo ao modo demonstração!', 'success');
 
                 setTimeout(() => {
-                    App.navigate('/admin/configuracoes');
+                    const params = new URLSearchParams(window.location.search);
+                    const redirect = params.get('redirect');
+                    if (redirect) {
+                        App.navigate(redirect);
+                        return;
+                    }
+
+                    const roles = Auth.getUserRoles();
+                    if (roles.includes('SUPER_ADMIN') || roles.includes('ADMIN') || roles.includes('PROFESSIONAL')) {
+                        App.navigate('/admin/configuracoes');
+                    } else {
+                        App.navigate('/agendar');
+                    }
                 }, 1000);
             } else {
                 UI.showToast('Não foi possível iniciar o modo demo.', 'error');
@@ -32,7 +56,7 @@ const loginApp = {
         } catch (error) {
             UI.showToast('Erro ao iniciar modo demonstração.', 'error');
         } finally {
-            UI.setLoading(this.btnDemo, false, '✨ Experimentar Modo Demonstração');
+            UI.setLoading(btn, false, originalText);
         }
     },
 
@@ -58,6 +82,13 @@ const loginApp = {
                 UI.showToast('Login realizado com sucesso!', 'success');
 
                 setTimeout(() => {
+                    const params = new URLSearchParams(window.location.search);
+                    const redirect = params.get('redirect');
+                    if (redirect) {
+                        App.navigate(redirect);
+                        return;
+                    }
+
                     const roles = Auth.getUserRoles();
                     if (roles.includes('SUPER_ADMIN') || roles.includes('ADMIN')) {
                         App.navigate('/admin/configuracoes');

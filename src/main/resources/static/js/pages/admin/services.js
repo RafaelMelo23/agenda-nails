@@ -8,7 +8,7 @@ const adminServicesApp = {
         if (!el) return;
 
         if (!Auth.getToken()) {
-            window.location.href = '/entrar';
+            App.navigate('/entrar?redirect=/admin/servicos');
             return;
         }
 
@@ -36,7 +36,7 @@ const adminServicesApp = {
 
     loadServices: async function() {
         try {
-            const res = await fetch('/api/v1/salon/service', {
+            const res = await fetch('/api/v1/admin/salon/service', {
                 headers: { 'Authorization': `Bearer ${Auth.getToken()}` }
             });
 

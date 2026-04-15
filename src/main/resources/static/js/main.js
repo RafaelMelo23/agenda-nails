@@ -128,14 +128,24 @@ const App = {
     },
 
     getTenantId: function() {
+        const tokenTenant = Auth.getTenantId();
+        if (tokenTenant) {
+            this.activeTenant = tokenTenant;
+            return tokenTenant;
+        }
         if (this.activeTenant) return this.activeTenant;
-        this.activeTenant = Auth.getTenantId();
+        this.activeTenant = getTenantIdFromUrl();
         return this.activeTenant;
     },
 
     navigate: function(path) {
         const tenantId = this.getTenantId();
-        const fullPath = tenantId ? `/${tenantId}${path}` : path;
+        let fullPath;
+        if (tenantId && !path.startsWith(`/${tenantId}/`) && path !== `/${tenantId}`) {
+            fullPath = `/${tenantId}${path}`;
+        } else {
+            fullPath = path;
+        }
         window.history.pushState({}, '', fullPath);
         this.handleRouting();
     },
@@ -169,7 +179,7 @@ const App = {
 
         if (path.startsWith('/admin') || path.startsWith('/perfil') || path.startsWith('/profissional')) {
             if (!Auth.getToken()) {
-                this.navigate('/entrar');
+                this.navigate(`/entrar?redirect=${path}`);
                 return;
             }
             if (Auth.isTokenExpired()) {

@@ -1,5 +1,6 @@
 package com.rafael.agendanails.webapp.application.admin.salon.profile;
 
+import com.rafael.agendanails.webapp.domain.enums.salon.OperationalStatus;
 import com.rafael.agendanails.webapp.domain.model.SalonProfile;
 import com.rafael.agendanails.webapp.domain.repository.SalonProfileRepository;
 import com.rafael.agendanails.webapp.infrastructure.config.CacheConfig;
@@ -10,7 +11,6 @@ import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.io.IOException;
 import java.util.function.Consumer;
 
 @Service
@@ -45,26 +45,32 @@ public class SalonProfileManagementService {
 
     @CacheEvict(value = CacheConfig.SALON_PROFILE_CACHE, key = "#tenantId")
     @Transactional
-    public void updateProfile(String tenantId, SalonProfileDTO profile) {
+    public void updateProfile(String tenantId, SalonProfileDTO profileDTO) {
         SalonProfile salonProfile = repository.findByTenantId(tenantId)
                 .orElseThrow(() -> new BusinessException("O perfil do salão não foi encontrado."));
 
-        setIfNotNull(profile.tradeName(), salonProfile::setTradeName);
-        setIfNotNull(profile.slogan(), salonProfile::setSlogan);
-        setIfNotNull(profile.primaryColor(), salonProfile::setPrimaryColor);
-        setIfNotNull(profile.comercialPhone(), salonProfile::setComercialPhone);
-        setIfNotNull(profile.fullAddress(), salonProfile::setFullAddress);
-        setIfNotNull(profile.socialMediaLink(), salonProfile::setSocialMediaLink);
-        setIfNotNull(profile.warningMessage(), salonProfile::setWarningMessage);
-        setIfNotNull(profile.status(), salonProfile::setOperationalStatus);
-        setIfNotNull(profile.appointmentBufferMinutes(), salonProfile::setAppointmentBufferMinutes);
-        setIfNotNull(profile.zoneId(), salonProfile::setZoneId);
-        setIfNotNull(profile.isLoyalClientelePrioritized(), salonProfile::setLoyalClientelePrioritized);
-        setIfNotNull(profile.loyalClientBookingWindowDays(), salonProfile::setLoyalClientBookingWindowDays);
-        setIfNotNull(profile.standardBookingWindow(), salonProfile::setStandardBookingWindow);
-        setIfNotNull(profile.autoConfirmationAppointment(), salonProfile::setAutoConfirmationAppointment);
+        setIfNotNull(profileDTO.tradeName(), salonProfile::setTradeName);
+        setIfNotNull(profileDTO.slogan(), salonProfile::setSlogan);
+        setIfNotNull(profileDTO.primaryColor(), salonProfile::setPrimaryColor);
+        setIfNotNull(profileDTO.comercialPhone(), salonProfile::setComercialPhone);
+        setIfNotNull(profileDTO.fullAddress(), salonProfile::setFullAddress);
+        setIfNotNull(profileDTO.socialMediaLink(), salonProfile::setSocialMediaLink);
+        setIfNotNull(profileDTO.warningMessage(), salonProfile::setWarningMessage);
+        setIfNotNull(profileDTO.appointmentBufferMinutes(), salonProfile::setAppointmentBufferMinutes);
+        setIfNotNull(profileDTO.zoneId(), salonProfile::setZoneId);
+        setIfNotNull(profileDTO.isLoyalClientelePrioritized(), salonProfile::setLoyalClientelePrioritized);
+        setIfNotNull(profileDTO.loyalClientBookingWindowDays(), salonProfile::setLoyalClientBookingWindowDays);
+        setIfNotNull(profileDTO.standardBookingWindow(), salonProfile::setStandardBookingWindow);
+        setIfNotNull(profileDTO.autoConfirmationAppointment(), salonProfile::setAutoConfirmationAppointment);
+        setIfNotNull(profileDTO.status(), salonProfile::setOperationalStatus);
 
-        validateLoyalClientFeature(profile);
+        if (profileDTO.status().equals(OperationalStatus.OPEN) &&
+                salonProfile.getWarningMessage() != null) {
+
+            salonProfile.setWarningMessage(null);
+        }
+
+        validateLoyalClientFeature(profileDTO);
 
         repository.save(salonProfile);
     }

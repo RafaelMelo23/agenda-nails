@@ -44,17 +44,27 @@ VALUES
 INSERT INTO public.work_schedule
 (id, tenant_id, day_of_week, is_active, lunch_break_start_time, lunch_break_end_time, start_time, end_time, professional_id)
 VALUES
+
     (1001, 'demo-salon-2026', 'MONDAY', true, '12:00:00', '13:00:00', '09:00:00', '19:00:00', 501),
     (1002, 'demo-salon-2026', 'TUESDAY', true, '12:00:00', '13:00:00', '09:00:00', '19:00:00', 501),
     (1003, 'demo-salon-2026', 'WEDNESDAY', true, '12:00:00', '13:00:00', '09:00:00', '19:00:00', 501),
     (1004, 'demo-salon-2026', 'THURSDAY', true, '12:00:00', '13:00:00', '09:00:00', '19:00:00', 501),
     (1005, 'demo-salon-2026', 'FRIDAY', true, '12:00:00', '13:00:00', '09:00:00', '19:00:00', 501),
     (1006, 'demo-salon-2026', 'SATURDAY', true, '12:00:00', '13:00:00', '08:00:00', '14:00:00', 501),
+
+
     (1007, 'demo-salon-2026', 'TUESDAY', true, '13:00:00', '14:00:00', '10:00:00', '20:00:00', 502),
     (1008, 'demo-salon-2026', 'WEDNESDAY', true, '13:00:00', '14:00:00', '10:00:00', '20:00:00', 502),
     (1009, 'demo-salon-2026', 'THURSDAY', true, '13:00:00', '14:00:00', '10:00:00', '20:00:00', 502),
-    (1010, 'demo-salon-2026', 'FRIDAY', true, '13:00:00', '14:00:00', '10:00:00', '20:00:00', 502);
+    (1010, 'demo-salon-2026', 'FRIDAY', true, '13:00:00', '14:00:00', '10:00:00', '20:00:00', 502),
+    (1011, 'demo-salon-2026', 'SATURDAY', true, '13:00:00', '14:00:00', '09:00:00', '15:00:00', 502),
 
+
+    (1012, 'demo-salon-2026', 'MONDAY', true, '12:00:00', '13:00:00', '09:00:00', '18:00:00', 503),
+    (1013, 'demo-salon-2026', 'TUESDAY', true, '12:00:00', '13:00:00', '09:00:00', '18:00:00', 503),
+    (1014, 'demo-salon-2026', 'WEDNESDAY', true, '12:00:00', '13:00:00', '09:00:00', '18:00:00', 503),
+    (1015, 'demo-salon-2026', 'THURSDAY', true, '12:00:00', '13:00:00', '09:00:00', '18:00:00', 503),
+    (1016, 'demo-salon-2026', 'FRIDAY', true, '12:00:00', '13:00:00', '09:00:00', '18:00:00', 503);
 INSERT INTO public.appointment
 (id, tenant_id, appointment_status, start_date, end_date, total_value, client_id, main_service_id, professional_id, salon_trade_name, salon_zone_id)
 VALUES
@@ -102,23 +112,14 @@ VALUES
     (6006, 'demo-salon-2026', (CURRENT_DATE + INTERVAL '4 days'), (CURRENT_DATE + INTERVAL '4 days') + TIME '23:59:59', 'Folga Compensatória', 503, true),
     (6007, 'demo-salon-2026', (CURRENT_DATE + INTERVAL '1 day') + TIME '14:00:00', (CURRENT_DATE + INTERVAL '1 day') + TIME '15:00:00', 'Renovação de CNH', 503, false);
 
-INSERT INTO public.retention_forecast
-(id, tenant_id, predicted_return_date, status, client_id, origin_appointment_id, professional_id)
-VALUES
-    (4001, 'demo-salon-2026', (CURRENT_DATE + INTERVAL '12 days') + TIME '09:00:00', 'PENDING', 600, 2001, 501),
-    (4002, 'demo-salon-2026', (CURRENT_DATE + INTERVAL '23 days') + TIME '14:00:00', 'PENDING', 601, 2002, 502),
-    (4003, 'demo-salon-2026', (CURRENT_DATE + INTERVAL '19 days') + TIME '11:00:00', 'PENDING', 602, 2003, 503),
-    (4004, 'demo-salon-2026', (CURRENT_DATE + INTERVAL '15 days') + TIME '10:00:00', 'PENDING', 605, 2009, 501),
-    (4005, 'demo-salon-2026', (CURRENT_DATE + INTERVAL '28 days') + TIME '15:00:00', 'PENDING', 606, 2010, 502);
-
-INSERT INTO public.retention_forecast_salon_services
-(retention_forecast_id, salon_services_id)
-VALUES
-    (4001, 101),
-    (4002, 102),
-    (4003, 104),
-    (4004, 101),
-    (4005, 102);
+INSERT INTO public.service_professionals (salon_service_id, professionals_id)
+SELECT s.id, u.id
+FROM public.service s
+         CROSS JOIN public.users u
+WHERE s.tenant_id = 'demo-salon-2026'
+  AND u.tenant_id = 'demo-salon-2026'
+  AND u.user_role IN ('ADMIN', 'PROFESSIONAL')
+  AND u.dtype = 'Professional';
 
 SELECT pg_catalog.setval('public.users_seq', (SELECT COALESCE(MAX(id), 1) + 50 FROM public.users), false);
 SELECT pg_catalog.setval('public.appointment_seq', (SELECT COALESCE(MAX(id), 1) + 50 FROM public.appointment), false);

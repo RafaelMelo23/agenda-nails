@@ -99,10 +99,10 @@
                 <p style="color: var(--text-muted); margin-bottom: 30px; font-size: 14px;">Tudo pronto! Seu horário foi reservado com sucesso. Você pode acompanhar os detalhes no seu perfil.</p>
                 
                 <div style="display: flex; flex-direction: column; gap: 12px; max-width: 280px; margin: 0 auto;">
-                    <a href="/perfil" class="btn btn-primary" style="text-decoration: none; display: flex; align-items: center; justify-content: center;">
+                    <a href="/perfil" class="btn btn-primary" onclick="navigate('/perfil'); return false;" style="text-decoration: none; display: flex; align-items: center; justify-content: center;">
                         Ver Meus Agendamentos
                     </a>
-                    <a href="/agendar" class="btn btn-outline" style="text-decoration: none; border: 1px solid var(--primary); color: var(--primary); padding: 10px; border-radius: 8px; font-size: 14px; font-weight: 600;">
+                    <a href="/agendar" class="btn btn-outline" onclick="navigate('/agendar'); return false;" style="text-decoration: none; border: 1px solid var(--primary); color: var(--primary); padding: 10px; border-radius: 8px; font-size: 14px; font-weight: 600;">
                         Novo Agendamento
                     </a>
                 </div>

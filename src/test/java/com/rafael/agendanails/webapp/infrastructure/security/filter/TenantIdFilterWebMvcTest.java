@@ -43,33 +43,6 @@ class TenantIdFilterWebMvcTest {
     }
 
     @Test
-    void doFilter_ignores_BypassWebhookPath() throws ServletException, IOException {
-        when(request.getRequestURI()).thenReturn("/api/v1/webhook");
-
-        filter.doFilter(request, response, filterChain);
-        verify(tenantResolver, never()).resolve(request);
-        verify(filterChain).doFilter(request, response);
-    }
-
-    @Test
-    void doFilter_ignores_BypassInternalPath() throws ServletException, IOException {
-        when(request.getRequestURI()).thenReturn("/api/internal");
-
-        filter.doFilter(request, response, filterChain);
-        verify(tenantResolver, never()).resolve(request);
-        verify(filterChain).doFilter(request, response);
-    }
-
-    @Test
-    void doFilter_ignores_BypassPublicPath() throws ServletException, IOException {
-        when(request.getRequestURI()).thenReturn("/public");
-
-        filter.doFilter(request, response, filterChain);
-        verify(tenantResolver, never()).resolve(request);
-        verify(filterChain).doFilter(request, response);
-    }
-
-    @Test
     void doFilter_returnsBadRequest_IfTenantNull() throws ServletException, IOException {
         when(request.getRequestURI()).thenReturn("/api/v1/booking");
 

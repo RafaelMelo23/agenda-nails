@@ -8,6 +8,8 @@ import lombok.experimental.SuperBuilder;
 
 import java.time.DayOfWeek;
 import java.time.LocalTime;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 @Entity
 @Getter @Setter
@@ -91,5 +93,28 @@ public class WorkSchedule extends BaseEntity {
         if (end.isBefore(start)) {
             throw new BusinessException("Horário de término não pode ser menor que o de início na " + day);
         }
+    }
+
+    public static Set<WorkSchedule> createDefaultWeek(Professional professional) {
+        Set<DayOfWeek> days = Set.of(
+                DayOfWeek.MONDAY,
+                DayOfWeek.TUESDAY,
+                DayOfWeek.WEDNESDAY,
+                DayOfWeek.THURSDAY,
+                DayOfWeek.FRIDAY
+        );
+
+        return days.stream()
+                .map(day -> WorkSchedule.builder()
+                        .professional(professional)
+                        .dayOfWeek(day)
+                        .workStart(LocalTime.of(9, 0))
+                        .workEnd(LocalTime.of(18, 0))
+                        .lunchBreakStartTime(LocalTime.of(12, 0))
+                        .lunchBreakEndTime(LocalTime.of(13, 0))
+                        .isActive(true)
+                        .build()
+                )
+                .collect(Collectors.toSet());
     }
 }

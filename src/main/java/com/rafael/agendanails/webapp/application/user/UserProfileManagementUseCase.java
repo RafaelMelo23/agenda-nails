@@ -36,7 +36,7 @@ public class UserProfileManagementUseCase {
             return ClientProfileDto.builder()
                     .fullName(client.getFullName())
                     .email(maskEmail(client.getEmail()))
-                    .phoneNumber(client.getPhoneNumber())
+                    .phoneNumber(maskPhoneNumber(client.getPhoneNumber()))
                     .missedAppointments(client.getMissedAppointments())
                     .canceledAppointments(client.getCanceledAppointments())
                     .role(client.getUserRole().name())
@@ -55,6 +55,15 @@ public class UserProfileManagementUseCase {
         }
 
         throw new BusinessException("Tipo de usuário não encontrado.");
+    }
+
+    private String maskPhoneNumber(String phone) {
+        if (phone == null || phone.length() < 11) return phone;
+
+        String ddd = phone.substring(0, 2);
+        String lastTwoDigits =  phone.substring(9);
+
+        return "(%s) *****-**%s".formatted(ddd, lastTwoDigits);
     }
 
     private String maskEmail(String email) {

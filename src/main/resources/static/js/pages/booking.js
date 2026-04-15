@@ -139,13 +139,20 @@ const bookingApp = {
         const el = document.getElementById('service-list');
         if (!el) return;
 
-        if (this.data.services.length === 0) {
-            el.innerHTML = '<p>Nenhum serviço disponível.</p>';
+        let filteredServices = this.data.services;
+        if (this.booking.professional) {
+            filteredServices = this.data.services.filter(s => 
+                s.professionals && s.professionals.some(p => p.externalId === this.booking.professional.externalId)
+            );
+        }
+
+        if (filteredServices.length === 0) {
+            el.innerHTML = '<p>Nenhum serviço disponível para este profissional.</p>';
             return;
         }
 
-        el.innerHTML = this.data.services.map(s => `
-            <div class="card-item" onclick="bookingApp.selectService(${s.id})" id="service-${s.id}">
+        el.innerHTML = filteredServices.map(s => `
+            <div class="card-item ${this.booking.mainService && this.booking.mainService.id === s.id ? 'selected' : ''}" onclick="bookingApp.selectService(${s.id})" id="service-${s.id}">
                 <div class="item-left">
                     <div class="item-info">
                         <h3>${s.name}</h3>
@@ -161,17 +168,28 @@ const bookingApp = {
         const el = document.getElementById('addons-list');
         if (!el) return;
 
-        if (this.data.addons.length === 0) {
-            el.innerHTML = '<p>Nenhum item adicional disponível.</p>';
+        let filteredAddons = this.data.addons;
+        if (this.booking.professional) {
+            filteredAddons = this.data.addons.filter(a => 
+                a.professionals && a.professionals.some(p => p.externalId === this.booking.professional.externalId)
+            );
+        }
+
+        if (filteredAddons.length === 0) {
+            el.innerHTML = '<p>Nenhum item adicional disponível para este profissional.</p>';
             return;
         }
 
-        el.innerHTML = this.data.addons.map(a => {
+        el.innerHTML = filteredAddons.map(a => {
+            const isSelected = this.booking.addOns.some(item => item.id === a.id);
+            const selectedClass = isSelected ? 'selected' : '';
+            const qty = isSelected ? this.booking.addOns.find(item => item.id === a.id).qty : 1;
+
             const hasQtyClass = a.nailCount > 0 ? 'has-qty' : '';
             const unitLabel = a.nailCount > 0 ? '<span style="font-size:10px; font-weight:400; color:#999">/unid</span>' : '';
 
             return `
-                <div class="card-item ${hasQtyClass}" id="addon-card-${a.id}" onclick="bookingApp.toggleAddon(${a.id})">
+                <div class="card-item ${hasQtyClass} ${selectedClass}" id="addon-card-${a.id}" onclick="bookingApp.toggleAddon(${a.id})">
                     <div class="item-left">
                         <div class="item-info">
                             <h3>${a.name}</h3>
@@ -183,7 +201,7 @@ const bookingApp = {
                         ${a.nailCount > 0 ? `
                             <div class="qty-control" onclick="event.stopPropagation()">
                                 <button class="btn-qty" type="button" onclick="bookingApp.changeQty(${a.id}, -1)">-</button>
-                                <span class="qty-val" id="qty-${a.id}">1</span>
+                                <span class="qty-val" id="qty-${a.id}">${qty}</span>
                                 <button class="btn-qty" type="button" onclick="bookingApp.changeQty(${a.id}, 1)">+</button>
                             </div>
                         ` : ''}
@@ -197,7 +215,19 @@ const bookingApp = {
         document.querySelectorAll('#prof-list .card-item').forEach(e => e.classList.remove('selected'));
         document.getElementById(`prof-${externalId}`).classList.add('selected');
         this.booking.professional = this.data.professionals.find(p => p.externalId === externalId);
+
+        if (this.booking.mainService && !this.booking.mainService.professionals.some(p => p.externalId === externalId)) {
+            this.booking.mainService = null;
+        }
+
+        this.booking.addOns = this.booking.addOns.filter(a => 
+            a.professionals.some(p => p.externalId === externalId)
+        );
+
+        this.renderServices();
+        this.renderAddons();
         this.data.availability = null;
+        this.updateTotal();
         this.checkValidity();
     },
 
@@ -259,15 +289,29 @@ const bookingApp = {
 
         const today = new Date();
         today.setHours(0,0,0,0);
-
-        const availableDays = this.data.availability ?
-            this.data.availability.appointmentTimesDTOList.map(item => item.date) : [];
+        const now = new Date();
 
         for (let i = 1; i <= daysInMonth; i++) {
             const date = new Date(this.currentMonth.getFullYear(), this.currentMonth.getMonth(), i);
-            const dateISO = date.toISOString().split('T')[0];
+            const dateISO = date.getFullYear() + '-' + String(date.getMonth() + 1).padStart(2, '0') + '-' + String(date.getDate()).padStart(2, '0');
             const isPast = date < today;
-            const isAvailable = availableDays.includes(dateISO);
+            
+            let isAvailable = false;
+            if (this.data.availability) {
+                const dayData = this.data.availability.appointmentTimesDTOList.find(item => item.date === dateISO);
+                if (dayData && dayData.availableTimes.length > 0) {
+                    if (date.toDateString() === now.toDateString()) {
+                        isAvailable = dayData.availableTimes.some(t => {
+                            const [h, m] = t.split(':');
+                            const slot = new Date(date);
+                            slot.setHours(parseInt(h), parseInt(m), 0, 0);
+                            return slot > now;
+                        });
+                    } else {
+                        isAvailable = true;
+                    }
+                }
+            }
 
             const btn = document.createElement("div");
             btn.className = `day-card`;
@@ -297,7 +341,7 @@ const bookingApp = {
         const selectedDate = new Date(this.currentMonth.getFullYear(), this.currentMonth.getMonth(), day);
         this.booking.date = selectedDate;
 
-        const dateISO = selectedDate.toISOString().split('T')[0];
+        const dateISO = selectedDate.getFullYear() + '-' + String(selectedDate.getMonth() + 1).padStart(2, '0') + '-' + String(selectedDate.getDate()).padStart(2, '0');
         const dayData = this.data.availability.appointmentTimesDTOList.find(item => item.date === dateISO);
 
         this.renderTimeSlots(dayData ? dayData.availableTimes : [], selectedDate);
@@ -508,7 +552,9 @@ const bookingApp = {
     confirmBooking: async function() {
         if (!Auth.getToken()) {
             localStorage.setItem('pending_booking', JSON.stringify(this.booking));
-            window.location.href = '/entrar?redirect=/agendar';
+            const tenantId = typeof App !== 'undefined' ? App.getTenantId() : null;
+            const loginPath = tenantId ? `/${tenantId}/entrar` : '/entrar';
+            window.location.href = `${loginPath}?redirect=/agendar`;
             return;
         }
 

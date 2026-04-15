@@ -3,6 +3,7 @@ package com.rafael.agendanails.webapp.infrastructure.controller.api.admin.salon;
 import com.rafael.agendanails.webapp.application.salon.business.SalonServiceService;
 import com.rafael.agendanails.webapp.infrastructure.config.SwaggerExamples;
 import com.rafael.agendanails.webapp.infrastructure.dto.salon.service.SalonServiceDTO;
+import com.rafael.agendanails.webapp.infrastructure.dto.salon.service.SalonServiceOutDTO;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.media.Content;
@@ -18,6 +19,8 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
 
 @RestController
 @RequiredArgsConstructor
@@ -88,5 +91,16 @@ public class SalonServiceManagementController {
 
         salonService.updateSalonService(serviceId, salonServiceDTO);
         return ResponseEntity.noContent().build();
+    }
+
+    @Operation(summary = "List all salon services for admin", description = "Returns all salon services including inactive ones.")
+    @ApiResponses({
+            @ApiResponse(responseCode = "200", description = "Services returned"),
+            @ApiResponse(responseCode = "401", description = "Unauthorized"),
+            @ApiResponse(responseCode = "403", description = "Forbidden")
+    })
+    @GetMapping
+    public ResponseEntity<List<SalonServiceOutDTO>> getAllServices() {
+        return ResponseEntity.ok(salonService.getAllServicesForAdmin());
     }
 }
