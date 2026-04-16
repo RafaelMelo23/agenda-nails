@@ -551,10 +551,19 @@ const bookingApp = {
 
     confirmBooking: async function() {
         if (!Auth.getToken()) {
-            localStorage.setItem('pending_booking', JSON.stringify(this.booking));
-            const tenantId = typeof App !== 'undefined' ? App.getTenantId() : null;
-            const loginPath = tenantId ? `/${tenantId}/entrar` : '/entrar';
-            window.location.href = `${loginPath}?redirect=/agendar`;
+            try {
+                localStorage.setItem('pending_booking', JSON.stringify(this.booking));
+            } catch (e) {
+                console.error('Error saving pending booking to localStorage:', e);
+            }
+
+            if (typeof App !== 'undefined') {
+                App.navigate('/entrar?redirect=/agendar');
+            } else {
+                const tenantId = Auth.getTenantId();
+                const loginPath = tenantId ? `/${tenantId}/entrar` : '/entrar';
+                window.location.href = `${loginPath}?redirect=/agendar`;
+            }
             return;
         }
 

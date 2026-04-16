@@ -3,15 +3,28 @@ const Auth = {
     refreshPromise: null,
 
     getToken: function() {
-        return localStorage.getItem(this.tokenKey);
+        try {
+            return localStorage.getItem(this.tokenKey);
+        } catch (e) {
+            console.error('Error accessing localStorage:', e);
+            return null;
+        }
     },
 
     setToken: function(token) {
-        localStorage.setItem(this.tokenKey, token);
+        try {
+            localStorage.setItem(this.tokenKey, token);
+        } catch (e) {
+            console.error('Error setting localStorage:', e);
+        }
     },
 
     clearToken: function() {
-        localStorage.removeItem(this.tokenKey);
+        try {
+            localStorage.removeItem(this.tokenKey);
+        } catch (e) {
+            console.error('Error clearing localStorage:', e);
+        }
     },
 
     getPayload: function() {
@@ -19,7 +32,12 @@ const Auth = {
         if (!token) return null;
         try {
             const base64Url = token.split('.')[1];
-            const base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/');
+            let base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/');
+
+            while (base64.length % 4) {
+                base64 += '=';
+            }
+            
             const jsonPayload = decodeURIComponent(atob(base64).split('').map(function(c) {
                 return '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2);
             }).join(''));

@@ -24,7 +24,6 @@ window.fetch = async (url, options = {}) => {
         token = Auth.getToken();
     }
 
-    // 2. Now set headers with potentially NEW token
     const tenantId = App.getTenantId();
     if (tenantId && !options.headers['X-Tenant-Id']) {
         options.headers['X-Tenant-Id'] = tenantId;
@@ -65,8 +64,7 @@ window.fetch = async (url, options = {}) => {
         if (refreshed) {
             const newToken = Auth.getToken();
             options.headers['Authorization'] = `Bearer ${newToken}`;
-            
-            // Re-fetch CSRF if it was a 403 (might be CSRF expiration too)
+
             if (method !== 'GET') {
                 const getCookie = (name) => {
                     const match = document.cookie.match(new RegExp('(^| )' + name + '=([^;]+)'));
@@ -77,6 +75,10 @@ window.fetch = async (url, options = {}) => {
             }
             
             response = await window._originalFetch(url, options);
+        } else {
+            if (method !== 'GET' || response.status === 401) {
+                Auth.logout();
+            }
         }
     }
     if (!response.ok) {
@@ -103,7 +105,6 @@ const App = {
         
         this.activeTenant = getTenantIdFromUrl();
 
-        // Proactive token refresh on app start if token exists
         if (Auth.getToken() && Auth.isTokenExpired()) {
             await Auth.refreshToken();
         }
