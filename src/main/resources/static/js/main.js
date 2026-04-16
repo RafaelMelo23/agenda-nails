@@ -1,5 +1,5 @@
 const RESERVED_PATHS = new Set([
-    'api', 'js', 'css', 'assets', 'pages', 'favicon.svg', 'error', 'uploads', 'public', 'swagger-ui', 'v3', 'agendar', 'entrar', 'cadastro', 'perfil', 'offline', 'redefinir-senha', 'admin', 'profissional'
+    'api', 'js', 'css', 'assets', 'pages', 'favicon.svg', 'favicon.ico', 'error', 'uploads', 'public', 'swagger-ui', 'v3', 'agendar', 'entrar', 'cadastro', 'perfil', 'offline', 'redefinir-senha', 'admin', 'profissional'
 ]);
 
 const getTenantIdFromUrl = () => {
@@ -103,7 +103,7 @@ const App = {
         if (this.initialized) return;
         this.initialized = true;
         
-        this.activeTenant = getTenantIdFromUrl();
+        this.activeTenant = this.getTenantId();
 
         if (Auth.getToken() && Auth.isTokenExpired()) {
             await Auth.refreshToken();
@@ -129,21 +129,37 @@ const App = {
     },
 
     getTenantId: function() {
+        if (this.activeTenant) return this.activeTenant;
+
+        const urlTenant = getTenantIdFromUrl();
+        if (urlTenant) {
+            this.activeTenant = urlTenant;
+            localStorage.setItem('nails_pro_tenant', urlTenant);
+            return urlTenant;
+        }
+
         const tokenTenant = Auth.getTenantId();
         if (tokenTenant) {
             this.activeTenant = tokenTenant;
+            localStorage.setItem('nails_pro_tenant', tokenTenant);
             return tokenTenant;
         }
-        if (this.activeTenant) return this.activeTenant;
-        this.activeTenant = getTenantIdFromUrl();
-        return this.activeTenant;
+
+        const savedTenant = localStorage.getItem('nails_pro_tenant');
+        if (savedTenant) {
+            this.activeTenant = savedTenant;
+            return savedTenant;
+        }
+
+        return null;
     },
 
     navigate: function(path) {
         const tenantId = this.getTenantId();
         let fullPath;
         if (tenantId && !path.startsWith(`/${tenantId}/`) && path !== `/${tenantId}`) {
-            fullPath = `/${tenantId}${path}`;
+            const cleanPath = path.startsWith('/') ? path : `/${path}`;
+            fullPath = `/${tenantId}${cleanPath}`;
         } else {
             fullPath = path;
         }
@@ -156,13 +172,15 @@ const App = {
         const tenantId = this.getTenantId();
         let path = window.location.pathname;
 
-        if (tenantId && path.startsWith(`/${tenantId}`)) {
+        if (tenantId && (path === `/${tenantId}` || path.startsWith(`/${tenantId}/`))) {
             path = path.substring(tenantId.length + 1) || '/';
+            if (!path.startsWith('/')) path = '/' + path;
         }
 
         const fullPath = window.location.pathname + window.location.search;
         if (this.currentPath === fullPath) return;
         this.currentPath = fullPath;
+
 
         if (path === '/') {
             const redirectPath = tenantId ? `/${tenantId}/agendar` : '/agendar';

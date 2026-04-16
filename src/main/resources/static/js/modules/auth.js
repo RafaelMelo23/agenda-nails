@@ -81,7 +81,7 @@ const Auth = {
 
     getTenantId: function() {
         const RESERVED = new Set([
-            'api', 'js', 'css', 'assets', 'pages', 'favicon.svg', 'error', 'uploads', 'public', 'swagger-ui', 'v3', 'agendar', 'entrar', 'cadastro', 'perfil', 'offline', 'redefinir-senha', 'admin', 'profissional'
+            'api', 'js', 'css', 'assets', 'pages', 'favicon.svg', 'favicon.ico', 'error', 'uploads', 'public', 'swagger-ui', 'v3', 'agendar', 'entrar', 'cadastro', 'perfil', 'offline', 'redefinir-senha', 'admin', 'profissional'
         ]);
         const pathParts = window.location.pathname.split('/');
         const firstPart = pathParts[1];
@@ -89,7 +89,9 @@ const Auth = {
             return firstPart;
         }
         const payload = this.getPayload();
-        return payload ? payload.tenantId : null;
+        if (payload && payload.tenantId) return payload.tenantId;
+        
+        return localStorage.getItem('nails_pro_tenant');
     },
 
     refreshToken: async function() {
@@ -140,7 +142,7 @@ const Auth = {
 
     logout: async function() {
         const tenantId = this.getTenantId();
-        const publicPages = ['entrar', 'cadastro', 'redefinir-senha', 'agendar', 'perfil', 'offline'];
+        const reserved = new Set(['entrar', 'cadastro', 'redefinir-senha', 'agendar', 'perfil', 'offline']);
 
         try {
             await fetch('/api/v1/auth/logout', { 
@@ -155,7 +157,7 @@ const Auth = {
         
         this.clearToken();
         
-        if (tenantId && !publicPages.includes(tenantId)) {
+        if (tenantId && !reserved.has(tenantId)) {
             window.location.href = `/${tenantId}/entrar`;
         } else {
             window.location.href = '/entrar';
