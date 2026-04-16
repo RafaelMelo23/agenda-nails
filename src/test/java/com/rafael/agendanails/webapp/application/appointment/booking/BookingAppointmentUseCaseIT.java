@@ -18,12 +18,13 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.atomic.AtomicInteger;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertThrows;
@@ -59,9 +60,29 @@ class BookingAppointmentUseCaseIT extends BaseIntegrationTest {
             int mainServiceDurationSeconds,
             List<Integer> addOnDurationsSeconds
     ) {
-        Professional professional = professionalRepository.save(
-                TestProfessionalFactory.standardForIt()
-        );
+        Professional professional = TestProfessionalFactory.standardForIt();
+
+        SalonService mainService = TestSalonServiceFactory.standardForIt(tenantId);
+        mainService.setDurationInSeconds(mainServiceDurationSeconds);
+        mainService.setId(null);
+
+        List<SalonService> allServices = addOnDurationsSeconds.stream()
+                .map(duration -> {
+                    SalonService addOn = TestSalonServiceFactory.addOnWithoutMaintenanceInterval();
+                    addOn.setId(null);
+                    addOn.setTenantId(tenantId);
+                    addOn.setDurationInSeconds(duration);
+                    return addOn;
+                }).collect(Collectors.toList());
+        allServices.add(mainService);
+
+        professional.setSalonServices(new HashSet<>(allServices));
+        Professional finalProfessional = professional;
+        allServices.forEach(service -> service.setProfessionals(Set.of(finalProfessional)));
+
+        professional = professionalRepository.save(professional);
+
+        salonServiceRepository.saveAll(allServices);
 
         List<WorkSchedule> schedules = TestWorkScheduleFactory.fullWeekForIt(professional);
         workScheduleRepository.saveAll(schedules);
@@ -70,22 +91,7 @@ class BookingAppointmentUseCaseIT extends BaseIntegrationTest {
                 TestSalonProfileFactory.standardForIT(professional, tenantId, bufferMinutes)
         );
 
-        SalonService mainService = TestSalonServiceFactory.standardForIt(tenantId);
-        mainService.setDurationInSeconds(mainServiceDurationSeconds);
-        mainService.setId(null);
-        mainService = salonServiceRepository.save(mainService);
-
-        List<SalonService> addOns = addOnDurationsSeconds.stream()
-                .map(duration -> {
-                    SalonService addOn = TestSalonServiceFactory.addOnWithoutMaintenanceInterval();
-                    addOn.setId(null);
-                    addOn.setTenantId(tenantId);
-                    addOn.setDurationInSeconds(duration);
-                    return salonServiceRepository.save(addOn);
-                })
-                .toList();
-
-        return new PreparationData(professional, salonProfile, mainService, addOns);
+        return new PreparationData(professional, salonProfile, mainService, allServices);
     }
 
     private record PreparationData(
@@ -104,7 +110,6 @@ class BookingAppointmentUseCaseIT extends BaseIntegrationTest {
                 2026, 5, 6, 10, 0, 0, 0,
                 ZoneId.of("America/Sao_Paulo")
         );
-
         AppointmentCreateDTO dto = AppointmentCreateDTO.builder()
                 .professionalExternalId(data.professional().getExternalId().toString())
                 .mainServiceId(data.mainService().getId())

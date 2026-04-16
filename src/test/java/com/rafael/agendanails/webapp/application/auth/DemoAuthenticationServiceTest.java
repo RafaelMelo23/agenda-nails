@@ -1,5 +1,6 @@
 package com.rafael.agendanails.webapp.application.auth;
 
+import com.rafael.agendanails.webapp.application.salon.business.SalonServiceService;
 import com.rafael.agendanails.webapp.domain.enums.demo.DemoUserType;
 import com.rafael.agendanails.webapp.domain.model.Client;
 import com.rafael.agendanails.webapp.domain.model.Professional;
@@ -7,6 +8,7 @@ import com.rafael.agendanails.webapp.domain.model.User;
 import com.rafael.agendanails.webapp.domain.repository.UserRepository;
 import com.rafael.agendanails.webapp.infrastructure.dto.auth.AuthResultDTO;
 import com.rafael.agendanails.webapp.infrastructure.dto.auth.LoginDTO;
+import com.rafael.agendanails.webapp.support.factory.TestSalonServiceFactory;
 import jakarta.persistence.EntityManager;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -17,6 +19,9 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.test.util.ReflectionTestUtils;
+
+import java.util.HashSet;
+import java.util.Set;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
@@ -35,6 +40,8 @@ class DemoAuthenticationServiceTest {
     private EntityManager entityManager;
     @Mock
     private PasswordEncoder passwordEncoder;
+    @Mock
+    private SalonServiceService salonService;
 
     @InjectMocks
     private DemoAuthenticationService demoAuthenticationService;
@@ -48,9 +55,12 @@ class DemoAuthenticationServiceTest {
 
     @Test
     void shouldCreateAndLoginDemoClient() {
-        when(passwordEncoder.encode(anyString())).thenReturn("encodedPassword");
+        when(passwordEncoder.encode(anyString()))
+                .thenReturn("encodedPassword");
         when(authenticationService.login(any(LoginDTO.class)))
                 .thenReturn(new AuthResultDTO("jwt", "refresh"));
+        when(userRepository.save(any(User.class)))
+                .thenAnswer(invocation -> invocation.getArgument(0));
 
         AuthResultDTO result = demoAuthenticationService.createAndLoginDemoUser(DemoUserType.CLIENT);
 
@@ -75,6 +85,7 @@ class DemoAuthenticationServiceTest {
         when(passwordEncoder.encode(anyString())).thenReturn("encodedPassword");
         when(authenticationService.login(any(LoginDTO.class)))
                 .thenReturn(new AuthResultDTO("jwt", "refresh"));
+        when(salonService.findAll()).thenReturn(Set.of(TestSalonServiceFactory.standard()));
 
         AuthResultDTO result = demoAuthenticationService.createAndLoginDemoUser(DemoUserType.PROFESSIONAL);
 

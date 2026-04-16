@@ -64,21 +64,27 @@ public class SalonProfileManagementService {
         setIfNotNull(profileDTO.autoConfirmationAppointment(), salonProfile::setAutoConfirmationAppointment);
         setIfNotNull(profileDTO.status(), salonProfile::setOperationalStatus);
 
-        if (profileDTO.status().equals(OperationalStatus.OPEN) &&
-                salonProfile.getWarningMessage() != null) {
-
-            salonProfile.setWarningMessage(null);
-        }
+        removeWarningMessageIfSalonIsOpen(profileDTO, salonProfile);
 
         validateLoyalClientFeature(profileDTO);
 
         repository.save(salonProfile);
     }
 
+    private static void removeWarningMessageIfSalonIsOpen(SalonProfileDTO profileDTO, SalonProfile salonProfile) {
+        if (profileDTO.status() != OperationalStatus.OPEN) {
+            return;
+        }
+
+        if (salonProfile.getWarningMessage() != null) {
+            salonProfile.setWarningMessage(null);
+        }
+    }
+
     private static void validateLoyalClientFeature(SalonProfileDTO profile) {
         if (Boolean.TRUE.equals(profile.isLoyalClientelePrioritized()) && (
                 profile.loyalClientBookingWindowDays() == null ||
-                profile.standardBookingWindow() == null)) {
+                        profile.standardBookingWindow() == null)) {
             throw new BusinessException("""
                     O número de dias de antecedência
                     para clientes fiéis deve ser informado

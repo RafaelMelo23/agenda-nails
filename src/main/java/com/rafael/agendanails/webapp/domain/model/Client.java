@@ -2,6 +2,7 @@ package com.rafael.agendanails.webapp.domain.model;
 
 import com.rafael.agendanails.webapp.domain.enums.user.UserRole;
 import com.rafael.agendanails.webapp.domain.enums.user.UserStatus;
+import com.rafael.agendanails.webapp.infrastructure.exception.BusinessException;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.OneToMany;
@@ -54,6 +55,12 @@ public class Client extends User {
 
     public void incrementCancelledAppointmentCount() {
         this.canceledAppointments++;
+    }
+
+    public void validateCanBook() {
+        if (!this.getUserRole().equals(UserRole.CLIENT)) {
+            throw new BusinessException("Apenas clientes podem agendar");
+        }
     }
 
     public static Client createDefault(String fullName, String email, String password) {

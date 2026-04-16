@@ -1,5 +1,6 @@
 package com.rafael.agendanails.webapp.application.appointment;
 
+import com.rafael.agendanails.webapp.application.appointment.booking.BookingPolicyService;
 import com.rafael.agendanails.webapp.domain.enums.appointment.AppointmentStatus;
 import com.rafael.agendanails.webapp.domain.model.UserPrincipal;
 import com.rafael.agendanails.webapp.infrastructure.dto.appointment.booking.AppointmentTimeWindow;

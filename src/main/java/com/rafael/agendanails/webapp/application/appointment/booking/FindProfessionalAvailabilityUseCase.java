@@ -1,6 +1,5 @@
 package com.rafael.agendanails.webapp.application.appointment.booking;
 
-import com.rafael.agendanails.webapp.application.appointment.BookingPolicyService;
 import com.rafael.agendanails.webapp.application.salon.business.SalonProfileService;
 import com.rafael.agendanails.webapp.domain.AvailabilityDomainService;
 import com.rafael.agendanails.webapp.domain.model.Professional;

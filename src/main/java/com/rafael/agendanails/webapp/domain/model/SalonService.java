@@ -1,6 +1,7 @@
 package com.rafael.agendanails.webapp.domain.model;
 
 import com.rafael.agendanails.webapp.infrastructure.dto.salon.service.SalonServiceDTO;
+import com.rafael.agendanails.webapp.infrastructure.exception.BusinessException;
 import jakarta.persistence.*;
 import lombok.*;
 import lombok.experimental.SuperBuilder;
@@ -78,5 +79,11 @@ public class SalonService extends BaseEntity {
 
         this.getProfessionals().clear();
         this.professionals.addAll(newProfessionals);
+    }
+
+    public void validateCanBePerformedBy(Professional professional) {
+        if (!this.getProfessionals().contains(professional)) {
+            throw new BusinessException("O profissional selecionado não realiza este serviço: " + this.getName());
+        }
     }
 }

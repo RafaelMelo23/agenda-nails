@@ -29,6 +29,8 @@ public abstract class BaseIntegrationTest {
     @Autowired
     protected AppointmentRepository appointmentRepository;
     @Autowired
+    protected AddOnRepository addOnRepository;
+    @Autowired
     protected ClientRepository clientRepository;
     @Autowired
     protected UserRepository userRepository;
@@ -87,6 +89,7 @@ public abstract class BaseIntegrationTest {
             whatsappMessageRepository.deleteAllInBatch();
             retentionForecastRepository.deleteAllInBatch();
             refreshTokenRepository.deleteAllInBatch();
+            addOnRepository.deleteAllInBatch();
             appointmentRepository.deleteAllInBatch();
             scheduleBlockRepository.deleteAllInBatch();
             workScheduleRepository.deleteAllInBatch();

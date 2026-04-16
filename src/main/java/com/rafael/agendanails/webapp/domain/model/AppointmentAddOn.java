@@ -28,4 +28,13 @@ public class AppointmentAddOn extends BaseEntity {
 
     @Column(name = "unit_price_at_moment")
     private Integer unitPriceSnapshot;
+
+    public static AppointmentAddOn create(SalonService service, Professional professional) {
+        service.validateCanBePerformedBy(professional);
+        return AppointmentAddOn.builder()
+                .service(service)
+                .quantity(1)
+                .unitPriceSnapshot(service.getValue())
+                .build();
+    }
 }
