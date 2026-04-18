@@ -9,6 +9,38 @@ Plataforma SaaS multi-tenant para gestão de agendamentos e automação de reten
 
 ---
 
+## 📸 Visualização do Sistema
+
+### Interface do Cliente
+<p>
+  <img src="pictures/book-first-page.png" width="30%" alt="Página Inicial de Agendamento">
+  <img src="pictures/client-book-appointment-date.png" width="30%" alt="Seleção de Data">
+  <img src="pictures/client-profile.png" width="30%" alt="Perfil do Cliente">
+</p>
+
+### Painel Administrativo
+<p>
+  <img src="pictures/admin-appointments.png" width="30%" alt="Gestão de Agendamentos">
+  <img src="pictures/admin-professionals.png" width="30%" alt="Gestão de Profissionais">
+  <img src="pictures/admin-salon.png" width="30%" alt="Configurações do Salão">
+</p>
+
+### Visão do Profissional
+<p>
+  <img src="pictures/professional-daily-app.png" width="30%" alt="Agenda Diária">
+  <img src="pictures/professional-work-schedule.png" width="30%" alt="Horário de Trabalho">
+  <img src="pictures/schedule-block.png" width="30%" alt="Bloqueio de Agenda">
+</p>
+
+### Automação WhatsApp
+<p>
+  <img src="pictures/example-confirmation.png" width="30%" alt="Confirmação">
+  <img src="pictures/example-today-reminder.png" width="30%" alt="Lembrete">
+  <img src="pictures/example-retention-mssg.png" width="30%" alt="Retenção">
+</p>
+
+---
+
 ## 🛠️ Diferenciais do Sistema
 
 *   **Interface SPA Progressiva:** Arquitetura baseada em módulos Vanilla JS e fragmentos Thymeleaf, proporcionando transições de página rápidas sem a complexidade de frameworks pesados.
